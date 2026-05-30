@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security &amp;amp; compliance plan · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>14 · 40 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 14 · Trust foundation</div>
+      <div class="title">Security &amp;amp; compliance plan</div>
+      <div class="subtitle">Three-layer security architecture (AI safety
++ infosec + privacy), capture-to-LLM pipeline, NeMo vs Node-native
+decision matrix, SOC 2 roadmap, subprocessor list, tooling stack.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>40 min</strong></span>
+        <span>Audience<strong>Namkha + Builders</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks-security--compliance-plan"
+id="toc-onlyworks-security--compliance-plan">OnlyWorks Security &amp;
+Compliance Plan</a>
+<ul>
+<li><a href="#1--why-this-matters-specifically-for-onlyworks"
+id="toc-1--why-this-matters-specifically-for-onlyworks">1 · Why this
+matters specifically for OnlyWorks</a></li>
+<li><a href="#2--threat-model" id="toc-2--threat-model">2 · Threat
+model</a></li>
+<li><a href="#3--the-three-layers" id="toc-3--the-three-layers">3 · The
+three layers</a></li>
+<li><a href="#4--layer-1--ai-safety-the-capture-to-llm-pipeline"
+id="toc-4--layer-1--ai-safety-the-capture-to-llm-pipeline">4 · Layer 1 —
+AI safety: the capture-to-LLM pipeline</a></li>
+<li><a href="#5--nemo-guardrails-vs-node-native--decision-matrix"
+id="toc-5--nemo-guardrails-vs-node-native--decision-matrix">5 · NeMo
+Guardrails vs Node-native — decision matrix</a></li>
+<li><a href="#6--layer-2--infosec-and-soc-2"
+id="toc-6--layer-2--infosec-and-soc-2">6 · Layer 2 — Infosec and SOC
+2</a></li>
+<li><a href="#7--layer-3--privacy-and-legal"
+id="toc-7--layer-3--privacy-and-legal">7 · Layer 3 — Privacy and
+legal</a></li>
+<li><a href="#8--vendor-and-subprocessor-list"
+id="toc-8--vendor-and-subprocessor-list">8 · Vendor and subprocessor
+list</a></li>
+<li><a href="#9--recommended-tooling-stack"
+id="toc-9--recommended-tooling-stack">9 · Recommended tooling
+stack</a></li>
+<li><a href="#10--roadmap--v20--v22" id="toc-10--roadmap--v20--v22">10 ·
+Roadmap — v2.0 → v2.2</a></li>
+<li><a href="#11--trust-messaging-to-enterprise-buyers"
+id="toc-11--trust-messaging-to-enterprise-buyers">11 · Trust messaging
+to enterprise buyers</a></li>
+<li><a href="#12--risk-register" id="toc-12--risk-register">12 · Risk
+register</a></li>
+<li><a href="#13--this-weeks-action-items"
+id="toc-13--this-weeks-action-items">13 · This week's action
+items</a></li>
+<li><a href="#14--maintenance" id="toc-14--maintenance">14 ·
+Maintenance</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks-security--compliance-plan">OnlyWorks Security &amp;
+Compliance Plan</h1>
+<p>OnlyWorks captures screenshots of people's work. That is among the
+most sensitive data categories a SaaS product can handle. This doc is
+the plan for protecting it — technically, organizationally, and legally
+— and for being able to <em>prove</em> we protect it when enterprise
+buyers and regulators ask.</p>
+<p>This is not a "we'll figure it out later" doc. The combination of
+screen capture + LLM processing + enterprise customers means three
+things will arrive together in months 4–9: security questionnaires from
+buyers, GDPR/CCPA scrutiny on the consumer side, and SOC 2 expectations
+from anyone larger than a 100-person company.</p>
+<p>We need a plan that holds up to all three. This is it.</p>
+<hr />
+<h2 id="1--why-this-matters-specifically-for-onlyworks">1 · Why this
+matters specifically for OnlyWorks</h2>
+<p>A normal B2B SaaS sees text, payloads, maybe documents. OnlyWorks
+sees <strong>everything on the user's screen</strong>: their Slack DMs,
+their bank login, their unfinished email to HR, an attorney's privileged
+comms, medical portals, customer PII visible in CRM tabs. Even with
+on-device OCR, the <em>text</em> of all of that is what we process.</p>
+<p>Implications:</p>
+<ul>
+<li><strong>Data classification is elevated.</strong> Almost everything
+we touch is at least "confidential," and a lot of it incidentally
+crosses into "regulated" (PHI, PCI, attorney-client). Our default has to
+assume regulated until proven otherwise.</li>
+<li><strong>Sub-processor risk is amplified.</strong> Every external
+service that touches OCR text becomes a partial copy of the user's
+confidential workspace. Sending text to Gemini is sending Slack DMs to
+Google.</li>
+<li><strong>Consent is the load-bearing legal mechanism.</strong>
+Without granular, revocable, informed consent, we have no defensible
+legal basis under GDPR for almost anything we do.</li>
+<li><strong>A single screenshot leak is a brand-existential
+event.</strong> Not a "PR moment" — a "the product is over" moment. The
+technical controls need to assume this.</li>
+</ul>
+<p>Everything in this doc flows from those four facts.</p>
+<hr />
+<h2 id="2--threat-model">2 · Threat model</h2>
+<p>The five threats we plan against, ranked by likelihood × impact:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Threat</th>
+<th>Why it's likely</th>
+<th>Worst-case impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>T1</strong></td>
+<td>A user's screenshot containing PII / regulated data is exposed via
+our backend or in a generated report</td>
+<td>Defaults are "capture everything"; users won't notice they captured
+an SSN</td>
+<td>Reportable breach, GDPR fine up to 4% revenue, brand-ending</td>
+</tr>
+<tr>
+<td><strong>T2</strong></td>
+<td>A user account is compromised; attacker accesses portfolio +
+historical capture metadata</td>
+<td>Credential reuse is universal; we'll be a target after we get
+enterprise traction</td>
+<td>Account-level data exposure, customer churn</td>
+</tr>
+<tr>
+<td><strong>T3</strong></td>
+<td>A sub-processor (Gemini, Supabase, vendor X) leaks OCR text from a
+misconfigured API</td>
+<td>Cross-vendor misconfig is a frequent breach root cause</td>
+<td>Reputational damage, contract violations</td>
+</tr>
+<tr>
+<td><strong>T4</strong></td>
+<td>An insider (us, a contractor, a future employee) exfiltrates user
+data</td>
+<td>Small team = high access; future contractors are the highest-risk
+vector</td>
+<td>Trust collapse, possibly criminal</td>
+</tr>
+<tr>
+<td><strong>T5</strong></td>
+<td>A prompt injection in OCR text causes Gemini to leak data from
+another user or perform an unintended action</td>
+<td>LLM injection is an active research frontier; defaults are
+unsafe</td>
+<td>Cross-user data leakage</td>
+</tr>
+</tbody>
+</table>
+<p>These five threats drive the architecture, the controls, and the
+policies in the rest of this doc. If a proposed control doesn't reduce
+one of these, it's probably theater.</p>
+<hr />
+<h2 id="3--the-three-layers">3 · The three layers</h2>
+<p>Security at OnlyWorks operates on three layers. They are different
+problems, require different tools, and often get conflated.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it covers</th>
+<th>Tooling</th>
+<th>Who owns it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI safety</strong></td>
+<td>What goes into and out of the LLM. PII filtering, jailbreak shields,
+hallucination controls, output redaction.</td>
+<td>On-device redaction + Presidio (or NeMo Guardrails) + Gemini safety
+settings</td>
+<td>Backend owner</td>
+</tr>
+<tr>
+<td><strong>Infosec / SOC 2</strong></td>
+<td>How the company protects data systemically: access control,
+encryption, logging, vendor mgmt, incident response, change mgmt.</td>
+<td>Vanta/Drata + 1Password + Sentry + GitHub policies</td>
+<td>Namkha (security lead)</td>
+</tr>
+<tr>
+<td><strong>Privacy / legal</strong></td>
+<td>Lawful basis to capture, consent UX, right-to-delete, retention
+windows, DPAs, DPIA.</td>
+<td>Privacy policy + ToS + consent flow + retention engine + lawyer
+review</td>
+<td>Namkha + Backend owner</td>
+</tr>
+</tbody>
+</table>
+<p>All three are required. None of them is "the security plan" on its
+own. Below, one section per layer.</p>
+<hr />
+<h2 id="4--layer-1--ai-safety-the-capture-to-llm-pipeline">4 · Layer 1 —
+AI safety: the capture-to-LLM pipeline</h2>
+<p>The defining technical pattern of OnlyWorks is <strong>on-device
+redaction before transmission</strong>. Sensitive material is filtered
+out <em>before</em> it leaves the user's machine. This is the only
+architecture that gives us a defensible story to GDPR, to buyers, and to
+ourselves.</p>
+<h3 id="the-pipeline">The pipeline</h3>
+<pre><code>[Screen capture (Electron + native APIs)]
+   ↓
+[Sensitive-app filter — by bundle ID / window title / URL]
+   • Block: banks, password managers, healthcare portals, 1Password, Bitwarden,
+            Chase, Wells Fargo, Kaiser, Epic, attorney-tools (Clio, MyCase),
+            HR/payroll (Gusto, Rippling), tax software, Signal, WhatsApp
+   • User can add custom rules
+   ↓
+[OCR — on-device only (macOS Vision / Windows.Media.Ocr)]
+   • No image leaves the device for OCR
+   • OCR text replaces the image; image is discarded after extraction
+   ↓
+[PII redaction pass — on OCR text]
+   • SSN, credit card, US/EU/UK/CA phone, email, DOB, passport, IBAN, MRN
+   • Implemented via Presidio REST or custom regex catalog
+   ↓
+[Sensitive-content classifier — on OCR text]
+   • Medical (ICD codes, common drug names, condition keywords)
+   • Legal (privileged-comm markers)
+   • Financial (account numbers, routing, balance keywords)
+   • If flagged: drop entire frame, log to user&#39;s privacy ledger
+   ↓
+[User review gate — optional, opt-in per session]
+   • Daily-summary preview before send (user can strike entries)
+   ↓
+[Encrypted upload to backend]
+   • TLS 1.3, application-layer envelope encryption for OCR text body
+   ↓
+[Input rail — on backend, before Gemini call]
+   • Second-pass PII check (defense in depth)
+   • Jailbreak shield (block known injection patterns)
+   • Topic constraint (must look like work activity)
+   ↓
+[Gemini call]
+   • Lowest-data prompt: send aggregate text, not per-frame
+   • Use Google&#39;s data-not-used-for-training endpoint
+   ↓
+[Output rail — on response]
+   • Strip any reflected PII (Gemini sometimes echoes)
+   • Refuse-on-trigger if response matches abuse patterns
+   ↓
+[Persist generated report]
+   • Encryption at rest (Supabase + bucket KMS)
+   • RLS scoped to owning user_id
+   ↓
+[Render to user]</code></pre>
+<p>Every arrow in the pipeline is a control surface. Every drop is an
+opportunity for sensitive data to leak. The architecture is dense for a
+reason.</p>
+<h3 id="on-device-redaction-details">On-device redaction details</h3>
+<p><strong>Sensitive-app filter</strong> — implemented in the Electron
+main process via <code>active-win</code> + a curated blocklist shipped
+with the app and synced from the backend. Users add rules in Privacy
+settings
+(<code>onlyworks_desktop_v2/electron/capture/sensitive-filter.ts</code>).
+The blocklist is permissive by default for known-sensitive categories
+and aggressive on user override.</p>
+<p><strong>PII detection</strong> — initial implementation uses <a
+href="https://microsoft.github.io/presidio/">Microsoft Presidio</a>
+called via REST from a tiny Python/FastAPI sidecar bundled with the
+desktop app. Presidio gives us 20+ recognized entity types out of the
+box with country-aware variants. The alternative — hand-written regex —
+is acceptable for v2.0 but won't pass a sophisticated buyer's security
+review by v2.2.</p>
+<p><strong>Sensitive-content classifier</strong> — keyword + small
+fine-tuned classifier (DistilBERT or smaller, on-device). Flags medical
+/ legal / financial markers. False positives drop frames; this is the
+right error direction.</p>
+<p><strong>User review gate</strong> — opt-in, surfaced on first session
+and in Settings. When enabled, the daily summary is held for user review
+for 24 hours before send. Users can strike specific entries. Crosses the
+gap between "trust us" and "watch us."</p>
+<h3 id="input-rail-before-gemini">Input rail (before Gemini)</h3>
+<p>Defense in depth. Even though on-device redaction already ran, we
+re-check on the backend because:</p>
+<ol type="1">
+<li>The user might have disabled on-device redaction.</li>
+<li>The redaction service may have failed silently (we'd rather drop
+than leak).</li>
+<li>Injection attacks can hide in OCR text in ways that look benign
+on-device.</li>
+</ol>
+<p>Implementation: a thin guardrails layer in the backend
+(<code>backend/services/rails.ts</code>) that runs:</p>
+<ul>
+<li>Presidio check (same engine as on-device)</li>
+<li>Pattern match against a known-injection corpus</li>
+<li>Topic classifier ("does this look like work activity?")</li>
+</ul>
+<p>Failure mode: log + skip the call. We'd rather have an incomplete
+report than a leaked prompt.</p>
+<h3 id="output-rail-after-gemini">Output rail (after Gemini)</h3>
+<p>Gemini sometimes echoes parts of the prompt back in the response. The
+output rail runs Presidio over the response and redacts any entities
+found before persisting. Also enforces structural constraints: the
+response must match the expected JSON schema for the report; anything
+else is dropped and logged.</p>
+<h3 id="gemini-configuration">Gemini configuration</h3>
+<ul>
+<li>Use <a
+href="https://ai.google.dev/gemini-api/terms">data-no-train</a> endpoint
+variant</li>
+<li><code>safetySettings</code> set to
+<code>BLOCK_MEDIUM_AND_ABOVE</code> across all harm categories</li>
+<li>Sign a data processing agreement with Google for Gemini API</li>
+<li>No fine-tuning on user data without explicit per-user opt-in</li>
+</ul>
+<hr />
+<h2 id="5--nemo-guardrails-vs-node-native--decision-matrix">5 · NeMo
+Guardrails vs Node-native — decision matrix</h2>
+<p>For the input/output rails: should we use NVIDIA NeMo Guardrails,
+NVIDIA's hosted NIM, or a Node-native implementation?</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>NeMo Guardrails (Python service)</th>
+<th>NVIDIA NIM (hosted)</th>
+<th>Node-native (Presidio + custom)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Featureset</strong></td>
+<td>Best — programmable rails, dialog control, retrieval safety,
+fact-check</td>
+<td>Same as NeMo</td>
+<td>Limited — PII + custom rules + Gemini safety only</td>
+</tr>
+<tr>
+<td><strong>Runtime</strong></td>
+<td>Python — new service to deploy, monitor, scale</td>
+<td>NVIDIA-managed</td>
+<td>Node — runs inside our existing backend</td>
+</tr>
+<tr>
+<td><strong>Latency overhead</strong></td>
+<td>80–200ms (extra hop)</td>
+<td>100–250ms (cross-network)</td>
+<td>20–60ms (in-process or sidecar)</td>
+</tr>
+<tr>
+<td><strong>Ops burden</strong></td>
+<td>High (new language, new service)</td>
+<td>Low (managed)</td>
+<td>Low (existing stack)</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Self-hosted (~$50–200/mo infra)</td>
+<td>Paid per call (~$0.001/req)</td>
+<td>Presidio REST (~free at our scale) + Gemini included</td>
+</tr>
+<tr>
+<td><strong>Team fit</strong></td>
+<td>Poor — no Python on staff</td>
+<td>Fine</td>
+<td>Excellent — current stack</td>
+</tr>
+<tr>
+<td><strong>Vendor lock-in</strong></td>
+<td>None (OSS)</td>
+<td>High (NVIDIA)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>SOC 2 story</strong></td>
+<td>"We use NVIDIA NeMo Guardrails" — recognizable</td>
+<td>Same</td>
+<td>Has to be explained more</td>
+</tr>
+<tr>
+<td><strong>Auditability</strong></td>
+<td>Strong (declarative rails in YAML)</td>
+<td>Strong</td>
+<td>Medium (code in TS)</td>
+</tr>
+<tr>
+<td><strong>Roadmap fit for v2.0 (months 1–3)</strong></td>
+<td>❌ Too much new infra to stand up</td>
+<td>⚠ Possible if we commit to NVIDIA early</td>
+<td>✅ Ships in two weeks</td>
+</tr>
+<tr>
+<td><strong>Roadmap fit for v2.2 (months 7–9, SOC 2 audit)</strong></td>
+<td>✅ If we have a security engineer</td>
+<td>✅ If cost works at scale</td>
+<td>⚠ Good but needs the "we evaluated NeMo" answer</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommendation">Recommendation</h3>
+<p><strong>v2.0: Node-native.</strong> Microsoft Presidio (REST) +
+custom rails in TypeScript + Gemini's built-in safety settings. Ships in
+two weeks. Defensible. Lets us iterate on rule logic with the team we
+have.</p>
+<p><strong>v2.2 (start eval at month 6): Re-evaluate NeMo
+Guardrails.</strong> By then we'll know whether the rails layer is a
+bottleneck (it will be more complex), whether we need declarative rails
+for compliance evidence, and whether we have a Python-comfortable
+engineer. If yes to two of three: switch.</p>
+<p><strong>Lock the decision via RFC before W3 of v2.0.</strong> Title:
+<em>RFC-001: Guardrails strategy for the Gemini path.</em></p>
+<hr />
+<h2 id="6--layer-2--infosec-and-soc-2">6 · Layer 2 — Infosec and SOC
+2</h2>
+<p>SOC 2 is not a tool. It's an audit against the AICPA's Trust Service
+Criteria, attesting that we <em>say</em> we do things and we
+<em>actually</em> do them.</p>
+<h3 id="the-trust-service-criteria">The Trust Service Criteria</h3>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Required?</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Security (CC)</strong></td>
+<td>Yes</td>
+<td>Protection against unauthorized access. The baseline.</td>
+</tr>
+<tr>
+<td><strong>Availability</strong></td>
+<td>Optional but recommended</td>
+<td>Uptime, BC/DR — enterprise buyers want this</td>
+</tr>
+<tr>
+<td><strong>Processing Integrity</strong></td>
+<td>Optional</td>
+<td>System processes accurately and completely</td>
+</tr>
+<tr>
+<td><strong>Confidentiality</strong></td>
+<td>Optional but recommended for us</td>
+<td>Confidentiality of customer data (relevant given screenshots)</td>
+</tr>
+<tr>
+<td><strong>Privacy</strong></td>
+<td>Optional</td>
+<td>Personal information handling</td>
+</tr>
+</tbody>
+</table>
+<p>For OnlyWorks v2.2: <strong>scope to Security +
+Confidentiality</strong>. Add Availability when we have customers paying
+us enough to demand 99.9% SLAs.</p>
+<h3 id="the-15-policies-we-need">The 15 policies we need</h3>
+<p>Vanta gives us templates. We adapt. We get a lawyer to read the final
+versions.</p>
+<ol type="1">
+<li><strong>Information Security Policy</strong> — overarching</li>
+<li><strong>Access Control Policy</strong> — provisioning,
+deprovisioning, MFA, least privilege</li>
+<li><strong>Acceptable Use Policy</strong> — what employees can and
+can't do with company assets</li>
+<li><strong>Asset Management Policy</strong> — laptops, accounts,
+keys</li>
+<li><strong>Change Management Policy</strong> — how code reaches
+production</li>
+<li><strong>Data Classification &amp; Handling Policy</strong> — public
+/ internal / confidential / regulated</li>
+<li><strong>Encryption Policy</strong> — at rest + in transit
+standards</li>
+<li><strong>Incident Response Policy</strong> — sev levels, escalation,
+postmortem requirements</li>
+<li><strong>Vendor Management Policy</strong> — how we vet
+subprocessors, DPA requirements</li>
+<li><strong>Risk Assessment Policy</strong> — annual, documented</li>
+<li><strong>Business Continuity &amp; Disaster Recovery Policy</strong>
+— RTO/RPO targets</li>
+<li><strong>Backup &amp; Recovery Policy</strong> — backup cadence,
+restore testing</li>
+<li><strong>Vulnerability Management Policy</strong> — scanning cadence,
+SLA for patching</li>
+<li><strong>Secure Development Lifecycle Policy</strong> — code review,
+dependency scanning, secrets handling</li>
+<li><strong>Privacy Policy</strong> — public-facing, separate from
+infosec but referenced</li>
+</ol>
+<h3 id="controls">Controls</h3>
+<p>The policies say what we do. The controls are how we prove it.</p>
+<table>
+<thead>
+<tr>
+<th>Control area</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MFA everywhere</strong></td>
+<td>GitHub, Google Workspace, Supabase, Vercel/Cloudflare, AWS (if
+used), Stripe, 1Password — all require MFA. Enforced via SSO where
+possible.</td>
+</tr>
+<tr>
+<td><strong>SSO</strong></td>
+<td>Google Workspace as the IdP. All vendors that support SSO use
+it.</td>
+</tr>
+<tr>
+<td><strong>Encryption at rest</strong></td>
+<td>Supabase (Postgres + buckets) with KMS. Local user storage encrypted
+via Electron's <code>safeStorage</code>.</td>
+</tr>
+<tr>
+<td><strong>Encryption in transit</strong></td>
+<td>TLS 1.3 minimum on every edge. HSTS preload.</td>
+</tr>
+<tr>
+<td><strong>Centralized logging</strong></td>
+<td>Backend logs → Better Stack / Axiom / Datadog. Auth events, API
+calls, admin actions. 90-day retention minimum.</td>
+</tr>
+<tr>
+<td><strong>Code review enforcement</strong></td>
+<td>GitHub branch protection: required reviewer, required CI pass, no
+direct push to <code>main</code>.</td>
+</tr>
+<tr>
+<td><strong>Secrets management</strong></td>
+<td>Doppler or 1Password for engineering secrets. No secrets in env
+files committed to repo. Scanning via <a
+href="https://github.com/gitleaks/gitleaks">gitleaks</a> in CI.</td>
+</tr>
+<tr>
+<td><strong>Vulnerability scanning</strong></td>
+<td>Snyk or Dependabot on all repos. SLA: critical &lt; 7 days, high
+&lt; 30 days.</td>
+</tr>
+<tr>
+<td><strong>Pen test</strong></td>
+<td>Annual third-party engagement starting v2.2. Cobalt or similar
+(~$15k).</td>
+</tr>
+<tr>
+<td><strong>Employee security training</strong></td>
+<td>Annual. KnowBe4 or Vanta-bundled.</td>
+</tr>
+<tr>
+<td><strong>Background checks</strong></td>
+<td>At hire. Checkr (~$30/person).</td>
+</tr>
+<tr>
+<td><strong>Endpoint security</strong></td>
+<td>Laptops have full-disk encryption (FileVault / BitLocker), MDM for
+fleet ≥5 people.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="timeline-to-soc-2">Timeline to SOC 2</h3>
+<p>Realistic for a team this size:</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Months</th>
+<th>Milestone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Prep</strong></td>
+<td>v2.0, months 1–3</td>
+<td>Policies drafted, controls implemented, MFA universal, logging in
+place</td>
+</tr>
+<tr>
+<td><strong>Tooling onboard</strong></td>
+<td>v2.1, month 4</td>
+<td>Vanta (or Drata/Secureframe) onboarded; evidence collection
+automated</td>
+</tr>
+<tr>
+<td><strong>Internal audit</strong></td>
+<td>v2.1, month 5</td>
+<td>Gap analysis with Vanta; fix gaps</td>
+</tr>
+<tr>
+<td><strong>Type 1 audit</strong></td>
+<td>v2.1, month 6</td>
+<td>~6 weeks with an auditor (Prescient, Sensiba, Insight, etc.);
+point-in-time report</td>
+</tr>
+<tr>
+<td><strong>Operate controls</strong></td>
+<td>v2.1–v2.2, months 7–11</td>
+<td>Evidence collection running; quarterly internal reviews</td>
+</tr>
+<tr>
+<td><strong>Type 2 audit</strong></td>
+<td>v2.2, month 12+</td>
+<td>~8 weeks with an auditor; Type 2 report covers 6 months of
+operation</td>
+</tr>
+</tbody>
+</table>
+<p>Total time from "we start" to "we have a Type 2 report": ~12 months.
+From "we start" to "Type 1 sufficient to unblock most enterprise deals":
+~6 months.</p>
+<p>Cost rough order:</p>
+<ul>
+<li>Vanta: $10–20k/yr</li>
+<li>Type 1 audit: $10–20k</li>
+<li>Type 2 audit: $20–40k</li>
+<li>Pen test: $10–20k</li>
+<li><strong>Total year 1: $50–100k</strong></li>
+</ul>
+<h3 id="tooling-pick">Tooling pick</h3>
+<p><strong>Recommendation: Vanta.</strong> Reasons: largest auditor
+network, most mature integrations (especially Google Workspace,
+Supabase, GitHub), best evidence automation for small teams. Drata is
+comparable; Secureframe is slightly cheaper but less mature.</p>
+<hr />
+<h2 id="7--layer-3--privacy-and-legal">7 · Layer 3 — Privacy and
+legal</h2>
+<p>Because we capture screenshots, our legal obligations are stricter
+than most B2B SaaS. The decisions here are not "should we" but "how
+exactly."</p>
+<h3 id="dpia--data-protection-impact-assessment">DPIA — Data Protection
+Impact Assessment</h3>
+<p>GDPR Article 35 <em>requires</em> a DPIA for "systematic monitoring"
+— and continuous screen capture is the textbook example. We need one
+before our first EU user signs up.</p>
+<p>Template: <a
+href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/accountability-and-governance/guide-to-accountability-and-governance/data-protection-impact-assessments/">ICO
+DPIA template</a>. About a day of work. Outputs: documented assessment
+of risk + mitigations.</p>
+<h3 id="lawful-basis">Lawful basis</h3>
+<p>For workers (the people running the desktop app):
+<strong>consent</strong>, granular and revocable. Must be:</p>
+<ul>
+<li>Freely given (no consent-or-you-can't-use-the-product on optional
+features like training-data path)</li>
+<li>Informed (clear in plain English what we capture, where it goes, who
+sees it)</li>
+<li>Specific (separate consents for capture, AI processing, public
+profile, training data)</li>
+<li>Revocable (one-click withdrawal in Settings)</li>
+</ul>
+<p>For HMs / employers (if we move into B2B internal reporting in v2.2):
+<strong>legitimate interest</strong> + employee notice + employer DPA —
+but that path needs separate legal review and is <em>out of scope</em>
+for v2.0–v2.1.</p>
+<h3 id="consent-ux--the-critical-pattern">Consent UX — the critical
+pattern</h3>
+<p>In onboarding (Step 4 of the 6-step flow), present <strong>four
+separate toggles</strong>, each defaulted off:</p>
+<ol type="1">
+<li><strong>Capture and process work activity</strong> <em>(required to
+use OnlyWorks — this is the product)</em></li>
+<li><strong>Generate AI-written reports of my activity</strong> <em>(can
+be off; product still works)</em></li>
+<li><strong>Make my verified portfolio publicly visible</strong>
+<em>(off by default; on when user explicitly publishes)</em></li>
+<li><strong>Allow my data to improve OnlyWorks training models</strong>
+<em>(off by default; opt-in only)</em></li>
+</ol>
+<p>Each toggle expands to plain-English explanation: what data, where it
+goes, who sees it, how to revoke. Granular log of consent stored
+server-side with timestamps. Revocation triggers deletion of
+corresponding data within 30 days.</p>
+<h3 id="privacy-policy--terms-of-service">Privacy policy + Terms of
+Service</h3>
+<p>Both must be public, both must be reviewed by a privacy lawyer (not a
+generalist) before launch. Budget: $3–5k for both, drafted then
+lawyer-reviewed.</p>
+<p>Required sections in privacy policy:</p>
+<ul>
+<li>What data we collect (categories, sources, purposes)</li>
+<li>Lawful basis (granular)</li>
+<li>Recipients (subprocessor list)</li>
+<li>International transfers (SCCs if data leaves EU)</li>
+<li>Retention periods (per data category)</li>
+<li>User rights (access, rectification, erasure, portability, objection,
+automated decision-making opt-out)</li>
+<li>DPO contact (if applicable — depends on scale)</li>
+<li>Complaint route (data protection authority)</li>
+<li>Update procedure</li>
+</ul>
+<h3 id="data-retention-policy">Data retention policy</h3>
+<p>Per data category, with deletion enforced by a scheduled job:</p>
+<table>
+<thead>
+<tr>
+<th>Data category</th>
+<th>Retention</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raw screenshots</td>
+<td>Never persisted past OCR</td>
+<td>OCR replaces image; image discarded</td>
+</tr>
+<tr>
+<td>OCR text + activity batches</td>
+<td>90 days</td>
+<td>Default; user can request shorter</td>
+</tr>
+<tr>
+<td>Session reports</td>
+<td>24 months</td>
+<td>Unless user deletes</td>
+</tr>
+<tr>
+<td>Daily reports</td>
+<td>24 months</td>
+<td>Unless user deletes</td>
+</tr>
+<tr>
+<td>Generated portfolio entries</td>
+<td>Indefinite (user-controlled)</td>
+<td>User owns these</td>
+</tr>
+<tr>
+<td>Auth logs</td>
+<td>12 months</td>
+<td>SOC 2 minimum</td>
+</tr>
+<tr>
+<td>Billing records</td>
+<td>7 years</td>
+<td>Legal requirement</td>
+</tr>
+<tr>
+<td>Deleted account residuals</td>
+<td>30 days then permanent purge</td>
+<td>Right-to-delete SLA</td>
+</tr>
+</tbody>
+</table>
+<p>Implementation: a <code>retention-engine</code> cron service in the
+backend. Quarterly job to run + log proof of deletion. This proof of
+deletion is itself SOC 2 evidence.</p>
+<h3 id="right-to-delete">Right to delete</h3>
+<p>One-click in Settings → "Delete my account and all data."</p>
+<ul>
+<li>Soft-delete immediately (account inaccessible)</li>
+<li>30-day grace period (user can recover via signed email link)</li>
+<li>Hard-delete at day 31: rows + storage + analytics events + backups
+(next backup cycle excludes deleted users)</li>
+<li>Email confirmation at start + end</li>
+</ul>
+<hr />
+<h2 id="8--vendor-and-subprocessor-list">8 · Vendor and subprocessor
+list</h2>
+<p>Every vendor that processes user data is a subprocessor. We maintain
+a public list (per GDPR Article 28); buyers ask for it; auditors want
+it.</p>
+<h3 id="current-and-planned-subprocessors">Current and planned
+subprocessors</h3>
+<table>
+<thead>
+<tr>
+<th>Vendor</th>
+<th>Purpose</th>
+<th>Data they see</th>
+<th>DPA signed?</th>
+<th>SOC 2?</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Google (Gemini API)</strong></td>
+<td>AI report generation</td>
+<td>OCR text (no images)</td>
+<td>✅ via Google Cloud DPA</td>
+<td>✅ Yes</td>
+<td>Confirm data-no-train endpoint configured</td>
+</tr>
+<tr>
+<td><strong>Google (Workspace)</strong></td>
+<td>Email, calendar</td>
+<td>Employee comms</td>
+<td>✅</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Supabase</strong></td>
+<td>Postgres + auth + storage</td>
+<td>All user data at rest</td>
+<td>⚠ Need to sign Supabase DPA</td>
+<td>✅ Type 2</td>
+<td>Sign DPA</td>
+</tr>
+<tr>
+<td><strong>Stripe</strong></td>
+<td>Billing</td>
+<td>Names, emails, payment metadata (no card numbers — Stripe
+handles)</td>
+<td>✅ via Stripe DPA</td>
+<td>✅ Type 2</td>
+<td>Confirm latest DPA</td>
+</tr>
+<tr>
+<td><strong>GitHub</strong></td>
+<td>Code hosting + releases + OAuth</td>
+<td>Employee code, no end-user data; OAuth carries email</td>
+<td>✅ via GitHub DPA</td>
+<td>✅ Type 2</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Resend</strong></td>
+<td>Transactional email</td>
+<td>Names, emails, report-share links</td>
+<td>⚠ Sign Resend DPA</td>
+<td>✅ Yes</td>
+<td>Sign DPA</td>
+</tr>
+<tr>
+<td><strong>Apple Developer</strong></td>
+<td>Code signing + notarization</td>
+<td>Build artifacts only</td>
+<td>N/A</td>
+<td>✅</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Microsoft (Windows OCR)</strong></td>
+<td>On-device OCR</td>
+<td>None — local API</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Confirm no telemetry</td>
+</tr>
+<tr>
+<td><strong>Cloudflare</strong> (planned)</td>
+<td>Edge + DDoS</td>
+<td>Request metadata</td>
+<td>✅ DPA</td>
+<td>✅</td>
+<td>Sign on adoption</td>
+</tr>
+<tr>
+<td><strong>Vercel</strong> (planned, web only)</td>
+<td>Web hosting</td>
+<td>Request metadata; no user PII if marketing-only</td>
+<td>✅ DPA</td>
+<td>✅</td>
+<td>Sign on adoption</td>
+</tr>
+<tr>
+<td><strong>Sentry</strong> (planned)</td>
+<td>Error monitoring</td>
+<td>Stack traces, redacted</td>
+<td>✅ DPA</td>
+<td>✅ Type 2</td>
+<td>Sign DPA; configure PII scrubbing</td>
+</tr>
+<tr>
+<td><strong>PostHog</strong> (planned)</td>
+<td>Product analytics</td>
+<td>Events, no PII configured</td>
+<td>✅ DPA</td>
+<td>✅</td>
+<td>Sign DPA; self-host EU instance for EU users</td>
+</tr>
+<tr>
+<td><strong>Vanta</strong> (planned)</td>
+<td>Compliance automation</td>
+<td>Access logs, vendor lists</td>
+<td>✅ DPA</td>
+<td>✅ Type 2</td>
+<td>Sign DPA</td>
+</tr>
+<tr>
+<td><strong>Doppler / 1Password</strong> (planned)</td>
+<td>Secrets</td>
+<td>Engineering secrets, no user data</td>
+<td>✅ DPA</td>
+<td>✅ Type 2</td>
+<td>Sign DPA</td>
+</tr>
+</tbody>
+</table>
+<h3 id="subprocessor-change-process">Subprocessor change process</h3>
+<p>Adding a new vendor:</p>
+<ol type="1">
+<li>Vendor security review (security questionnaire if no SOC 2)</li>
+<li>DPA signed before any production data flows</li>
+<li>Updated on public subprocessor page</li>
+<li>Existing customers notified by email (30-day notice for material
+additions)</li>
+<li>Added to Vanta vendor inventory</li>
+</ol>
+<p>Removing a subprocessor:</p>
+<ol type="1">
+<li>Data migration plan documented</li>
+<li>Proof of deletion from old vendor</li>
+<li>Public subprocessor page updated</li>
+</ol>
+<hr />
+<h2 id="9--recommended-tooling-stack">9 · Recommended tooling stack</h2>
+<p>A complete-enough stack for a 4-person team going from zero to SOC
+2-ready in 12 months:</p>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Tool</th>
+<th>Cost</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compliance automation</td>
+<td><strong>Vanta</strong></td>
+<td>~$15k/yr</td>
+<td>Largest auditor network, best Google/GitHub/Supabase
+integrations</td>
+</tr>
+<tr>
+<td>PII detection</td>
+<td><strong>Microsoft Presidio</strong> (REST)</td>
+<td>Free (self-hosted)</td>
+<td>OSS, multi-language, configurable, well-documented</td>
+</tr>
+<tr>
+<td>Secrets management</td>
+<td><strong>Doppler</strong></td>
+<td>~$200/yr</td>
+<td>Cleaner than Vault for our size; integrates with Vercel, GitHub
+Actions</td>
+</tr>
+<tr>
+<td>Error monitoring</td>
+<td><strong>Sentry</strong></td>
+<td>~$500/yr</td>
+<td>Default for Electron + Node; PII scrubbing configurable</td>
+</tr>
+<tr>
+<td>Product analytics</td>
+<td><strong>PostHog</strong></td>
+<td>Free → ~$2k/yr</td>
+<td>Self-host option for EU data residency; feature flags bundled</td>
+</tr>
+<tr>
+<td>Centralized logging</td>
+<td><strong>Better Stack</strong> or <strong>Axiom</strong></td>
+<td>~$1k/yr</td>
+<td>Cheaper than Datadog for our log volume; both SOC 2</td>
+</tr>
+<tr>
+<td>Vulnerability scanning</td>
+<td><strong>Snyk</strong> (or Dependabot baseline)</td>
+<td>Free → ~$2k/yr</td>
+<td>Better than Dependabot for OS-level + license risk</td>
+</tr>
+<tr>
+<td>Secrets-in-code scanning</td>
+<td><strong>gitleaks</strong> in CI</td>
+<td>Free</td>
+<td>Run on every PR; block on detection</td>
+</tr>
+<tr>
+<td>Security training</td>
+<td><strong>KnowBe4</strong> (or Vanta-bundled)</td>
+<td>~$30/person/yr</td>
+<td>Required for SOC 2</td>
+</tr>
+<tr>
+<td>Background checks</td>
+<td><strong>Checkr</strong></td>
+<td>~$30/person</td>
+<td>At hire</td>
+</tr>
+<tr>
+<td>Endpoint security</td>
+<td><strong>Kandji</strong> (Mac MDM)</td>
+<td>~$10/person/mo at 5+ people</td>
+<td>Defer until headcount 5+</td>
+</tr>
+<tr>
+<td>Pen test</td>
+<td><strong>Cobalt</strong> or <strong>HackerOne</strong></td>
+<td>$10–20k/yr</td>
+<td>Annual; start in v2.2</td>
+</tr>
+<tr>
+<td>Auditor</td>
+<td><strong>Prescient / Sensiba / Insight</strong></td>
+<td>$10–40k/yr</td>
+<td>Pick at month 5; their Vanta integration matters</td>
+</tr>
+<tr>
+<td>Privacy lawyer</td>
+<td><strong>Per engagement</strong></td>
+<td>$3–10k upfront</td>
+<td>Privacy policy + ToS + DPA review</td>
+</tr>
+</tbody>
+</table>
+<p>Estimated all-in year 1: <strong>$60–100k</strong>. This is the cost
+of being a serious company that holds people's screenshots.</p>
+<hr />
+<h2 id="10--roadmap--v20--v22">10 · Roadmap — v2.0 → v2.2</h2>
+<h3 id="v20-months-13--foundation">v2.0 (months 1–3) — Foundation</h3>
+<p><strong>Goal:</strong> ship the product with security and privacy
+baked into the architecture, not retrofitted later.</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />On-device redaction pipeline
+implemented (sensitive-app filter, OCR, Presidio PII, sensitive-content
+classifier)</label></li>
+<li><label><input type="checkbox" />Consent UX in onboarding (4 granular
+toggles, log to backend with timestamps)</label></li>
+<li><label><input type="checkbox" />Encryption at rest configured
+(Supabase KMS, Electron safeStorage)</label></li>
+<li><label><input type="checkbox" />TLS 1.3 + HSTS on all
+endpoints</label></li>
+<li><label><input type="checkbox" />MFA enforced on GitHub, Google
+Workspace, Supabase, Stripe</label></li>
+<li><label><input type="checkbox" />SSO via Google Workspace for all
+vendors that support it</label></li>
+<li><label><input type="checkbox" />gitleaks running in CI</label></li>
+<li><label><input type="checkbox" />Sentry installed with PII scrubbing
+rules</label></li>
+<li><label><input type="checkbox" />Subprocessor list published (initial
+8 vendors)</label></li>
+<li><label><input type="checkbox" />DPAs signed with Google (Gemini),
+Supabase, Stripe, Resend</label></li>
+<li><label><input type="checkbox" />RFC-001 (guardrails strategy)
+accepted</label></li>
+<li><label><input type="checkbox" />Decision matrix for
+sensitive-content categories documented</label></li>
+<li><label><input type="checkbox" />Retention policy v1 written (and
+enforced for new data)</label></li>
+</ul>
+<h3 id="v21-months-46--trust-foundation">v2.1 (months 4–6) — Trust
+foundation</h3>
+<p><strong>Goal:</strong> be able to answer security questionnaires
+honestly and sign enterprise contracts.</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />All 15 SOC 2 policies drafted (Vanta
+templates → adapted → lawyer-reviewed)</label></li>
+<li><label><input type="checkbox" />Vanta onboarded; evidence collection
+automated</label></li>
+<li><label><input type="checkbox" />Privacy policy + ToS public,
+lawyer-reviewed</label></li>
+<li><label><input type="checkbox" />DPIA documented and signed off
+(Namkha)</label></li>
+<li><label><input type="checkbox" />Centralized logging in place (auth
+events, API calls, admin actions; 90-day retention)</label></li>
+<li><label><input type="checkbox" />Backup + restore tested (RTO
+documented)</label></li>
+<li><label><input type="checkbox" />Incident response runbook written +
+tabletop-tested</label></li>
+<li><label><input type="checkbox" />Annual security training
+scheduled</label></li>
+<li><label><input type="checkbox" />Endpoint security baseline
+(full-disk encryption verified)</label></li>
+<li><label><input type="checkbox" />Trust portal stood up (status page +
+security overview + subprocessor list + DPA template)</label></li>
+<li><label><input type="checkbox" />First security questionnaire
+successfully answered (template library starts here)</label></li>
+<li><label><input type="checkbox" />SOC 2 Type 1 audit initiated
+(auditor selected, evidence packaged, audit period defined)</label></li>
+</ul>
+<h3 id="v22-months-79--audit-ready">v2.2 (months 7–9) — Audit-ready</h3>
+<p><strong>Goal:</strong> complete Type 1 audit, position for Type 2,
+evaluate hardening upgrades.</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />SOC 2 Type 1 report
+received</label></li>
+<li><label><input type="checkbox" />First pen test completed; findings
+closed</label></li>
+<li><label><input type="checkbox" />Type 2 evidence collection running
+formally</label></li>
+<li><label><input type="checkbox" />Re-evaluate NeMo Guardrails vs
+Node-native (per RFC-001)</label></li>
+<li><label><input type="checkbox" />B2B internal-reporting path security
+review (separate DPA model for employer tier)</label></li>
+<li><label><input type="checkbox" />DPIA refresh</label></li>
+<li><label><input type="checkbox" />Vendor / subprocessor list review
+and updates</label></li>
+<li><label><input type="checkbox" />Optional: ISO 27001 scoping review
+(if enterprise pipeline warrants)</label></li>
+</ul>
+<h3 id="beyond-v22">Beyond v2.2</h3>
+<ul>
+<li>SOC 2 Type 2 report</li>
+<li>HIPAA-readiness review (only if we go after healthcare workforce
+explicitly)</li>
+<li>EU data residency (Supabase EU project + Sentry EU + PostHog
+self-host EU)</li>
+<li>Bug bounty program (HackerOne) once we have stable surface area</li>
+</ul>
+<hr />
+<h2 id="11--trust-messaging-to-enterprise-buyers">11 · Trust messaging
+to enterprise buyers</h2>
+<p>By month 4 we need to be able to send buyers a clean "Security at
+OnlyWorks" one-pager. Outline:</p>
+<ul>
+<li><strong>Data handling</strong> — on-device redaction, what leaves
+the device, what doesn't, encryption in transit + at rest</li>
+<li><strong>Subprocessor list</strong> — public, current,
+change-notification process</li>
+<li><strong>Access controls</strong> — MFA, SSO, least privilege, audit
+logging</li>
+<li><strong>Vendor security</strong> — DPAs with all subprocessors,
+vetting process</li>
+<li><strong>Privacy</strong> — granular consent, retention windows,
+right-to-delete SLA, GDPR/CCPA stance</li>
+<li><strong>Compliance</strong> — SOC 2 Type 1 by month 6 (Type 2 by
+month 12); security questionnaire-ready</li>
+<li><strong>Incident response</strong> — sev levels, notification
+commitments (24h for sev-1 affecting customer data)</li>
+<li><strong>Contact</strong> — <code>security@onlyworks.com</code> + PGP
+key</li>
+</ul>
+<p>This goes on a public trust portal (<code>onlyworks.com/trust</code>)
+by month 4.</p>
+<h3 id="security-questionnaire-library">Security questionnaire
+library</h3>
+<p>We will be asked to answer:</p>
+<ul>
+<li>SIG (Standard Information Gathering)</li>
+<li>CAIQ (Consensus Assessments Initiative Questionnaire)</li>
+<li>VSA (Vendor Security Assessment)</li>
+<li>Custom buyer questionnaires (every enterprise has their own)</li>
+</ul>
+<p>Vanta auto-fills 60–80% of standard ones. We finish the rest
+manually. Maintain answers in a versioned doc so we never re-do
+work.</p>
+<hr />
+<h2 id="12--risk-register">12 · Risk register</h2>
+<p>Top risks, tracked at the operating level, reviewed quarterly:</p>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Owner</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OCR text contains PII that bypasses on-device redaction</td>
+<td>Med</td>
+<td>High</td>
+<td>Backend owner</td>
+<td>Defense in depth — input rail second pass</td>
+</tr>
+<tr>
+<td>User signs up from EU before DPIA is complete</td>
+<td>Med</td>
+<td>High</td>
+<td>Namkha</td>
+<td>DPIA before public EU marketing</td>
+</tr>
+<tr>
+<td>New subprocessor added without DPA</td>
+<td>Low</td>
+<td>High</td>
+<td>Namkha</td>
+<td>RFC requirement for new vendors</td>
+</tr>
+<tr>
+<td>Credential reuse leads to account compromise</td>
+<td>High</td>
+<td>Med</td>
+<td>Engineer A</td>
+<td>MFA-only on auth flows</td>
+</tr>
+<tr>
+<td>Gemini outage stops reports for &gt;24h</td>
+<td>Med</td>
+<td>Med</td>
+<td>Backend owner</td>
+<td>Document degraded mode; surface to user</td>
+</tr>
+<tr>
+<td>An employee laptop is lost/stolen</td>
+<td>Med</td>
+<td>High</td>
+<td>Namkha</td>
+<td>FDE mandatory; MDM at 5+ people; remote-wipe capability</td>
+</tr>
+<tr>
+<td>Prompt injection causes cross-user data leak in reports</td>
+<td>Low</td>
+<td>Existential</td>
+<td>Backend owner</td>
+<td>Input + output rails; per-user prompt scoping; structured outputs
+only</td>
+</tr>
+<tr>
+<td>Auditor finds material gap during Type 1</td>
+<td>Med</td>
+<td>Med</td>
+<td>Namkha</td>
+<td>Vanta internal audit at month 5</td>
+</tr>
+<tr>
+<td>Privacy policy is found non-compliant during litigation</td>
+<td>Low</td>
+<td>High</td>
+<td>Namkha</td>
+<td>Lawyer review before publishing</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13--this-weeks-action-items">13 · This week's action items</h2>
+<p>Highest-leverage items for the current sprint, regardless of where we
+are in the roadmap:</p>
+<ul class="task-list">
+<li><label><input type="checkbox" /><strong>Sign the Supabase
+DPA.</strong> Email their team; ~30 minutes.</label></li>
+<li><label><input type="checkbox" /><strong>Confirm Gemini API is
+configured for data-no-train.</strong> Check the project setting;
+document the screenshot in <code>security/evidence/</code>.</label></li>
+<li><label><input type="checkbox" /><strong>Stand up
+<code>security@onlyworks.com</code> mailbox + PGP key.</strong> Required
+as soon as the first questionnaire arrives.</label></li>
+<li><label><input type="checkbox" /><strong>Publish initial subprocessor
+list at <code>onlyworks.com/subprocessors</code></strong> — even if it's
+a markdown page in the marketing repo for now.</label></li>
+<li><label><input type="checkbox" /><strong>Open RFC-001: Guardrails
+strategy for the Gemini path</strong> — propose Node-native for v2.0,
+NeMo re-evaluation in v2.2.</label></li>
+<li><label><input type="checkbox" /><strong>Lock retention windows in
+writing</strong> — table in § 7. Implement the cron stub now even if it
+only no-ops; the contract is the important thing.</label></li>
+<li><label><input type="checkbox" /><strong>Enable MFA enforcement on
+the GitHub org</strong> — 5-minute change, blocks an entire threat
+class.</label></li>
+<li><label><input type="checkbox" /><strong>Add gitleaks to CI</strong>
+— one workflow file; catches the next secret-in-repo
+accident.</label></li>
+</ul>
+<hr />
+<h2 id="14--maintenance">14 · Maintenance</h2>
+<p>This doc is reviewed quarterly and after any of the following:</p>
+<ul>
+<li>A new vendor or subprocessor is added</li>
+<li>The data flow changes materially (new data category, new pipeline
+stage)</li>
+<li>A security incident occurs</li>
+<li>A control fails an audit (internal or external)</li>
+<li>A regulatory change (GDPR amendment, new state privacy law)
+materially affects us</li>
+</ul>
+<p>Updates happen via PR with at least one engineer + Namkha approving.
+Material changes trigger a re-read by the whole team.</p>
+<p>Decisions that override this document (e.g., a buyer asks for a
+control we don't have and we add it) are logged as RFCs and merged back
+into the relevant section.</p>
+<hr />
+<p><strong>Last updated:</strong> 2026-05-29 <strong>Owner:</strong>
+Namkha (security lead) + Backend owner (technical) <strong>Next
+review:</strong> end of quarter <strong>Related RFCs:</strong> RFC-001
+(Guardrails strategy — pending), RFC-002 (Retention engine —
+pending)</p>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>14 · 2026</span>
+</footer>
+
+</body>
+</html>

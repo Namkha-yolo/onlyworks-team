@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kickoff deck (markdown) · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>06 · source</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 06 · Slide source</div>
+      <div class="title">Kickoff deck (markdown)</div>
+      <div class="subtitle">Marp-renderable markdown source of the
+kickoff deck. Use this to edit slides. PDF version at
+visuals/presentation.pdf.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>source</strong></span>
+        <span>Audience<strong>Namkha</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#marp-true-theme-default-paginate-true"
+id="toc-marp-true-theme-default-paginate-true">marp: true theme: default
+paginate: true</a></li>
+<li><a href="#onlyworks-v2" id="toc-onlyworks-v2">OnlyWorks v2</a>
+<ul>
+<li><a href="#kickoff-for-the-rebuild"
+id="toc-kickoff-for-the-rebuild">Kickoff for the rebuild</a></li>
+</ul></li>
+<li><a href="#why-were-here" id="toc-why-were-here">Why we're
+here</a></li>
+<li><a href="#what-v1-taught-us" id="toc-what-v1-taught-us">What v1
+taught us</a></li>
+<li><a href="#the-validation-signal" id="toc-the-validation-signal">The
+validation signal</a></li>
+<li><a href="#who-we-build-for" id="toc-who-we-build-for">Who we build
+for</a></li>
+<li><a href="#the-product-in-one-diagram"
+id="toc-the-product-in-one-diagram">The product, in one diagram</a></li>
+<li><a href="#the-unified-capture-pipeline"
+id="toc-the-unified-capture-pipeline">The unified capture
+pipeline</a></li>
+<li><a href="#v20--what-ships-in-12-weeks"
+id="toc-v20--what-ships-in-12-weeks">v2.0 — what ships in 12
+weeks</a></li>
+<li><a href="#v20--what-does-not-ship"
+id="toc-v20--what-does-not-ship">v2.0 — what does NOT ship</a></li>
+<li><a href="#the-stack" id="toc-the-stack">The stack</a></li>
+<li><a href="#what-gets-ported-verbatim-from-v1"
+id="toc-what-gets-ported-verbatim-from-v1">What gets ported verbatim
+from v1</a></li>
+<li><a href="#roles" id="toc-roles">Roles</a></li>
+<li><a href="#how-we-work" id="toc-how-we-work">How we work</a></li>
+<li><a href="#week-1--what-you-actually-do-monday"
+id="toc-week-1--what-you-actually-do-monday">Week 1 — what you actually
+do Monday</a></li>
+<li><a href="#decisions-we-lock-today"
+id="toc-decisions-we-lock-today">Decisions we lock today</a></li>
+<li><a href="#what-success-looks-like-in-12-weeks"
+id="toc-what-success-looks-like-in-12-weeks">What success looks like in
+12 weeks</a></li>
+<li><a href="#the-five-planning-docs"
+id="toc-the-five-planning-docs">The five planning docs</a></li>
+<li><a href="#questions" id="toc-questions">Questions</a></li>
+</ul>
+
+<!--
+OnlyWorks v2 Kickoff — Internal presentation deck.
+
+Format: Marp-compatible markdown. To render as slides:
+  npm i -g @marp-team/marp-cli
+  marp 06-v2-kickoff-deck.md -o kickoff.pdf
+
+Or paste each "---" delimited section into Keynote/PowerPoint as a slide.
+Target length: ~25-30 minute walkthrough.
+-->
+
+<hr />
+<h2 id="marp-true-theme-default-paginate-true">marp: true theme: default
+paginate: true</h2>
+<h1 id="onlyworks-v2">OnlyWorks v2</h1>
+<h2 id="kickoff-for-the-rebuild">Kickoff for the rebuild</h2>
+<p><strong>Team:</strong> Namkha + 3 interns <strong>Duration:</strong>
+12 weeks to v2.0 launch <strong>Date:</strong> 2026-05-28</p>
+<hr />
+<h1 id="why-were-here">Why we're here</h1>
+<ul>
+<li>v1 has ~14 active users and a 5,700-line CSS file</li>
+<li>109 IPC channels, 47KB single-page components, two parallel session
+APIs</li>
+<li>Subscription is stubbed. No Stripe. No revenue.</li>
+<li>The team feature got built but was framed as bossware</li>
+<li>The hiring marketplace got built but the paid tier is
+unreachable</li>
+<li><strong>We've built a lot. We've sold zero things. Time to rebuild
+around a clear story.</strong></li>
+</ul>
+<hr />
+<h1 id="what-v1-taught-us">What v1 taught us</h1>
+<table>
+<thead>
+<tr>
+<th>Hard-won</th>
+<th>Lesson</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Verified-by-capture skills</td>
+<td>Real differentiator — strangers actually want this</td>
+</tr>
+<tr>
+<td>Forensic auditor &gt; supportive mentor prompt</td>
+<td>Don't let AI hallucinate praise</td>
+</tr>
+<tr>
+<td>Privacy filtering</td>
+<td>Load-bearing — without it the product can't ethically exist</td>
+</tr>
+<tr>
+<td>Caches lie</td>
+<td>Build durable storage for high-value derived data</td>
+</tr>
+<tr>
+<td>Hardcoded enums kill features</td>
+<td>Schema/UI must accept what the AI produces</td>
+</tr>
+<tr>
+<td>OAuth in embedded BrowserWindow doesn't work</td>
+<td>System browser + polling is the only durable pattern</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="the-validation-signal">The validation signal</h1>
+<p>When asked what they liked, users outside our network said:</p>
+<blockquote>
+<p><strong>"Building resume, verifying skills, and hopes of getting
+hired by the managers on our platform."</strong></p>
+</blockquote>
+<p>This is the product. Not "AI productivity tracker." Not "workplace
+use." Not "screenshot tool."</p>
+<p><strong>Verified work history → matched to hiring managers → get
+hired.</strong></p>
+<hr />
+<h1 id="who-we-build-for">Who we build for</h1>
+<p>Three ICPs, one product:</p>
+<table>
+<thead>
+<tr>
+<th>Segment</th>
+<th>Who</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Students &amp; early-career</strong></td>
+<td>CS undergrads, design students, bootcamp grads, interns</td>
+<td>Build projects with OnlyWorks running → portfolio that gets first
+job</td>
+</tr>
+<tr>
+<td><strong>B. Mid-career ICs</strong></td>
+<td>3-15 yr eng/PM/design at digital companies</td>
+<td>Passive career history, get found by recruiters, promo prep</td>
+</tr>
+<tr>
+<td><strong>C. Teams (B2B)</strong></td>
+<td>Companies tired of writing status reports</td>
+<td>Auto-generated reports from real work — save 30 min/week/person</td>
+</tr>
+</tbody>
+</table>
+<p>Plus: <strong>Hiring managers</strong> (the people who pay)</p>
+<hr />
+<h1 id="the-product-in-one-diagram">The product, in one diagram</h1>
+<pre><code>                    ┌──→ D2C MARKETPLACE
+                    │    Workers free, HMs pay $99-$599/mo
+                    │
+   Capture Engine ──┼──→ D2C UTILITY
+                    │    Worker Pro $9/mo, Students free
+   (one trigger,    │    Promo packets, weekly summaries
+    many consumers) │
+                    └──→ B2B INTERNAL REPORTING (v2.2)
+                         $9-$19/seat/mo, min 5-10 seats
+                         &quot;Status reports written for you&quot;</code></pre>
+<p><strong>Same capture engine. Three revenue streams.</strong></p>
+<hr />
+<h1 id="the-unified-capture-pipeline">The unified capture pipeline</h1>
+<pre><code>CaptureEngine (one trigger system)
+  ├─ triggers: interval, click, Enter, clipboard
+  ├─ frame: { jpeg, sha256, sessionId, app, windowTitle }
+  └─ guards: dedup, debounce, idle, sensitive-content filter
+
+Consumers (all subscribe to same frame stream)
+  ├─ OcrConsumer       → text → backend → AI → portfolio
+  ├─ TrainingConsumer  → full frame → backend → OUR future model
+  └─ MetricsConsumer   → app/time/session stats</code></pre>
+<p><strong>Why unified:</strong> one dedup, one consent boundary, one
+privacy filter. Training data and report data come from the same
+source.</p>
+<p><strong>The long bet:</strong> in 12-18 months we replace Gemini with
+our own fine-tuned multimodal model. Data collection starts day 1.</p>
+<hr />
+<h1 id="v20--what-ships-in-12-weeks">v2.0 — what ships in 12 weeks</h1>
+<p><strong>Desktop (5 screens, slim):</strong></p>
+<ol type="1">
+<li>Status — capture running, weekly stats</li>
+<li>Portfolio — verified skills + evidence</li>
+<li>Privacy — consent, sensitive content rules, what-we-captured
+reel</li>
+<li>Settings — account, appearance, notifications</li>
+<li>First-run — permissions + magic-link + career stage + training
+consent</li>
+</ol>
+<p><strong>Web:</strong></p>
+<ul>
+<li>Public profile (polish)</li>
+<li>HM dashboard with Stripe Checkout + job posts + search + Express
+Interest</li>
+</ul>
+<p><strong>Backend:</strong></p>
+<ul>
+<li>Stripe integration (#1 unblocker)</li>
+<li>Training data + consent tracking endpoints</li>
+<li>Talent community nurture worker</li>
+<li>Per-user AI cost budget</li>
+</ul>
+<hr />
+<h1 id="v20--what-does-not-ship">v2.0 — what does NOT ship</h1>
+<ul>
+<li>❌ Team / internal reporting UI (deferred to v2.2 — <strong>keep
+backend infra</strong>)</li>
+<li>❌ Goals page</li>
+<li>❌ Resume upload + parsing</li>
+<li>❌ Promo packet generator (v2.1)</li>
+<li>❌ Weekly summary email (v2.1)</li>
+<li>❌ Path A billing automation</li>
+<li>❌ Activity page as separate nav (rolled into Portfolio)</li>
+<li>❌ Sessions page (already deprecated)</li>
+<li>❌ Manager/Worker view toggle on reports</li>
+<li>❌ LinkedIn / Google OAuth (magic link only)</li>
+</ul>
+<p><strong>Why so brutal:</strong> 4 people, 12 weeks. We need to ship
+something we can sell.</p>
+<hr />
+<h1 id="the-stack">The stack</h1>
+<p>Picked for <strong>3 interns shipping in parallel without breaking
+each other:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Choice</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shell</td>
+<td><strong>Electron 33+</strong></td>
+<td>Battle-tested, Tauri rough edges hurt us</td>
+</tr>
+<tr>
+<td>Renderer</td>
+<td><strong>React + TypeScript + Vite</strong></td>
+<td>Boring, hireable, intern-friendly</td>
+</tr>
+<tr>
+<td>Styling</td>
+<td><strong>Tailwind v4 + shadcn/ui</strong></td>
+<td>Copy-pasteable, no black box</td>
+</tr>
+<tr>
+<td>State</td>
+<td><strong>TanStack Query</strong> (server) + <strong>Zustand</strong>
+(UI)</td>
+<td>No Redux ever</td>
+</tr>
+<tr>
+<td>IPC</td>
+<td><strong>tRPC over IPC</strong></td>
+<td>Replaces 444-line preload.js with typed bridge</td>
+</tr>
+<tr>
+<td>Forms</td>
+<td><strong>React Hook Form + Zod</strong></td>
+<td>Compile-time validation</td>
+</tr>
+<tr>
+<td>Build</td>
+<td><strong>electron-vite</strong></td>
+<td>Hot reload in renderer</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td><strong>Vitest</strong> (kept from v1)</td>
+<td>Add Playwright later</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="what-gets-ported-verbatim-from-v1">What gets ported verbatim
+from v1</h1>
+<p>The hard-won, platform-specific stuff:</p>
+<ul>
+<li><code>src/native/ocr_helper/</code> (Swift binary + Windows
+PowerShell)</li>
+<li><code>src/services/auto-updater.js</code> +
+<code>auto-updater-flow.js</code></li>
+<li><code>src/services/backend-auth.js</code> +
+<code>oauth-flow.js</code> + <code>token-refresh.js</code></li>
+<li><code>src/services/windows-preflight.js</code></li>
+<li>The macOS TCC permission relaunch trick
+(<code>_launchTrustState</code> in main.js)</li>
+<li><code>electron-builder</code> config</li>
+<li>Sensitive content filter logic</li>
+</ul>
+<p><strong>Rule:</strong> don't refactor while porting. Get it working
+as-is. Refactor later.</p>
+<hr />
+<h1 id="roles">Roles</h1>
+<p><strong>Namkha (Founder)</strong></p>
+<ul>
+<li>Backend Stripe integration, AI cost budgeting, talent community
+nurture worker</li>
+<li>Web HM dashboard</li>
+<li>HM recruitment + soft launch</li>
+<li>Code review on every PR for weeks 1-4 (intern ramp safety)</li>
+</ul>
+<p><strong>Intern A — "Stack &amp; UI"</strong></p>
+<ul>
+<li>Scaffold the v2 repo</li>
+<li>Build the typed tRPC bridge</li>
+<li>First-run onboarding flow</li>
+<li>Status screen + Settings screen</li>
+<li>Public profile redesign (web)</li>
+</ul>
+<p><strong>Intern B — "Auth &amp; Capture"</strong></p>
+<ul>
+<li>Port auth + auto-updater</li>
+<li>OcrConsumer (Windows OCR)</li>
+<li>Portfolio screen + permissions flow</li>
+<li>HM job post creation (web)</li>
+</ul>
+<p><strong>Intern C — "Capture Engine"</strong></p>
+<ul>
+<li>CaptureEngine + dedup + idle + sensitive filter</li>
+<li>TrainingDataConsumer + consent flow</li>
+<li>Privacy screen + recent captures reel</li>
+</ul>
+<hr />
+<h1 id="how-we-work">How we work</h1>
+<ul>
+<li><strong>Daily 15-min standup</strong> (async OK if it's just on
+Slack)</li>
+<li><strong>One PR per task</strong> — small, reviewable, mergeable in a
+day</li>
+<li><strong>Pair programming twice/week</strong> for the first 4 weeks
+(Namkha + each intern)</li>
+<li><strong>Code review:</strong> Namkha reviews every PR weeks 1-4.
+After that, interns review each other.</li>
+<li><strong>Pin every dependency</strong> — no auto-upgrades during the
+12 weeks</li>
+<li><strong>Branches:</strong> <code>main</code> is always shippable.
+Feature branches off <code>main</code>. Squash-merge on approval.</li>
+<li><strong>Failed CI = no merge.</strong> Hooks + tests must pass.</li>
+</ul>
+<p><strong>No surprises:</strong> if something will take longer than
+estimated, say so on day 1, not week 3.</p>
+<hr />
+<h1 id="week-1--what-you-actually-do-monday">Week 1 — what you actually
+do Monday</h1>
+<p>Before touching OnlyWorks code, each intern builds a <strong>tiny
+Electron + Vite + React + tRPC todo app</strong> from a template.
+Goals:</p>
+<ul>
+<li>Understand the stack we picked</li>
+<li>Wire up one tRPC procedure end-to-end</li>
+<li>Build + sign locally (macOS or Windows)</li>
+<li>1-day exercise, max 2 days</li>
+</ul>
+<p><strong>Then Monday week 2:</strong></p>
+<ul>
+<li>Intern A → scaffold <code>onlyworks_desktop_v2/</code></li>
+<li>Intern B → start porting <code>auto-updater.js</code></li>
+<li>Intern C → start <code>CaptureEngine</code> skeleton</li>
+<li>Namkha → Stripe Checkout endpoint</li>
+</ul>
+<p>See <code>07-build-order.md</code> for week-by-week task list.</p>
+<hr />
+<h1 id="decisions-we-lock-today">Decisions we lock today</h1>
+<ol type="1">
+<li><strong>Repo:</strong> new <code>onlyworks_desktop_v2/</code>
+directory in this repo, merge to main on v2.0 ship</li>
+<li><strong>Naming:</strong> ship as "OnlyWorks 4.0" — continue version
+line, no rebrand</li>
+<li><strong>Update channel:</strong> opt-in beta until 4 weeks bug-free,
+then auto-update default</li>
+<li><strong>HM pricing:</strong> $99 / $299 / $599 (confirm now or
+never)</li>
+<li><strong>Student tier:</strong> free Pro for <code>.edu</code> email
+— yes/no</li>
+<li><strong>Training data T&amp;C:</strong> Namkha + light legal review
+by week 4</li>
+<li><strong>Capture all v1 critical context now</strong> so we don't
+relearn it: TCC relaunch, uiohook, OCR fallback paths</li>
+</ol>
+<hr />
+<h1 id="what-success-looks-like-in-12-weeks">What success looks like in
+12 weeks</h1>
+<p>By end of week 12:</p>
+<ul>
+<li><strong>100 weekly active workers</strong> (60% from outside our
+network)</li>
+<li><strong>5 paid hiring managers</strong> (<span
+class="math inline">500−</span>1,500 MRR)</li>
+<li><strong>80% training data opt-in rate</strong> (clear consent UX
+signal)</li>
+<li><strong>30+ student users</strong> via 1-2 campus partnerships</li>
+<li><strong>1M+ training frames</strong> collected</li>
+<li><strong>Zero capture-pipeline bugs</strong> for the last 4
+weeks</li>
+</ul>
+<p>Beyond v2.0:</p>
+<ul>
+<li>v2.1 (M4-6): Promo packet + weekly summary + LinkedIn OAuth</li>
+<li>v2.2 (M7-9): <strong>B2B internal reporting feature</strong> — the
+second revenue stream</li>
+</ul>
+<hr />
+<h1 id="the-five-planning-docs">The five planning docs</h1>
+<pre><code>CLAUDE/planning/
+├── 00-README.md              Start here
+├── 01-component-inventory.md What v1 actually is
+├── 02-intent-and-history.md  How we got here (read first)
+├── 03-architecture-review.md What to port, what to throw
+├── 04-pmf-and-v2-direction.md Strategy + ICPs + pricing
+├── 05-v2.0-scope.md          Detailed v2.0 spec + screens
+├── 06-v2-kickoff-deck.md     ← This deck
+└── 07-build-order.md         Week-by-week task list</code></pre>
+<p><strong>Read 02 and 04 first.</strong> Then 05 for what you're
+building. Then 07 for what you do this week.</p>
+<hr />
+<h1 id="questions">Questions</h1>
+<p>What's unclear? What's missing? What scares you? What's exciting?</p>
+<p>(All four matter.)</p>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>06 · 2026</span>
+</footer>
+
+</body>
+</html>

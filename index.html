@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OnlyWorks · Team Handbook</title>
+  <meta name="description" content="Everything the OnlyWorks team needs to ship. Where to start, what to read, how we work.">
+  <meta property="og:title" content="OnlyWorks · Team Handbook">
+  <meta property="og:description" content="Where to start, what to read, how we work.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ========== Design tokens ========== */
+    :root {
+      --paper:        #fafaf9;
+      --paper-warm:   #f5f5f1;
+      --paper-deep:   #efece7;
+      --ink:          #0a0a0a;
+      --ink-soft:     #1f1f1f;
+      --muted:        #6b6b6b;
+      --muted-soft:   #9a9a98;
+      --hairline:     #e8e8e3;
+      --hairline-soft:#f0f0eb;
+      --brand:        #8b5cf6;
+      --brand-deep:   #7c3aed;
+      --brand-darker: #6d28d9;
+      --brand-soft:   #f3edff;
+      --brand-faint:  #faf7ff;
+      --accent-warm:  #d97706;
+      --serif:        'Instrument Serif', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+      --sans:         'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono:         'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    /* ========== Reset + base ========== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ========== Site nav ========== */
+    .site-nav {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(250, 250, 249, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--hairline);
+    }
+    .logo {
+      font-family: var(--serif);
+      font-size: 26px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo em { font-style: italic; color: var(--brand); }
+    .logo .tag {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); padding: 4px 8px;
+      background: var(--paper-warm); border: 1px solid var(--hairline);
+    }
+    .nav-meta {
+      display: flex; gap: 28px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .nav-meta a { transition: color 0.18s ease; }
+    .nav-meta a:hover { color: var(--brand); }
+
+    /* ========== Hero ========== */
+    .hero {
+      max-width: 1280px; margin: 0 auto;
+      padding: 140px 48px 100px;
+      position: relative;
+    }
+    .hero .super {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--brand-deep); margin-bottom: 36px;
+      display: inline-flex; align-items: center; gap: 12px;
+    }
+    .hero .super::before {
+      content: ''; width: 32px; height: 1px; background: var(--brand);
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(64px, 9vw, 128px);
+      line-height: 0.94; letter-spacing: -0.025em;
+      font-weight: 400; margin: 0 0 40px;
+      max-width: 1100px;
+    }
+    .hero h1 em {
+      font-style: italic; color: var(--brand);
+    }
+    .hero p.lead {
+      font-size: 22px; line-height: 1.5;
+      color: var(--ink-soft); max-width: 720px;
+      font-weight: 400;
+    }
+    .hero p.lead a {
+      color: var(--brand-deep);
+      border-bottom: 1px solid var(--brand);
+      transition: color 0.18s;
+    }
+    .hero p.lead a:hover { color: var(--brand-darker); }
+
+    /* Meta strip under hero */
+    .hero-meta {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 48px 80px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--hairline);
+      border-bottom: 1px solid var(--hairline);
+    }
+    .hero-meta .cell {
+      padding: 28px 0; padding-right: 28px;
+      border-right: 1px solid var(--hairline);
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .hero-meta .cell:last-child { border-right: none; padding-right: 0; }
+    .hero-meta .cell:not(:first-child) { padding-left: 28px; }
+    .hero-meta .cell strong {
+      font-family: var(--serif); font-style: italic;
+      font-weight: 400; font-size: 32px;
+      color: var(--ink); letter-spacing: -0.01em;
+      text-transform: none; line-height: 1;
+    }
+
+    /* ========== Generic section ========== */
+    .section {
+      max-width: 1280px; margin: 0 auto;
+      padding: 100px 48px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .section-label {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--brand-deep);
+      margin-bottom: 28px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .section-label .num { color: var(--muted); }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--hairline);
+      margin-left: 8px;
+    }
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(40px, 5.5vw, 72px);
+      line-height: 1; letter-spacing: -0.02em;
+      font-weight: 400;
+      margin: 0 0 24px;
+    }
+    .section-title em { font-style: italic; color: var(--brand); }
+    .section-desc {
+      font-size: 19px; line-height: 1.6;
+      color: var(--ink-soft); max-width: 720px;
+      margin: 0 0 56px;
+    }
+
+    /* ========== Start-here CTA ========== */
+    .cta-card {
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 64px; align-items: center;
+      padding: 72px;
+      background: linear-gradient(135deg, var(--brand-faint) 0%, var(--paper-warm) 100%);
+      border: 1px solid var(--brand);
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .cta-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 60px -28px rgba(124, 58, 237, 0.32);
+    }
+    .cta-card .badge {
+      display: inline-block;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--brand-deep);
+      padding: 6px 12px;
+      background: white; border: 1px solid var(--brand);
+      margin-bottom: 24px;
+    }
+    .cta-card h3 {
+      font-family: var(--serif);
+      font-size: 56px; line-height: 1; letter-spacing: -0.02em;
+      font-weight: 400; margin: 0 0 16px;
+    }
+    .cta-card h3 em { font-style: italic; color: var(--brand); }
+    .cta-card p {
+      font-size: 18px; line-height: 1.55;
+      color: var(--ink-soft); margin: 0;
+      max-width: 540px;
+    }
+    .cta-card .arrow {
+      font-family: var(--serif); font-style: italic;
+      font-size: 88px; color: var(--brand);
+      line-height: 1;
+    }
+    .cta-card-meta {
+      display: flex; gap: 40px;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(124, 58, 237, 0.18);
+    }
+    .cta-card-meta .item {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .cta-card-meta .item strong {
+      font-family: var(--serif); font-style: italic;
+      font-weight: 400; font-size: 22px;
+      color: var(--ink); text-transform: none;
+      letter-spacing: -0.01em;
+    }
+
+    /* ========== Doc grid ========== */
+    .doc-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--hairline);
+      border-left: 1px solid var(--hairline);
+    }
+    .doc-card {
+      display: block;
+      padding: 40px 36px;
+      background: var(--paper);
+      border-right: 1px solid var(--hairline);
+      border-bottom: 1px solid var(--hairline);
+      position: relative;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .doc-card:hover {
+      background: var(--brand-faint);
+    }
+    .doc-card:hover .arrow-icon {
+      transform: translate(4px, -4px);
+      color: var(--brand);
+    }
+    .doc-card .num {
+      position: absolute; top: 20px; right: 20px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--muted-soft);
+    }
+    .doc-card .arrow-icon {
+      position: absolute; bottom: 24px; right: 28px;
+      font-family: var(--serif); font-size: 28px;
+      color: var(--muted);
+      transition: transform 0.18s ease, color 0.18s ease;
+      line-height: 1;
+    }
+    .doc-card .eyebrow {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--brand-deep);
+      margin-bottom: 14px;
+    }
+    .doc-card h4 {
+      font-family: var(--serif);
+      font-size: 32px; line-height: 1.05; letter-spacing: -0.015em;
+      font-weight: 400; margin: 0 0 14px;
+      max-width: 90%;
+    }
+    .doc-card h4 em { font-style: italic; color: var(--brand); }
+    .doc-card p {
+      font-size: 15.5px; line-height: 1.55;
+      color: var(--ink-soft); margin: 0;
+      max-width: 480px;
+    }
+    .doc-card .footer-line {
+      margin-top: 24px; padding-top: 16px;
+      border-top: 1px solid var(--hairline-soft);
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted);
+      display: flex; gap: 18px;
+    }
+
+    /* Doc grid: feature variant (full-width card) */
+    .doc-grid.single { grid-template-columns: 1fr; }
+
+    /* ========== Reading order list ========== */
+    .reading-list {
+      counter-reset: r;
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column;
+    }
+    .reading-item {
+      counter-increment: r;
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 32px; align-items: center;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--hairline);
+      transition: background 0.18s ease, padding 0.18s ease;
+    }
+    .reading-item:hover {
+      background: var(--brand-faint);
+      padding-left: 24px; padding-right: 24px;
+    }
+    .reading-item:hover .reading-arrow {
+      color: var(--brand);
+      transform: translateX(4px);
+    }
+    .reading-item::before {
+      content: counter(r, decimal-leading-zero);
+      font-family: var(--mono); font-size: 13px;
+      font-weight: 500;
+      color: var(--brand);
+      letter-spacing: 0.12em;
+    }
+    .reading-item .body { display: flex; flex-direction: column; gap: 4px; }
+    .reading-item .title {
+      font-family: var(--serif); font-size: 26px;
+      letter-spacing: -0.01em; color: var(--ink);
+      font-weight: 400; line-height: 1.15;
+    }
+    .reading-item .title em { font-style: italic; color: var(--brand); }
+    .reading-item .desc {
+      font-size: 15px; color: var(--muted);
+      max-width: 720px;
+    }
+    .reading-item .meta {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); text-align: right;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .reading-item .meta strong {
+      font-family: var(--serif); font-style: italic;
+      font-weight: 400; font-size: 18px;
+      color: var(--ink); letter-spacing: -0.01em;
+      text-transform: none;
+    }
+    .reading-arrow {
+      font-family: var(--serif); font-size: 22px;
+      color: var(--muted); transition: transform 0.18s, color 0.18s;
+      line-height: 1;
+    }
+
+    /* ========== Stuck panel ========== */
+    .stuck-panel {
+      display: grid; grid-template-columns: 1.2fr 1fr;
+      gap: 64px; align-items: flex-start;
+      padding: 72px;
+      background: var(--ink);
+      color: var(--paper);
+      position: relative;
+    }
+    .stuck-panel::before {
+      content: 'SOS'; position: absolute;
+      top: 24px; right: 32px;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.3em; color: var(--brand);
+    }
+    .stuck-panel h3 {
+      font-family: var(--serif);
+      font-size: 56px; line-height: 1.0; letter-spacing: -0.02em;
+      font-weight: 400; margin: 0 0 24px;
+      color: var(--paper);
+    }
+    .stuck-panel h3 em { font-style: italic; color: var(--brand); }
+    .stuck-panel p {
+      font-size: 17px; line-height: 1.6;
+      color: rgba(255, 255, 255, 0.72);
+      margin: 0;
+    }
+    .stuck-list {
+      list-style: none; padding: 0; margin: 0;
+      counter-reset: s;
+    }
+    .stuck-list li {
+      counter-increment: s;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      display: grid; grid-template-columns: 40px 1fr;
+      gap: 20px; align-items: baseline;
+    }
+    .stuck-list li::before {
+      content: counter(s, decimal-leading-zero);
+      font-family: var(--mono); font-size: 11px;
+      color: var(--brand);
+      letter-spacing: 0.18em;
+    }
+    .stuck-list li strong {
+      font-family: var(--serif); font-style: italic;
+      font-weight: 400; color: var(--paper);
+      font-size: 19px; letter-spacing: -0.01em;
+      display: block; margin-bottom: 4px;
+    }
+    .stuck-list li span {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 14.5px; line-height: 1.55;
+    }
+
+    /* ========== Pullquote / decorative break ========== */
+    .pull {
+      max-width: 920px; margin: 0 auto;
+      padding: 120px 48px;
+      text-align: center;
+    }
+    .pull blockquote {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1.2; letter-spacing: -0.015em;
+      color: var(--ink); font-weight: 400;
+      font-style: italic;
+      margin: 0; position: relative;
+    }
+    .pull blockquote::before {
+      content: '"'; display: block;
+      font-size: 120px; line-height: 0.6;
+      color: var(--brand); margin-bottom: 16px;
+    }
+    .pull cite {
+      display: block; margin-top: 32px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); font-style: normal;
+    }
+
+    /* ========== Quick links strip ========== */
+    .links-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--hairline);
+      border-left: 1px solid var(--hairline);
+    }
+    .link-card {
+      display: block; padding: 28px;
+      border-right: 1px solid var(--hairline);
+      border-bottom: 1px solid var(--hairline);
+      transition: background 0.18s;
+    }
+    .link-card:hover {
+      background: var(--brand-faint);
+    }
+    .link-card .icon {
+      font-family: var(--serif); font-style: italic;
+      font-size: 32px; color: var(--brand);
+      margin-bottom: 12px;
+    }
+    .link-card .label {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .link-card .name {
+      font-family: var(--serif); font-size: 22px;
+      color: var(--ink); letter-spacing: -0.01em;
+    }
+
+    /* ========== Footer ========== */
+    .site-footer {
+      padding: 80px 48px 60px;
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 32px; flex-wrap: wrap;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted);
+      border-top: 1px solid var(--hairline);
+      max-width: 1280px; margin: 0 auto;
+    }
+    .site-footer .brand {
+      font-family: var(--serif); font-style: italic;
+      font-size: 22px; color: var(--ink);
+      text-transform: none; letter-spacing: -0.01em;
+    }
+
+    /* ========== Decorative HR ========== */
+    hr.deco {
+      border: none; height: 1px; background: var(--hairline);
+      margin: 0; position: relative;
+    }
+    hr.deco::after {
+      content: '·'; position: absolute;
+      left: 50%; top: -12px; transform: translateX(-50%);
+      width: 24px; text-align: center;
+      background: var(--paper); color: var(--brand);
+      font-family: var(--serif); font-size: 28px; line-height: 0.5;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 960px) {
+      .site-nav { padding: 16px 24px; }
+      .nav-meta { display: none; }
+      .hero { padding: 80px 24px 60px; }
+      .section { padding: 64px 24px; }
+      .hero-meta { padding: 0 24px 60px; grid-template-columns: repeat(2, 1fr); }
+      .hero-meta .cell:nth-child(2) { border-right: none; padding-right: 0; }
+      .hero-meta .cell:nth-child(3) { border-left: none; padding-left: 0; border-top: 1px solid var(--hairline); }
+      .hero-meta .cell:nth-child(4) { padding-left: 28px; border-top: 1px solid var(--hairline); }
+      .cta-card { grid-template-columns: 1fr; gap: 32px; padding: 40px; }
+      .cta-card .arrow { display: none; }
+      .doc-grid { grid-template-columns: 1fr; }
+      .reading-item { grid-template-columns: 50px 1fr; gap: 18px; padding: 20px 0; }
+      .reading-item .meta { display: none; }
+      .reading-item:hover { padding-left: 12px; padding-right: 12px; }
+      .stuck-panel { grid-template-columns: 1fr; padding: 48px 28px; gap: 40px; }
+      .links-row { grid-template-columns: repeat(2, 1fr); }
+      .pull { padding: 80px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============== NAV ============== -->
+<nav class="site-nav">
+  <a href="#top" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Team</span>
+  </a>
+  <div class="nav-meta">
+    <a href="#start">Start here</a>
+    <a href="#read">Read</a>
+    <a href="#operate">Operate</a>
+    <a href="#stuck">Stuck?</a>
+  </div>
+</nav>
+
+<!-- ============== HERO ============== -->
+<header class="hero" id="top">
+  <div class="super">OnlyWorks · Team handbook · 2026</div>
+  <h1>Everything you need to <em>ship.</em></h1>
+  <p class="lead">
+    Where to start, what to read, how we work, who to ask.
+    Bookmark this page — it's the one link you keep open while you onboard,
+    and the one you come back to when you forget what we agreed to.
+  </p>
+</header>
+
+<section class="hero-meta">
+  <div class="cell">Team<strong>4 people</strong></div>
+  <div class="cell">Stack<strong>Electron + TS</strong></div>
+  <div class="cell">Cadence<strong>weekly demo</strong></div>
+  <div class="cell">Mode<strong>async first</strong></div>
+</section>
+
+<!-- ============== START HERE (Week 0) ============== -->
+<section class="section" id="start">
+  <div class="section-label"><span class="num">§ 01</span> Start here</div>
+  <h2 class="section-title">Day one. <em>Build something tiny.</em></h2>
+  <p class="section-desc">
+    Your first week is a self-contained build exercise — a small todo app in our exact stack.
+    It exists to prove you can ship in our system before you touch real OnlyWorks code.
+    Don't try to make it impressive; make it work, and understand every choice.
+  </p>
+
+  <a href="docs/12-week0-todo-app-guide.html" class="cta-card">
+    <div>
+      <span class="badge">Week 0 · Required</span>
+      <h3>The <em>todo app</em> build guide</h3>
+      <p>
+        Step-by-step Electron + React + tRPC + Tailwind + shadcn from scratch.
+        Code snippets, common pitfalls, curated learning resources, and the
+        questions we'll ask in review. Read sections 1–3, then work top-to-bottom.
+      </p>
+      <div class="cta-card-meta">
+        <div class="item">Reading<strong>45 min</strong></div>
+        <div class="item">Build<strong>4–6 days</strong></div>
+        <div class="item">Review<strong>Friday W0</strong></div>
+        <div class="item">Stack<strong>10 layers</strong></div>
+      </div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
+</section>
+
+<!-- ============== STRATEGIC READING ============== -->
+<section class="section" id="read">
+  <div class="section-label"><span class="num">§ 02</span> Read this week</div>
+  <h2 class="section-title">The strategy, <em>in order.</em></h2>
+  <p class="section-desc">
+    Read these in this order. Don't skim. Take notes. By the end of Week 1 you should
+    understand what OnlyWorks does, who it's for, how it makes money, and what kills
+    us if we get it wrong.
+  </p>
+
+  <ol class="reading-list">
+    <li>
+      <a href="docs/08-plain-english-plan.html" class="reading-item">
+        <div class="body">
+          <span class="title">The plan, in <em>plain English</em></span>
+          <span class="desc">If you read one document, read this. The whole product in conversational prose — what we're building, who it's for, how it makes money, what kills us if we get it wrong.</span>
+        </div>
+        <div class="meta"><strong>10 min</strong>~4,500 words</div>
+      </a>
+    </li>
+
+    <li>
+      <a href="docs/02-intent-and-history.html" class="reading-item">
+        <div class="body">
+          <span class="title">Intent &amp; <em>history</em></span>
+          <span class="desc">Where OnlyWorks came from. The pivots. What worked. What didn't. The OW Profile Rescue postmortem. Lessons not to relearn.</span>
+        </div>
+        <div class="meta"><strong>25 min</strong>history</div>
+      </a>
+    </li>
+
+    <li>
+      <a href="docs/04-pmf-and-v2-direction.html" class="reading-item">
+        <div class="body">
+          <span class="title">PMF &amp; v2 <em>direction</em></span>
+          <span class="desc">The strategy doc. Three ICPs (students, mid-career, hiring managers). Three revenue streams. Pricing. What we drop. What we keep.</span>
+        </div>
+        <div class="meta"><strong>30 min</strong>strategy</div>
+      </a>
+    </li>
+
+    <li>
+      <a href="docs/05-v2.0-scope.html" class="reading-item">
+        <div class="body">
+          <span class="title">v2.0 <em>scope</em></span>
+          <span class="desc">Detailed feature spec. Five worker screens with text wireframes, API contracts, sprint plan, decisions to lock, open validation questions.</span>
+        </div>
+        <div class="meta"><strong>25 min</strong>feature spec</div>
+      </a>
+    </li>
+
+    <li>
+      <a href="docs/07-build-order.html" class="reading-item">
+        <div class="body">
+          <span class="title">Build <em>order</em></span>
+          <span class="desc">Per-person task list across the 12 weeks. Dependencies. Definition-of-done per phase. What you do Monday morning.</span>
+        </div>
+        <div class="meta"><strong>15 min</strong>your tasks</div>
+      </a>
+    </li>
+  </ol>
+</section>
+
+<!-- ============== PULL QUOTE BREAK ============== -->
+<div class="pull">
+  <blockquote>
+    Make small mistakes loud and early. We won't punish you for breaking something.
+    We <em>will</em> notice silence followed by surprise.
+  </blockquote>
+  <cite>— Working principle #1</cite>
+</div>
+
+<hr class="deco">
+
+<!-- ============== HOW WE WORK ============== -->
+<section class="section" id="operate">
+  <div class="section-label"><span class="num">§ 03</span> How we work</div>
+  <h2 class="section-title">Operating <em>system.</em></h2>
+  <p class="section-desc">
+    The rules for shipping together. Ownership zones, RFCs, decision rights,
+    the no-asks list, code review, security &amp; compliance. Read once. Disagree
+    in writing. We merge the changes.
+  </p>
+
+  <div class="doc-grid">
+    <a href="docs/13-team-operating-model.html" class="doc-card">
+      <span class="num">13</span>
+      <div class="eyebrow">How we work</div>
+      <h4>Team <em>operating model</em></h4>
+      <p>
+        Ownership zones with concrete per-engineer assignments. RFC process &amp; template.
+        1:1 format. Decision rights matrix. The no-asks list. Code review SLA.
+        On-call protocol. Quarterly review.
+      </p>
+      <div class="footer-line">
+        <span>20 min</span><span>·</span><span>Everyone</span>
+      </div>
+      <span class="arrow-icon">↗</span>
+    </a>
+
+    <a href="docs/14-security-and-compliance.html" class="doc-card">
+      <span class="num">14</span>
+      <div class="eyebrow">Trust foundation</div>
+      <h4>Security &amp; <em>compliance plan</em></h4>
+      <p>
+        Three-layer architecture (AI safety + infosec + privacy). Capture-to-LLM
+        pipeline. NeMo vs Node-native decision matrix. SOC 2 roadmap v2.0→v2.2.
+        Subprocessor list. Recommended tooling.
+      </p>
+      <div class="footer-line">
+        <span>40 min</span><span>·</span><span>Namkha + Builders</span>
+      </div>
+      <span class="arrow-icon">↗</span>
+    </a>
+
+    <a href="docs/09-intern-starter.html" class="doc-card">
+      <span class="num">09</span>
+      <div class="eyebrow">Onboarding</div>
+      <h4>Starter <em>guide</em></h4>
+      <p>
+        Conventions: code style, commits, PRs, branching, dependencies. How code
+        review works. What we don't want you to do. Things that get pushback in review.
+      </p>
+      <div class="footer-line">
+        <span>20 min</span><span>·</span><span>Everyone</span>
+      </div>
+      <span class="arrow-icon">↗</span>
+    </a>
+
+    <a href="docs/03-architecture-review.html" class="doc-card">
+      <span class="num">03</span>
+      <div class="eyebrow">Reference</div>
+      <h4>Architecture <em>review</em></h4>
+      <p>
+        What's outdated in v1. What's worth keeping. Recommended v2 stack and rationale.
+        Capture pipeline simplification. Code that ports verbatim vs heavy rewrite vs throw away.
+      </p>
+      <div class="footer-line">
+        <span>reference</span><span>·</span><span>Builders</span>
+      </div>
+      <span class="arrow-icon">↗</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============== VISUALS ============== -->
+<section class="section">
+  <div class="section-label"><span class="num">§ 04</span> Visual assets</div>
+  <h2 class="section-title">Wireframes &amp; <em>deck.</em></h2>
+  <p class="section-desc">
+    What the product looks like and how we present it. Reference these when you're
+    building a screen or explaining the product to someone new.
+  </p>
+
+  <div class="doc-grid">
+    <a href="visuals/presentation.pdf" class="doc-card">
+      <span class="num">PDF</span>
+      <div class="eyebrow">Kickoff deck</div>
+      <h4>v2 <em>presentation</em></h4>
+      <p>
+        14-slide kickoff deck. Light palette, brand purple. Use when explaining
+        OnlyWorks to advisors, candidates, or yourself when you forget what we're doing.
+      </p>
+      <div class="footer-line"><span>14 slides</span></div>
+      <span class="arrow-icon">↗</span>
+    </a>
+
+    <a href="visuals/wireframes.pdf" class="doc-card">
+      <span class="num">PDF</span>
+      <div class="eyebrow">Desktop screens</div>
+      <h4>Worker <em>wireframes</em></h4>
+      <p>
+        5 screens — Status, Portfolio, Privacy, Settings, First-run. Dark palette.
+        Match this structure when you implement.
+      </p>
+      <div class="footer-line"><span>5 screens</span></div>
+      <span class="arrow-icon">↗</span>
+    </a>
+
+    <a href="visuals/web-wireframes.pdf" class="doc-card">
+      <span class="num">PDF</span>
+      <div class="eyebrow">Web screens</div>
+      <h4>Marketplace <em>wireframes</em></h4>
+      <p>
+        4 screens — HM Search, HM Dashboard, Job Post creation, Public Profile.
+        The marketplace side of the product.
+      </p>
+      <div class="footer-line"><span>4 screens</span></div>
+      <span class="arrow-icon">↗</span>
+    </a>
+
+    <a href="visuals/00-design-system.html" class="doc-card">
+      <span class="num">DS</span>
+      <div class="eyebrow">Source of truth</div>
+      <h4>Design <em>system v1</em></h4>
+      <p>
+        Tokens, type, button system, modal system, pills, spacing, anti-patterns.
+        Implement against this — don't invent new tokens.
+      </p>
+      <div class="footer-line"><span>system</span></div>
+      <span class="arrow-icon">↗</span>
+    </a>
+  </div>
+</section>
+
+<!-- ============== QUICK LINKS ============== -->
+<section class="section">
+  <div class="section-label"><span class="num">§ 05</span> Quick links</div>
+  <h2 class="section-title">Where things <em>live.</em></h2>
+  <p class="section-desc">
+    The tools we use day-to-day. If a link is missing, ping Namkha — she'll add you.
+  </p>
+
+  <div class="links-row">
+    <a href="https://github.com/Namkha-yolo/onlyworks_desktop_v2" class="link-card" target="_blank" rel="noopener">
+      <div class="icon">↗</div>
+      <div class="label">Code · v2</div>
+      <div class="name">Desktop repo</div>
+    </a>
+    <a href="https://github.com/Namkha-yolo/onlyworks-backend-server" class="link-card" target="_blank" rel="noopener">
+      <div class="icon">↗</div>
+      <div class="label">Code · backend</div>
+      <div class="name">Backend server</div>
+    </a>
+    <a href="https://github.com/Namkha-yolo/onlyworks_desktop" class="link-card" target="_blank" rel="noopener">
+      <div class="icon">↗</div>
+      <div class="label">Code · v1 reference</div>
+      <div class="name">Desktop (v1)</div>
+    </a>
+    <a href="visuals/00-design-system.html" class="link-card">
+      <div class="icon">→</div>
+      <div class="label">Design</div>
+      <div class="name">Design system</div>
+    </a>
+    <a href="docs/index.html" class="link-card">
+      <div class="icon">→</div>
+      <div class="label">Library</div>
+      <div class="name">All planning docs</div>
+    </a>
+    <a href="docs/12-week0-todo-app-guide.html" class="link-card">
+      <div class="icon">→</div>
+      <div class="label">Build</div>
+      <div class="name">Week 0 guide</div>
+    </a>
+    <a href="docs/13-team-operating-model.html" class="link-card">
+      <div class="icon">→</div>
+      <div class="label">Operate</div>
+      <div class="name">How we work</div>
+    </a>
+    <a href="docs/14-security-and-compliance.html" class="link-card">
+      <div class="icon">→</div>
+      <div class="label">Trust</div>
+      <div class="name">Security plan</div>
+    </a>
+  </div>
+</section>
+
+<!-- ============== STUCK PANEL ============== -->
+<section class="section" id="stuck">
+  <div class="section-label"><span class="num">§ 06</span> When you're stuck</div>
+
+  <div class="stuck-panel">
+    <div>
+      <h3>The <em>escalation</em> ladder.</h3>
+      <p>
+        We don't punish disagreement; we don't punish breakage; we don't punish not knowing.
+        We do notice silence — finding out in Week 6 that you've been blocked since Week 3
+        is the failure mode we're trying to avoid. Use this ladder in order.
+      </p>
+    </div>
+    <ol class="stuck-list">
+      <li>
+        <div>
+          <strong>Read the error message.</strong>
+          <span>Sounds obvious; most people don't.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Search the relevant doc.</strong>
+          <span>Cmd-F first. Most gotchas are in the guides.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Search the official upstream docs.</strong>
+          <span>Tailwind issue? Tailwind docs. Not Stack Overflow.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Search GitHub Issues of the failing package.</strong>
+          <span>Filter to the last 6 months.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Ask in #engineering.</strong>
+          <span>30-min rule. Include what you tried.</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Ping Namkha.</strong>
+          <span>Only after 1–5.</span>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer class="site-footer">
+  <span class="brand">OnlyWorks · Team</span>
+  <span>Compiled with pandoc · Updated 2026-05-30</span>
+  <span>Internal · Do not redistribute</span>
+</footer>
+
+</body>
+</html>

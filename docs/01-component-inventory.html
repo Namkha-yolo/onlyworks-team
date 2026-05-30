@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v1 component inventory · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>01 · reference</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 01 · Reference</div>
+      <div class="title">v1 component inventory</div>
+      <div class="subtitle">Exhaustive map of what's in v1 today. Use
+when porting code or deciding what survives. Includes dead-code list and
+known gotchas.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>reference</strong></span>
+        <span>Audience<strong>Builders</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks-desktop--component-inventory-v1"
+id="toc-onlyworks-desktop--component-inventory-v1">OnlyWorks Desktop —
+Component Inventory (v1)</a>
+<ul>
+<li><a href="#feature-area-authentication"
+id="toc-feature-area-authentication">Feature Area:
+Authentication</a></li>
+<li><a href="#feature-area-session-capture"
+id="toc-feature-area-session-capture">Feature Area: Session
+Capture</a></li>
+<li><a href="#feature-area-reports"
+id="toc-feature-area-reports">Feature Area: Reports</a></li>
+<li><a href="#feature-area-teams" id="toc-feature-area-teams">Feature
+Area: Teams</a></li>
+<li><a href="#feature-area-hiring" id="toc-feature-area-hiring">Feature
+Area: Hiring</a></li>
+<li><a href="#feature-area-profile--settings"
+id="toc-feature-area-profile--settings">Feature Area: Profile &amp;
+Settings</a></li>
+<li><a href="#feature-area-onboarding"
+id="toc-feature-area-onboarding">Feature Area: Onboarding</a></li>
+<li><a href="#feature-area-dashboard--activity"
+id="toc-feature-area-dashboard--activity">Feature Area: Dashboard /
+Activity</a></li>
+<li><a href="#infrastructure"
+id="toc-infrastructure">Infrastructure</a></li>
+<li><a href="#ipc-channel-groups" id="toc-ipc-channel-groups">IPC
+Channel Groups</a></li>
+<li><a href="#builddist" id="toc-builddist">Build/Dist</a></li>
+<li><a href="#notable-complexity--pain-points"
+id="toc-notable-complexity--pain-points">Notable Complexity / Pain
+Points</a></li>
+<li><a href="#surprises-and-loose-ends"
+id="toc-surprises-and-loose-ends">Surprises and Loose Ends</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks-desktop--component-inventory-v1">OnlyWorks Desktop —
+Component Inventory (v1)</h1>
+<p>Source: code audit at 2026-05-28. This is the "what exists today"
+map, organized by feature area. Use this when deciding what to port,
+rebuild, or drop in v2.</p>
+<h2 id="feature-area-authentication">Feature Area: Authentication</h2>
+<p><strong>Login methods (3):</strong></p>
+<ul>
+<li>Google OAuth via system browser (<code>shell.openExternal</code>) →
+3-minute poll loop hitting
+<code>GET /api/auth/oauth/poll?state=...</code> every 2s</li>
+<li>LinkedIn OAuth (same pattern as Google)</li>
+<li>Email + password (signup + signin, with 6-digit verification codes
+for new signups, 10-min expiry)</li>
+<li>Custom protocol handler <code>onlyworks://</code> for deep-link
+OAuth callback on macOS</li>
+<li>Embedded OAuth via <code>BrowserView</code> (legacy, still wired up
+at <code>src/components/embedded-oauth.js</code> but not actively
+used)</li>
+</ul>
+<p><strong>Auth files:</strong></p>
+<ul>
+<li><code>src/auth/auth.html</code> + <code>auth.js</code> —
+sign-in/sign-up page, RFC-5322-ish email validation, password rules (8+
+chars, upper/lower/number), verification code entry</li>
+<li><code>src/auth/loading.html/.js/.css</code> — interstitial
+loading</li>
+<li><code>src/ipc/auth.handlers.js</code> — 8 IPC handlers (google,
+linkedin, email, signup, verify-email, resend-verification, signout,
+complete)</li>
+<li><code>src/core/auth-utils.js</code> —
+<code>handleAuthError()</code>, <code>authenticatedFetch()</code> with
+auto-token-refresh + 401 retry, <code>setupAuth()</code> startup
+routing</li>
+<li><code>src/core/oauth-flow.js</code> —
+<code>completeEmbeddedOAuth()</code>,
+<code>syncOnboardingToBackend()</code>,
+<code>exchangeCodeForTokens()</code></li>
+<li><code>src/services/backend-auth.js</code> — encrypted token storage
+via <code>electron-store</code> (machine-specific encryption key from
+hostname/user/platform), proactive token refresh</li>
+<li><code>src/core/token-refresh.js</code> — 50-line background
+timer</li>
+<li><code>src/services/supabase.js</code> — Supabase client (regular +
+admin) with file-backed session persistence via
+<code>safeStorage</code></li>
+</ul>
+<p><strong>State owned:</strong> access/refresh tokens (encrypted),
+current user, token expiry. Sleep/wake handling via
+<code>powerMonitor.on('resume')</code> re-validates tokens.</p>
+<h2 id="feature-area-session-capture">Feature Area: Session Capture</h2>
+<p><strong>Two-pipeline architecture:</strong></p>
+<p><strong>Pipeline 2 — Activity Analysis (core):</strong></p>
+<ul>
+<li><code>src/services/capture-service.js</code> (52KB, ~1417 lines) —
+<code>CaptureService extends EventEmitter</code>: 3s interval
+screenshots + on user actions (click, Enter, copy). Manages:
+<code>uiohook-napi</code> keyboard/mouse listeners, clipboard polling
+(1.5s), idle/inactivity detection (10-min warning, 15-min auto-stop),
+SHA-256 duplicate detection, per-app time tracking, window-title change
+detection, capture-health failure reporting</li>
+<li><code>src/services/ocr-service.js</code> — Platform-native priority:
+macOS Vision (compiled Swift binary <code>src/native/ocr_helper</code>
+first, Swift CLT interpreter second) → Windows.Media.Ocr via PowerShell
+wrapper (3-failure circuit breaker → Tesseract fallback) → Tesseract.js
+(Linux + global fallback)</li>
+<li><code>src/services/activity-buffer-service.js</code> — Rolling
+20-frame buffer (~60s); flushes batches every 30s to
+<code>POST /api/pipeline/activity/stream</code></li>
+<li><code>src/services/process-detection-service.js</code> — Detects 30+
+competing surveillance tools (Cluely, Teramind, TimeDoctor, Hubstaff,
+ActivTrak, RescueTime, etc.) by process name</li>
+</ul>
+<p><strong>Pipeline 1 — Training Data Collection (core):</strong></p>
+<ul>
+<li><code>src/services/training-data-service.js</code> — Captures
+full-res screenshots on user actions. Auto-labels frames by app category
+(<code>APP_CATEGORIES</code>: VS Code=high, Slack=medium, YouTube=low).
+Uploads to <code>POST /api/pipeline/training/frames</code></li>
+</ul>
+<p><strong>Session orchestration:</strong></p>
+<ul>
+<li><code>src/services/session-service.js</code> — Promise-based
+concurrency lock; orphan-session reconciliation; coordinates
+<code>createSession</code>/<code>endSession</code> with
+<code>/api/sessions/*</code>; paired bidirectionally with
+capture-service</li>
+<li><code>src/services/cleanup-service.js</code> — Strips raw OCR text
+from <code>activity_log</code> rows older than 7 days (retention)</li>
+<li><code>src/core/pipeline-init.js</code> — Wires
+sendCallback/uploadCallback between buffer services and backend HTTP
+layer</li>
+</ul>
+<p><strong>Native helpers:</strong></p>
+<ul>
+<li><code>src/native/ocr_helper.swift</code> + compiled
+<code>ocr_helper</code> binary — bundled in <code>extraResources</code>
+so users don't need Xcode CLT</li>
+<li><code>src/utils/windows-ocr.ps1</code> — PowerShell wrapper around
+Windows.Media.Ocr</li>
+<li><code>src/utils/get-active-window.ps1</code> — PowerShell+Win32
+fallback when <code>active-win</code> fails</li>
+<li><code>src/utils/linux-ocr.sh</code> — Linux helper</li>
+</ul>
+<p><strong>Global shortcut:</strong> <code>CmdOrCtrl+Shift+S</code>
+toggles session start/stop.</p>
+<h2 id="feature-area-reports">Feature Area: Reports</h2>
+<p><strong>Pages (renderer):</strong></p>
+<ul>
+<li><code>src/app/modules/page-reports.js</code> — Coordinator (~80
+lines), tab switcher (Generate / History)</li>
+<li><code>src/app/modules/reports/reports-generate.js</code> —
+date-range mode OR session-selection mode</li>
+<li><code>src/app/modules/reports/reports-history.js</code> — sort
+dropdown</li>
+<li><code>src/app/modules/reports/reports-render.js</code> — HTML
+renderer (executive_summary, key_accomplishments, skills_used,
+strengths_demonstrated, growth_areas, tasks_completed/remaining,
+blockers, next_steps)</li>
+<li><code>src/app/modules/reports/reports-share.js</code> — Resend email
++ copy-link; recipient chip UI</li>
+<li><code>src/app/modules/page-report-details.js</code> (27KB) — Modal
+w/ Worker ↔︎ Manager view toggle;
+<code>enhanceReportWithOnlyWorks()</code> fills in fallbacks</li>
+<li><code>src/app/modules/report-editing.js</code> — Inline title
+editing</li>
+</ul>
+<p><strong>Sub-features:</strong></p>
+<ul>
+<li>Session reports (auto at session end)</li>
+<li>Daily reports (auto-merge per timezone)</li>
+<li>Custom reports — date range OR session-selection; <strong>5/month
+cap</strong> with progress bar UI</li>
+<li>Day Report (one-click per date group on Activity page)</li>
+<li>Worker view vs Manager view toggle inside report modal</li>
+<li>Share via Resend email + copy-link + mark-as-shared</li>
+<li>Custom title editing</li>
+<li>Streamed progress via
+<code>report-progress:{start,update,complete,error}</code> IPC</li>
+</ul>
+<p><strong>Backend endpoints (<code>reports:*</code>, 13
+handlers):</strong> <code>/api/reports</code>,
+<code>/api/reports/generate-date-range</code>,
+<code>/api/reports/generate-from-sessions</code>,
+<code>/api/reports/:id</code>, <code>/api/reports/:id/share-link</code>,
+<code>/api/reports/sent-history</code>,
+<code>/api/reports/daily/:date</code>, <code>/api/reports/today</code>,
+<code>/api/reports/refresh-daily/:date</code>,
+<code>/api/reports/limits</code>, plus title-update and email-send.
+Field normalization (<code>normalizeReport()</code> in
+<code>src/ipc/reports.handlers.js</code>) shuffles between top-level and
+<code>report_data.*</code> for legacy compat.</p>
+<h2 id="feature-area-teams">Feature Area: Teams</h2>
+<p><strong>Pages:</strong></p>
+<ul>
+<li><code>src/app/modules/page-manager.js</code> — Owner/admin-only.
+Team selector, 3 tabs (Overview, Members, Reports)</li>
+<li><code>src/app/modules/manager/manager-overview.js</code> —
+<code>showTeamOverview()</code> productivity stats grid,
+<code>showManagerNoTeams()</code> empty state</li>
+<li><code>src/app/modules/manager/manager-members.js</code> — Add/remove
+members, role changes, cancel invitations, team reports, per-member
+report modal</li>
+<li><code>src/app/modules/page-goals-teams.js</code> (23KB) — "Teams"
+tab UI (create/join, invite by email) AND "Goals" UI (priority filter),
+bolted together</li>
+</ul>
+<p><strong>Sub-features:</strong> create team, join by invite code,
+invite by email, owner/admin/member roles, generate per-member reports,
+view team analytics, pending invitation mgmt.</p>
+<p><strong>Backend endpoints (<code>teams:*</code>, 18
+handlers):</strong> <code>/api/teams</code>,
+<code>/api/teams/:id</code>, <code>/api/teams/:id/members</code>,
+<code>/api/teams/:id/analytics</code>,
+<code>/api/teams/:id/invitations</code> (pending/cancel),
+<code>/api/teams/:id/members/:userId</code> (role/remove),
+<code>/api/teams/:id/reports</code>,
+<code>/api/teams/:id/members/:memberId/reports</code>,
+<code>/api/teams/all-people</code>, <code>/api/teams/join</code>.</p>
+<p><strong>State (<code>window.managerState</code>):</strong>
+currentTab, selectedTeamId, selectedMemberId, teams[], members[],
+analytics.</p>
+<h2 id="feature-area-hiring">Feature Area: Hiring</h2>
+<p><strong>Desktop: zero first-class hiring UI today.</strong> The OW
+Profile page is the only desktop touchpoint (it's the public verified
+profile shared via <code>/ow/{shareToken}</code>). All hiring
+infrastructure is web/backend-only.</p>
+<h2 id="feature-area-profile--settings">Feature Area: Profile &amp;
+Settings</h2>
+<p><strong>OW Profile page</strong>
+(<code>src/app/modules/page-ow-profile.js</code>, <strong>47KB</strong>
+— largest page module):</p>
+<ul>
+<li>Dual-view toggle: OW Profile (verified skills with evidence, top
+strengths, growth journey, highlights) vs Resume (traditional
+sections)</li>
+<li>Resume upload (PDF, 10MB max via <code>dialog.showOpenDialog</code>
+→ base64 → <code>/api/resumes/upload</code>, 120s timeout for parse + 2
+AI calls); resume delete</li>
+<li>Skills by category (technical/soft/domain + AI-emitted unknowns);
+proficiency labels; per-skill expandable evidence rows</li>
+<li>Share OW profile via <code>/ow/{shareToken}</code> link</li>
+<li>Auto-refresh every 5 minutes</li>
+<li>Empty state for users with no reports yet</li>
+<li>Helpers: <code>_normalizeProfileData()</code>,
+<code>_proficiencyLabel()</code>, <code>_formatFieldLabel()</code>,
+<code>_formatCategoryLabel()</code>,
+<code>_groupSkillsByCategory()</code></li>
+</ul>
+<p><strong>Settings page</strong>
+(<code>src/app/modules/page-settings.js</code>):</p>
+<ul>
+<li>Profile summary card (avatar, display name, plan badge)</li>
+<li>Account fields: username, email, phone</li>
+<li>Appearance: light/dark/auto with <code>prefers-color-scheme</code>
+listener</li>
+<li>Notifications: email, push, marketing checkboxes</li>
+<li>Replay tutorial</li>
+<li>Sign out</li>
+<li>App version</li>
+</ul>
+<p><strong>Profile sidebar route</strong> — Renders inline in
+<code>router.js</code> case <code>'profile'</code>: OW ID, field of
+work, experience level, job title, plan, 3 stat cards (verified hours,
+sessions, current streak), public profile link.</p>
+<p><strong>IPC (<code>profile:*</code>, 9 handlers):</strong>
+profile:get, checkUsername, submit, update, getOwId, getStats,
+getOWProfile, shareOWProfile, copyProfileUrl. Plus <code>resume:*</code>
+(4: pickFile/upload/get/delete) and <code>settings:*</code> (3).</p>
+<h2 id="feature-area-onboarding">Feature Area: Onboarding</h2>
+<p><strong>Pages (<code>src/onboarding/</code>):</strong></p>
+<ul>
+<li><code>welcome.html/.js/.css</code> — First-run page: macOS-only
+permission cards (Screen Recording + Accessibility, clickable to open
+System Settings panes via <code>x-apple.systempreferences:</code> URLs),
+permission polling, Terms + Privacy buttons, terms-acceptance checkbox,
+"Get Started" CTA (disabled until permissions + terms satisfied)</li>
+<li><code>profile-setup.html/.js/.css</code> — Required: full name,
+display name (regex-validated, backend username availability check),
+field of work (custom dropdown, 11 options), experience level (5 tiers),
+optional job title</li>
+</ul>
+<p><strong>Mid-session permission handling:</strong> macOS TCC snapshot
+at launch (<code>_launchTrustState</code> in <code>OnlyWorksApp</code>).
+If user grants permissions during onboarding,
+<code>onboarding:complete</code> detects transition and
+<strong>relaunches the app</strong> (uIOhook would otherwise abort at
+C-level on a poisoned process).</p>
+<p><strong>IPC (<code>onboarding:*</code> + <code>tutorial:*</code>, 6
+handlers):</strong> checkComplete, complete, syncToBackend,
+tutorial:isPending, markCompleted, setPending.</p>
+<p><strong>Tutorial:</strong> <code>src/app/modules/tutorial.js</code>
+(26KB) — 8-step coach-mark walkthrough across Dashboard → Activity → OW
+Profile with spotlight cutouts, demo content injection, "Replay
+Tutorial" in Settings.</p>
+<h2 id="feature-area-dashboard--activity">Feature Area: Dashboard /
+Activity</h2>
+<p><strong>Dashboard</strong>
+(<code>src/app/modules/page-dashboard.js</code>):</p>
+<ul>
+<li>Time-based greeting + user display name</li>
+<li>Start Session / End Session button with inline "what are you working
+on?" focus input</li>
+<li>Active session panel: live timer, current app, activity count, focus
+text</li>
+<li>Daily Briefing: yesterday's priorities + today's accomplishments
+(parses both <code>tomorrow_priorities</code>/<code>next_steps</code>
+shapes for legacy compat)</li>
+<li>Recent Accomplishments grid (deduped across all reports)</li>
+<li>Recent Sessions list (clickable → session details modal)</li>
+<li>Skills &amp; Strengths chips (top 12 from all reports)</li>
+<li>Sub-modules: <code>dashboard/dashboard-data.js</code>,
+<code>dashboard/dashboard-accomplishments.js</code></li>
+</ul>
+<p><strong>Activity</strong>
+(<code>src/app/modules/page-activity.js</code>,
+<strong>41KB</strong>):</p>
+<ul>
+<li>Date-grouped timeline (Today/Yesterday/weekday+date) with
+collapsible groups, scroll gradients</li>
+<li>Filter tabs: This Week / This Month / All</li>
+<li>Inline session-name rename</li>
+<li>Per-day Day Report button → report modal pre-loaded</li>
+<li>Per-session card with productivity score, duration, time range,
+active indicator</li>
+<li>Custom Report full-screen overlay (history left, generate form
+right) with monthly quota progress bar</li>
+</ul>
+<p><strong>Sessions</strong>
+(<code>src/app/modules/page-sessions.js</code>):</p>
+<ul>
+<li><strong>Likely dead — router maps <code>'sessions'</code> →
+<code>showActivity()</code></strong> but file still exists w/ its own
+filters (All/Active/Completed), custom sort dropdown, collapsible
+"Create New Session" form</li>
+</ul>
+<p><strong>Session details modal</strong>
+(<code>src/app/modules/page-session-details.js</code>, 25KB) — Session
+rename, refresh, full detail viewer.</p>
+<h2 id="infrastructure">Infrastructure</h2>
+<h3 id="ipc-bridge-srcpreloadjs-444-lines">IPC bridge
+(<code>src/preload.js</code>, 444 lines)</h3>
+<p><code>contextBridge.exposeInMainWorld('electronAPI', {...})</code>
+with namespaces: auth, profile, resume, session, capture,
+pipeline.{activity,training,ocr}, sessions, reports, teams, goals,
+processMonitor, platformTracking, floatingPanel, onboarding, tutorial,
+system, permissions, legal, settings, debug. Plus event listeners.
+Bridges <code>console.log</code> to main with JWT/Bearer/password regex
+sanitization.</p>
+<h3 id="windowtraymenu-srccore">Window/tray/menu
+(<code>src/core/</code>)</h3>
+<ul>
+<li><code>window-manager.js</code> — <code>createWindow()</code>
+(1200×800 default, 650×400 min, native traffic-light positioning on
+macOS, Mica backdrop on Win11, DevTools dev-only)</li>
+<li><code>tray-manager.js</code> — System tray w/ Start/Stop Session,
+Show App, Sign Out, Quit; rebuilds menu state when session toggles</li>
+<li><code>menu-manager.js</code> — Application menu (Edit/View/Window).
+Reload/forceReload/toggleDevTools are dev-only; macOS gets standard app
+menu</li>
+<li><code>lifecycle.js</code> — <code>setupWhenReady</code>,
+<code>setupWindowAllClosed</code> (quit on non-darwin),
+<code>setupBeforeQuit</code> (graceful session end with
+<code>event.preventDefault()</code> until report generates)</li>
+<li><code>error-handlers.js</code> — Global
+<code>uncaughtException</code>/<code>unhandledRejection</code>
+handlers</li>
+</ul>
+<h3 id="auto-updater">Auto-updater</h3>
+<ul>
+<li><code>src/services/auto-updater.js</code> (20KB) —
+<code>electron-updater</code> wrapper, GitHub releases
+(<code>Namkha-yolo/ONLYWORKS_DIST</code>), tenant-policy hooks, event
+queue buffering for startup-phase renderer</li>
+<li><code>src/core/auto-updater-flow.js</code> — Startup orchestration:
+5s update-check timeout → 90s download timeout → "Restart Now/Later"
+prompt</li>
+<li><code>src/startup/startup.html/.js/.css</code> — Update-check
+splash</li>
+</ul>
+<h3 id="ui-primitives-srcappmodulescomponentsjs">UI primitives
+(<code>src/app/modules/components.js</code>)</h3>
+<p>Canonical factories returning HTML strings:</p>
+<ul>
+<li><code>owButton(text, opts)</code> — variants:
+primary/secondary/ghost/danger; modifiers: sm/lg/full/icon</li>
+<li><code>owModal(opts)</code> + <code>owShowModal(opts)</code> —
+overlay + content + header + body + footer; click-outside-to-close;
+auto-focus first input</li>
+<li><code>owPanel(content, opts)</code> — wrapper card</li>
+<li><code>owLoadingState(message)</code> — centered spinner</li>
+<li><code>owEmptyState(opts)</code> — icon
+(clipboard/rocket/chart/star/clock) + title + message + optional
+action</li>
+<li><code>owFilterBar(tabs, opts)</code> — <code>.ow-filter-tab</code>
+buttons</li>
+<li><code>owFormField(opts)</code> — text/select/textarea w/ label,
+validation, XSS-escaped value</li>
+<li><code>owStatCard(value, label, opts)</code> — stat tile</li>
+</ul>
+<p>All rely on <code>ow-*</code> CSS classes from
+<code>src/app/styles/styles.css</code> (single 123KB / ~5,700-line
+stylesheet, <code>border-radius: 0</code> everywhere).</p>
+<h3 id="app-entry-srcmainjs">App entry (<code>src/main.js</code>)</h3>
+<p><code>OnlyWorksApp</code> lifecycle:</p>
+<ol type="1">
+<li><strong>Startup</strong> — Windows-specific Chromium flags before
+<code>app.whenReady()</code>; silences <code>console.log</code> in
+packaged builds; captures macOS TCC trust snapshot</li>
+<li><strong>Init</strong> — createApplicationMenu → createWindow (loads
+<code>startup/startup.html</code>) → builds shared context for IPC
+handlers → registerAllHandlers → createSystemTray → instantiates
+CaptureService (defers initialize until after onboarding) →
+initializeAutoUpdaterWithStartup →
+setImmediate(initializePipelineServices) → windows-preflight.runAll() on
+win32 → registerGlobalShortcuts(CmdOrCtrl+Shift+S) →
+startTokenRefreshTimer → powerMonitor.on('resume') for post-sleep token
+refresh</li>
+<li><strong>Custom protocol</strong> —
+<code>app.setAsDefaultProtocolClient('onlyworks')</code>;
+<code>app.on('open-url')</code> handles OAuth deep-link (exchanges short
+code for tokens via <code>/api/auth/exchange-code</code>)</li>
+<li><strong>Activate</strong> — macOS dock click recreates window, skips
+startup, jumps to <code>targetPage</code></li>
+<li><strong>Shutdown</strong> — <code>setupBeforeQuit</code> ends active
+session gracefully (<code>event.preventDefault()</code> until report
+generates), cleans up captureService, autoUpdater, token timer,
+unregisters global shortcuts</li>
+</ol>
+<h3 id="routing-srcappmodulesrouterjs">Routing
+(<code>src/app/modules/router.js</code>)</h3>
+<p><code>showSection(name)</code> switch with cases: dashboard, activity
+(and legacy alias 'sessions'), settings, manager, ow-profile, goals
+(placeholder "under development"), profile (inline HTML). Cleans up
+event listeners and timers via <code>window.sectionCleanup</code> before
+each switch; emits <code>section-changed</code> events through
+<code>window.DataManager</code>.</p>
+<h3 id="state-management-in-flight-migration">State management
+(in-flight migration)</h3>
+<ul>
+<li><code>src/app/modules/store.js</code> — <code>AppStore</code>
+observable state (intended replacement for <code>window.*</code>
+globals)</li>
+<li><code>src/app/modules/data-manager.js</code> — TTL cache for reports
+(2min), sessions (1min), owProfile (5min); pub/sub;
+<code>withTimeout()</code> (30s default)</li>
+</ul>
+<h3 id="diagnostics-windows">Diagnostics (Windows)</h3>
+<p><code>src/services/windows-preflight.js</code> — 5 startup checks:
+VC++ Redistributable (vcruntime140.dll), uiohook-napi loadability, sharp
+loadability, PowerShell execution policy, Windows Defender exclusion
+suggestion. Results persisted to user-settings.</p>
+<h3 id="user-settings-srcservicesuser-settingsjs">User settings
+(<code>src/services/user-settings.js</code>)</h3>
+<p><code>electron-store</code> namespaces: onboarding, profile, widget,
+tutorial. Tracks completion flags, pending-sync state, terms/privacy
+versions accepted.</p>
+<h3 id="config-srcconfig">Config (<code>src/config/</code>)</h3>
+<ul>
+<li><code>config-manager.js</code> — Loads <code>.env</code> in dev,
+hardcoded production URLs in packaged builds</li>
+<li><code>production.js</code> — Hardcoded constants. <strong>Backend
+URL hardcoded in 3 places</strong> (<code>backend-auth.js</code>,
+<code>backend-api.js</code>, <code>todo-service.js</code>):
+<code>https://onlyworks-backend-server.onrender.com</code></li>
+</ul>
+<h2 id="ipc-channel-groups">IPC Channel Groups</h2>
+<p><strong>Active count:</strong> ~115 <code>ipcMain.handle</code>
+channels across 20 handler files + ~12 <code>webContents.send</code>
+event types = ~127 active channels. CLAUDE.md claims 169 likely includes
+legacy aliases still exposed in preload.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>File</th>
+<th>Handlers</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auth</td>
+<td><code>auth.handlers.js</code></td>
+<td>8</td>
+<td>OAuth + email + verification + signout</td>
+</tr>
+<tr>
+<td>Profile</td>
+<td><code>profile.handlers.js</code></td>
+<td>9</td>
+<td>User profile CRUD, OW Profile, OW ID, stats, share/copy</td>
+</tr>
+<tr>
+<td>Resume</td>
+<td><code>resume.handlers.js</code></td>
+<td>4</td>
+<td>PDF pick/upload/get/delete</td>
+</tr>
+<tr>
+<td>Onboarding</td>
+<td><code>onboarding.handlers.js</code></td>
+<td>6</td>
+<td>Completion check/mark, backend sync, tutorial state</td>
+</tr>
+<tr>
+<td>Sessions (legacy)</td>
+<td><code>session.handlers.js</code></td>
+<td>8</td>
+<td>session:create/end/continue/start-capture/stop-capture/get-current/get-status/get-user-sessions</td>
+</tr>
+<tr>
+<td>Sessions (extended)</td>
+<td><code>sessions-extended.handlers.js</code></td>
+<td>5</td>
+<td>sessions:createWithGoals, getUserSessions, getSessionDetails,
+updateSessionName</td>
+</tr>
+<tr>
+<td>Capture</td>
+<td><code>capture.handlers.js</code></td>
+<td>4</td>
+<td>start/stop/takeScreenshot/status</td>
+</tr>
+<tr>
+<td>Pipeline</td>
+<td><code>pipeline.handlers.js</code></td>
+<td>9</td>
+<td>Pipeline 1+2 start/stop/status/recordClick + OCR
+status/extractText</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td><code>reports.handlers.js</code></td>
+<td>13</td>
+<td>List/generate/details/email/share/limits/etc.</td>
+</tr>
+<tr>
+<td>Teams</td>
+<td><code>teams.handlers.js</code></td>
+<td>18</td>
+<td>Team + member + role + invite + analytics + reports</td>
+</tr>
+<tr>
+<td>Goals</td>
+<td><code>goals.handlers.js</code></td>
+<td>7</td>
+<td>CRUD/getTodays/stats/reorder</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><code>settings.handlers.js</code></td>
+<td>3</td>
+<td>get/save/clear-cache</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td><code>analytics.handlers.js</code></td>
+<td>1</td>
+<td>get-analytics</td>
+</tr>
+<tr>
+<td>System</td>
+<td><code>system.handlers.js</code></td>
+<td>5</td>
+<td>getPlatform, permissions check/request/openSettings/trigger</td>
+</tr>
+<tr>
+<td>Process monitor</td>
+<td><code>process-monitor.handlers.js</code></td>
+<td>2</td>
+<td>Background-process listing</td>
+</tr>
+<tr>
+<td>Legal</td>
+<td><code>legal.handlers.js</code></td>
+<td>2</td>
+<td>openTerms, openPrivacy</td>
+</tr>
+<tr>
+<td>Shell</td>
+<td><code>shell.handlers.js</code></td>
+<td>1</td>
+<td>openExternal</td>
+</tr>
+<tr>
+<td>App info</td>
+<td><code>app-info.handlers.js</code></td>
+<td>2</td>
+<td>app:getVersion, console:log bridge</td>
+</tr>
+<tr>
+<td>Debug</td>
+<td><code>debug.handlers.js</code></td>
+<td>1</td>
+<td>getUserData</td>
+</tr>
+<tr>
+<td>Auto-updater flow</td>
+<td><code>auto-updater-flow.js</code></td>
+<td>4</td>
+<td>startup:skip-update/install-update/retry-connectivity/ready</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Server-pushed events:</strong> <code>screenshot-taken</code>,
+<code>session-update</code>, <code>session-state-changed</code>,
+<code>capture-health-error</code>,
+<code>report-progress:{start,update,complete,error}</code>,
+<code>update-status</code>, <code>navigate</code>,
+<code>loading-progress</code>,
+<code>oauth-{loading,loaded,cleanup}</code>,
+<code>capture-state-changed</code>.</p>
+<h2 id="builddist">Build/Dist</h2>
+<p><strong>Stack:</strong> Electron 27.3.11 (current Electron is 33+ —
+two majors behind), vanilla JS (no React/bundler),
+<code>electron-builder</code> 24.6.4, <code>vitest</code>.</p>
+<p><strong>Key deps:</strong> <code>@supabase/supabase-js</code>,
+<code>@google/generative-ai</code>, <code>electron-store</code>
+(encrypted), <code>electron-updater</code>, <code>tesseract.js</code>,
+<code>uiohook-napi</code>, <code>active-win</code>, <code>sharp</code>,
+<code>resend</code>, <code>pako</code>, <code>nodemailer</code>,
+<code>axios</code>.</p>
+<p><strong>Scripts:</strong></p>
+<ul>
+<li><code>npm start</code> / <code>npm run dev</code> — Electron
+dev</li>
+<li><code>npm run dist:mac:signed</code> — macOS signed + notarized
+(requires <code>.env.local</code>)</li>
+<li><code>npm run dist:all:signed</code> — macOS + Windows</li>
+<li><code>npm run publish</code> — Publish to GitHub releases</li>
+<li><code>prebuild:mac</code> — Compiles Swift OCR helper</li>
+</ul>
+<p><strong>Bundle config:</strong></p>
+<ul>
+<li><code>asarUnpack</code> for native binaries: uiohook-napi,
+tesseract.js-core, sharp, @img, active-win,
+<code>src/utils/*.ps1</code></li>
+<li>macOS extra resources: compiled <code>ocr_helper</code> binary</li>
+<li>macOS hardenedRuntime + notarize team ID <code>GXMV9WJ359</code>;
+dmg + zip for x64 + arm64</li>
+<li>Windows: NSIS installer (perMachine, configurable install dir,
+desktop + start menu shortcuts) + portable EXE; dot-separated artifact
+names (GitHub URL workaround)</li>
+<li>Custom protocol: <code>onlyworks://</code> for OAuth deep-links</li>
+<li><code>build/notarize.js</code> runs in <code>afterSign</code>
+(macOS)</li>
+</ul>
+<h2 id="notable-complexity--pain-points">Notable Complexity / Pain
+Points</h2>
+<ol type="1">
+<li><p><strong>Two parallel session pages.</strong>
+<code>page-sessions.js</code> exists with its own UI but router maps
+<code>'sessions'</code> → <code>showActivity()</code>. Likely dead but
+unremoved.</p></li>
+<li><p><strong>Two parallel session API surfaces.</strong>
+<code>electronAPI.session.*</code> (singular, 8 channels) and
+<code>electronAPI.sessions.*</code> (plural, 5 channels) overlap. Legacy
+top-level routes like <code>get-sessions</code>,
+<code>delete-session</code>, <code>setSessionGoal</code>,
+<code>startNewSessionWithGoal</code> exposed in preload but barely
+used.</p></li>
+<li><p><strong>page-ow-profile.js is 47KB / ~900 lines.</strong> Resume
+parsing + OW Profile rendering + share + upload + delete + legacy
+data-shape handling all in one file.</p></li>
+<li><p><strong>page-activity.js is 41KB.</strong> Timeline +
+custom-report overlay + day-report generation + session rename + scroll
+gradients — should be 4-5 files.</p></li>
+<li><p><strong>capture-service.js is 52KB / ~1417 lines.</strong> Single
+class handling screenshots, uiohook, clipboard, idle, dedup, per-app
+time, window-title, capture-health. Two-pipeline architecture is the
+wrong abstraction (organized by output type, not trigger).</p></li>
+<li><p><strong>Dead/skeleton code (40KB+):</strong></p>
+<ul>
+<li><code>src/services/integration-service.js</code> (19KB) —
+Monday/Jira/Asana OAuth, never imported</li>
+<li><code>src/services/todo-service.js</code> (20KB) — never
+imported</li>
+<li><code>src/services/Untitled-1</code> — empty file</li>
+<li><code>src/app/app.js.bak</code> — leftover backup</li>
+</ul></li>
+<li><p><strong>Legacy preload channels with no handler</strong> (will
+hang silently if called): <code>take-screenshot</code>,
+<code>get-screenshot-count</code>, <code>set-team-context</code>,
+<code>set-analysis-mode</code>,
+<code>generate-intelligent-report</code>,
+<code>get-stored-report</code>, <code>get-reports-list</code>,
+<code>generate-range-report</code>, <code>export-screenshots</code>,
+<code>get-platform-usage</code>, <code>get-ai-tool-usage</code>,
+<code>floating-panel-*</code>, <code>widget:test-trigger-alert</code>,
+<code>setWidgetTheme</code>.</p></li>
+<li><p><strong>macOS TCC permission relaunch.</strong>
+Onboarding-complete handler detects mid-session permission grants and
+calls <code>app.relaunch()</code> to avoid uIOhook C-level abort.
+Hard-won fix — must survive v2.</p></li>
+<li><p><strong>Subscription system is stubbed.</strong>
+<code>src/app/modules/subscription.js</code> always returns
+<code>{ isPaid: false, isOnTrial: false, statusText: 'Free' }</code>. No
+paid-tier logic exists in desktop.</p></li>
+<li><p><strong>Goals UI partially landed.</strong> Full UI in
+<code>page-goals-teams.js</code>, 7 IPC handlers, but router renders
+placeholder "under development".</p></li>
+<li><p><strong>Tutorial.js (26KB)</strong> manages DOM-level coach marks
+across navigation — spotlight cutouts, demo content injection,
+element-wait polling.</p></li>
+<li><p><strong>No proper testing.</strong> <code>vitest</code>
+configured; few tests beyond <code>auth.js</code> validators.</p></li>
+<li><p><strong>Legacy field-name normalization.</strong>
+<code>normalizeReport()</code> in reports.handlers.js shuffles fields
+between top-level and <code>report_data.*</code> for backend evolution.
+<code>enhanceReportWithOnlyWorks()</code> fills fallback
+strings.</p></li>
+</ol>
+<h2 id="surprises-and-loose-ends">Surprises and Loose Ends</h2>
+<ul>
+<li><strong>Floating panel API</strong> in preload
+(<code>floatingPanel.{toggle,getCaptureState,toggleRecording,openDashboard,openSettings,resize}</code>)
+— no handlers. Abandoned.</li>
+<li><strong>Widget theme</strong> — <code>setWidgetTheme</code>,
+<code>widget</code> namespace in user-settings defaults — references a
+widget that doesn't exist.</li>
+<li><strong>Analytics namespace</strong> —
+<code>getDailyAnalytics</code>, <code>getWeeklyAnalytics</code>,
+<code>getProductivityInsights</code>, <code>getSessionAnalytics</code>,
+<code>getIntelligentAnalysis</code> exposed in preload; only
+<code>get-analytics</code> has a handler.</li>
+<li><strong>Platform tracking namespace</strong> —
+<code>getPlatformUsage</code>, <code>getPlatformBreakdown</code>,
+<code>getAIToolUsage</code>, <code>getPlatformTimeline</code> exposed;
+no handlers.</li>
+<li><strong>Export feature stubbed</strong> —
+<code>exportScreenshots</code>, <code>getExportHistory</code>,
+<code>openExportFile</code> exposed; "No local downloads" per project
+rules.</li>
+<li><strong>Two intelligent-analysis APIs</strong> dead —
+<code>set-analysis-mode</code>, <code>get-intelligent-analysis</code>,
+<code>generate-intelligent-report</code>, <code>set-team-context</code>
+— preload only.</li>
+<li><strong>Two empty-state systems</strong> —
+<code>owEmptyState()</code> (canonical) AND
+<code>window.createEmptyState</code> used in page-activity:209 and
+page-sessions:243. Different DOM. Should unify.</li>
+<li><strong>Manager Reports duplication</strong> — page-level Reports
+section AND per-member report-generation modal have duplicated
+logic.</li>
+<li><strong>Sleep/wake capture loop</strong> —
+<code>powerMonitor.on('resume')</code> refreshes tokens but doesn't
+pause/resume capture; 3s timer keeps running through sleep, could spam
+screenshots on wake.</li>
+<li><strong>Backend URL hardcoded in 3 files.</strong> Should be
+centralized.</li>
+<li><strong>No state management library</strong> — <code>window.*</code>
+globals everywhere; <code>AppStore</code> mid-migration.</li>
+<li><strong>37 scripts loaded in order from
+<code>app.html</code></strong> (actual: ~30). Fragile dependency —
+<code>exports.js</code> must load last, <code>_namespace.js</code>
+first.</li>
+<li><strong>CSS file: single ~5,700 lines</strong> at
+<code>src/app/styles/styles.css</code>.</li>
+<li><strong>Sidebar nav: 4 items + Settings + Profile</strong>
+(Dashboard/Activity/Team/OW Profile + Settings + Profile in bottom).
+<strong>Reports is NOT a top-level nav item</strong> — only accessible
+via Activity → "Generate Custom Report".</li>
+</ul>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>01 · 2026</span>
+</footer>
+
+</body>
+</html>

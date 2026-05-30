@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OnlyWorks v2 — Web Wireframes (Hiring + Public Profile)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ════════════════════════════════════════════════════════
+     OnlyWorks v2 — Web Wireframes
+     Aligned with /design-system.html · website light palette
+     ════════════════════════════════════════════════════════ */
+
+  :root {
+    --bg: #fafaf9;
+    --bg-alt: #f5f5f4;
+    --card: #ffffff;
+    --text: #080503;
+    --text-secondary: #44423d;
+    --text-muted: #a3a19b;
+    --border: #dad7d0;
+    --accent: #8b5cf6;
+    --accent-deep: #7c3aed;
+    --accent-light: #ede9fe;
+    --destructive: #e40014;
+    --success: #22c55e;
+    --warning: #d97706;
+    --accomp: #22c55e;
+    --strength: #3b82f6;
+    --growth: #a855f7;
+
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', SF Mono, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Page header ─────────────────────────────────────────── */
+  .page-header {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 80px 60px 60px;
+    border-bottom: 2px solid var(--text);
+  }
+  .page-header .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    font-weight: 600;
+  }
+  .page-header h1 {
+    font-family: var(--serif);
+    font-size: 96px;
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin-bottom: 22px;
+    color: var(--text);
+  }
+  .page-header h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .page-header .lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+  .page-header .meta {
+    display: flex;
+    gap: 48px;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .page-header .meta span strong {
+    display: block;
+    color: var(--text);
+    margin-top: 4px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* ── Screen section frame ─────────────────────────────────── */
+  .screen-section {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 70px 60px 50px;
+    border-bottom: 1px dashed var(--border);
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 50px;
+    align-items: start;
+  }
+  .screen-meta .number {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 64px;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .screen-meta h2 {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .screen-meta p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .screen-meta p strong { color: var(--text); }
+  .screen-meta .url {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent-deep);
+    background: var(--accent-light);
+    padding: 4px 8px;
+    margin-top: 10px;
+    display: inline-block;
+    border: 1px solid var(--accent);
+  }
+  .screen-meta .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    background: var(--text);
+    color: var(--bg);
+    padding: 3px 7px;
+    margin-top: 10px;
+    margin-right: 4px;
+    font-weight: 500;
+  }
+
+  /* ── Browser chrome ──────────────────────────────────────── */
+  .browser {
+    background: var(--card);
+    border: 1px solid var(--text);
+    box-shadow: 18px 18px 0 0 var(--border), 19px 19px 0 1px var(--text);
+  }
+  .b-chrome {
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--text);
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .b-chrome .dots { display: flex; gap: 6px; }
+  .b-chrome .dots i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+  }
+  .b-chrome .dots i:nth-child(1) { background: #ff5f56; }
+  .b-chrome .dots i:nth-child(2) { background: #ffbd2e; }
+  .b-chrome .dots i:nth-child(3) { background: #27c93f; }
+  .b-chrome .url-bar {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+  }
+  .b-chrome .url-bar .protocol { color: var(--success); margin-right: 4px; }
+
+  /* ── Site nav (top of each page) ─────────────────────────── */
+  .site-nav {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .site-nav .logo {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .site-nav .logo em {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .site-nav .links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+  .site-nav .links a {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .site-nav .links a.active {
+    color: var(--text);
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 3px;
+  }
+  .site-nav .right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .site-nav .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  /* ── Page body ───────────────────────────────────────────── */
+  .page-body {
+    padding: 0;
+    min-height: 700px;
+    background: var(--bg);
+  }
+
+  /* ── Buttons (design system) ─────────────────────────────── */
+  .ow-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 0;
+    border: 1px solid transparent;
+    cursor: pointer;
+    line-height: 1;
+    text-decoration: none;
+  }
+  .ow-btn-primary {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+  .ow-btn-secondary {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--text);
+  }
+  .ow-btn-pill {
+    border-radius: 999px;
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .ow-btn-sm { padding: 6px 12px; font-size: 11px; }
+  .ow-btn-lg { padding: 12px 22px; font-size: 13px; }
+
+  /* ── Pills ────────────────────────────────────────────────── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid;
+    line-height: 1.2;
+  }
+  .pill-verified {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #166534;
+  }
+  .pill-community {
+    background: rgba(8,5,3,0.04);
+    color: var(--text-muted);
+    border-color: rgba(8,5,3,0.15);
+  }
+  .pill-match {
+    background: var(--accent-light);
+    color: var(--accent-deep);
+    border-color: var(--accent);
+  }
+  .pill-open {
+    background: rgba(34, 197, 94, 0.12);
+    color: #166534;
+    border-color: var(--success);
+  }
+  .pill-tier {
+    background: white;
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     SCREEN A — HM SEARCH
+     ════════════════════════════════════════════════════════ */
+  .search-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+  }
+  .filter-rail {
+    background: var(--bg-alt);
+    border-right: 1px solid var(--border);
+    padding: 28px 24px;
+    min-height: 700px;
+  }
+  .filter-rail h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+  }
+  .filter-rail .filter-group {
+    margin-bottom: 24px;
+  }
+  .filter-rail .field-input {
+    border: 1px solid var(--border);
+    background: white;
+    padding: 7px 10px;
+    font-family: var(--sans);
+    font-size: 12px;
+    width: 100%;
+    color: var(--text);
+  }
+  .filter-rail .field-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .filter-rail .checkbox-list {
+    list-style: none;
+  }
+  .filter-rail .checkbox-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .filter-rail .checkbox-list li .count {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .filter-rail .checkbox-list .check-icon {
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--border);
+    margin-right: 6px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .filter-rail .checkbox-list .checked .check-icon {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .filter-rail .pill-bar {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .filter-rail .saved-search {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 10px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .filter-rail .saved-search .name {
+    font-family: var(--serif);
+    font-size: 14px;
+  }
+  .filter-rail .saved-search .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent-deep);
+    background: var(--accent-light);
+    padding: 2px 5px;
+  }
+
+  .search-main {
+    padding: 28px 32px;
+  }
+  .search-bar-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .search-bar {
+    flex: 1;
+    border: 1px solid var(--text);
+    background: white;
+    padding: 12px 16px;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--text);
+  }
+  .search-stats {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  .search-stats strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .candidate-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 140px 140px;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .candidate-row .avatar-big {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c084fc, #7c3aed);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+  .candidate-info .name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .candidate-info .name {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .candidate-info .meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .candidate-info .skills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .skill-tag {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    padding: 3px 7px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .skill-tag.verified {
+    background: #dcfce7;
+    border-color: #166534;
+    color: #166534;
+  }
+  .candidate-score {
+    text-align: center;
+  }
+  .candidate-score .score {
+    font-family: var(--serif);
+    font-size: 36px;
+    line-height: 1;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .candidate-score .label {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .candidate-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     SCREEN B — HM DASHBOARD (HOME)
+     ════════════════════════════════════════════════════════ */
+  .dash-main {
+    padding: 36px 40px 40px;
+  }
+  .dash-hello {
+    font-family: var(--serif);
+    font-size: 36px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+  .dash-hello em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .dash-sub {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+  }
+  .dash-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--text);
+    border-bottom: 1px solid var(--text);
+    margin-bottom: 32px;
+  }
+  .dash-stat {
+    padding: 18px 24px 18px 0;
+    border-right: 1px solid var(--border);
+  }
+  .dash-stat:last-child { border-right: none; padding-right: 0; }
+  .dash-stat .num {
+    font-family: var(--serif);
+    font-size: 44px;
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+  .dash-stat .num em { color: var(--accent); font-style: italic; }
+  .dash-stat .name {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+  }
+  .dash-section h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--text);
+    font-weight: 700;
+  }
+  .match-row {
+    display: grid;
+    grid-template-columns: 1fr 80px auto;
+    gap: 18px;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--border);
+    align-items: center;
+  }
+  .match-row .who .name {
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .match-row .who .for {
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+  .match-row .who .for strong { color: var(--text); }
+  .match-row .score {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--accent);
+    text-align: right;
+  }
+  .match-row .action {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent-deep);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .billing-card {
+    background: white;
+    border: 1px solid var(--text);
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .billing-card .tier-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .billing-card .tier-name {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--text);
+  }
+  .billing-card .tier-price {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent-deep);
+    font-weight: 700;
+  }
+  .billing-card .usage-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    font-size: 12px;
+    border-bottom: 1px dashed var(--border);
+    color: var(--text-secondary);
+  }
+  .billing-card .usage-row:last-child { border-bottom: none; }
+  .billing-card .usage-row .mono {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .saved-list .saved-search {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 12px;
+    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+  .saved-list .saved-search .name {
+    font-family: var(--serif);
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+  .saved-list .saved-search .meta {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .saved-list .saved-search .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent-deep);
+    background: var(--accent-light);
+    padding: 3px 7px;
+    font-weight: 700;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     SCREEN C — JOB POST CREATION
+     ════════════════════════════════════════════════════════ */
+  .job-form {
+    max-width: 760px;
+    padding: 36px 40px 40px;
+  }
+  .form-title {
+    font-family: var(--serif);
+    font-size: 36px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .form-title em { color: var(--accent); font-style: italic; }
+  .form-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+  }
+
+  .step-progress {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .step {
+    padding: 12px 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    font-weight: 600;
+  }
+  .step.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .step.done {
+    color: var(--success);
+  }
+
+  .form-section {
+    margin-bottom: 28px;
+  }
+  .form-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 600;
+    display: block;
+  }
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    border: 1px solid var(--text);
+    background: white;
+    padding: 11px 14px;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--text);
+  }
+  .form-textarea { min-height: 90px; resize: vertical; }
+  .form-hint {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  .skill-picker {
+    background: white;
+    border: 1px solid var(--text);
+    padding: 12px;
+  }
+  .skill-picker .picked {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .skill-picker .picked .skill-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--accent-light);
+    color: var(--accent-deep);
+    border: 1px solid var(--accent);
+    padding: 4px 9px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .skill-picker .picked .skill-chip .x {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .skill-picker .search-row {
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .form-actions .save-draft {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+  }
+  .form-actions .right {
+    display: flex;
+    gap: 10px;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     SCREEN D — PUBLIC PROFILE
+     ════════════════════════════════════════════════════════ */
+  .public-profile {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 56px 48px 48px;
+  }
+  .pp-header {
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 28px;
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 28px;
+    align-items: end;
+  }
+  .pp-name {
+    font-family: var(--serif);
+    font-size: 80px;
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    margin-bottom: 14px;
+  }
+  .pp-title {
+    font-family: var(--sans);
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+  }
+  .pp-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pp-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .pp-ow-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .pp-ow-id strong { color: var(--text); font-weight: 700; }
+
+  .pp-summary {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    margin-bottom: 36px;
+    max-width: 640px;
+  }
+
+  .pp-section {
+    margin-bottom: 40px;
+  }
+  .pp-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--text);
+  }
+  .pp-section-head .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--text-muted);
+    min-width: 36px;
+  }
+  .pp-section-head h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+  .pp-section-head .note {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+  }
+
+  .skill-list {
+    display: grid;
+    gap: 0;
+  }
+  .skill-line {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--border);
+    align-items: center;
+  }
+  .skill-line:last-child { border-bottom: none; }
+  .skill-line .skill-main .name {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .skill-line .skill-main .evidence-line {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .skill-line .skill-main .evidence-line .sep {
+    color: var(--border);
+    margin: 0 6px;
+  }
+  .skill-line .prof {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .skill-line .dots {
+    display: flex;
+    gap: 3px;
+  }
+  .skill-line .dots i {
+    width: 9px;
+    height: 9px;
+    background: var(--accent);
+    display: block;
+  }
+  .skill-line .dots i.empty { background: var(--border); }
+  .skill-line .prof-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .skill-line .ev-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent-deep);
+    background: var(--accent-light);
+    padding: 4px 8px;
+    border: 1px solid var(--accent);
+    font-weight: 700;
+  }
+
+  .pp-express-bar {
+    background: var(--text);
+    color: var(--bg);
+    padding: 22px 28px;
+    margin: 40px -48px -48px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+  }
+  .pp-express-bar .copy h3 {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--bg);
+    margin-bottom: 4px;
+  }
+  .pp-express-bar .copy p {
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .pp-express-bar .copy p strong { color: var(--bg); }
+
+  .pp-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    padding-top: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .pp-footer a { color: var(--accent-deep); text-decoration: none; }
+
+  /* ── Page footer ─────────────────────────────────────────── */
+  .page-footer {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 60px 60px 80px;
+    border-top: 2px solid var(--text);
+  }
+  .page-footer .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+  }
+  .page-footer h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .page-footer p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .page-footer a {
+    color: var(--accent-deep);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+
+  @media print {
+    .screen-section { page-break-after: always; padding: 40px 30px 30px; }
+    .page-header { padding: 50px 40px 40px; }
+    .page-footer { padding: 40px 40px; }
+    body { background: white; }
+    .browser { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     HEADER
+     ════════════════════════════════════════════════════════ -->
+<header class="page-header">
+  <div class="super">
+    <span>ONLYWORKS 4.0 · WEB SURFACE · LIGHT PALETTE</span>
+    <span>WIREFRAMES · INTERNAL · 2026-05-28</span>
+  </div>
+  <h1>Where hiring<br><em>actually happens.</em></h1>
+  <p class="lede">
+    The web surface is where the marketplace lives. Hiring managers pay here. Workers share their public profile here. Four screens that — combined with the desktop wireframes — show the full v2.0 product surface.
+  </p>
+  <div class="meta">
+    <span>SCREENS<strong>04</strong></span>
+    <span>STACK<strong>NEXT.JS · TS · TAILWIND</strong></span>
+    <span>PALETTE<strong>WARM PAPER LIGHT</strong></span>
+    <span>ACCENT<strong>#8B5CF6</strong></span>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN A — HM SEARCH
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">A</div>
+    <h2>Search candidates</h2>
+    <p>The main HM workflow. Search verified candidates by skill, experience, location. Filter rail on the left, candidate list on the right.</p>
+    <p><strong>Primary job:</strong> find people worth reaching out to. Verified-by-capture skills with match scores ranked highest.</p>
+    <div class="url">onlyworks.com/hiring/search</div>
+    <span class="tag">HM only</span>
+    <span class="tag">Paid tier</span>
+  </div>
+  <div class="browser">
+    <div class="b-chrome">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="url-bar"><span class="protocol">https://</span>onlyworks.com/hiring/search?role=frontend&loc=remote</span>
+    </div>
+    <div class="page-body">
+      <div class="site-nav">
+        <div class="logo">Only<em>Works</em></div>
+        <div class="links">
+          <a href="#" class="active">Search</a>
+          <a href="#">Jobs</a>
+          <a href="#">Shortlist</a>
+          <a href="#">Outreach</a>
+          <a href="#">Account</a>
+        </div>
+        <div class="right">
+          <span class="pill pill-tier">Pro · $299/mo</span>
+          <div class="avatar">SC</div>
+        </div>
+      </div>
+
+      <div class="search-layout">
+        <!-- Filter rail -->
+        <aside class="filter-rail">
+          <div class="filter-group">
+            <h3>Verified skills</h3>
+            <div class="pill-bar" style="margin-bottom: 10px;">
+              <span class="pill pill-match" style="cursor:pointer;">◆ React ×</span>
+              <span class="pill pill-match" style="cursor:pointer;">◆ TypeScript ×</span>
+            </div>
+            <input class="field-input" placeholder="Add a skill...">
+          </div>
+
+          <div class="filter-group">
+            <h3>Experience level</h3>
+            <ul class="checkbox-list">
+              <li class="checked"><span><span class="check-icon"></span>Student / pre-grad</span><span class="count">312</span></li>
+              <li class="checked"><span><span class="check-icon"></span>Early-career (0–5 yrs)</span><span class="count">487</span></li>
+              <li><span><span class="check-icon"></span>Mid-career (3–15 yrs)</span><span class="count">293</span></li>
+              <li><span><span class="check-icon"></span>Senior+</span><span class="count">48</span></li>
+            </ul>
+          </div>
+
+          <div class="filter-group">
+            <h3>Location</h3>
+            <ul class="checkbox-list">
+              <li class="checked"><span><span class="check-icon"></span>Remote</span><span class="count">624</span></li>
+              <li><span><span class="check-icon"></span>SF Bay Area</span><span class="count">218</span></li>
+              <li><span><span class="check-icon"></span>NYC</span><span class="count">187</span></li>
+              <li><span><span class="check-icon"></span>Los Angeles</span><span class="count">76</span></li>
+            </ul>
+          </div>
+
+          <div class="filter-group">
+            <h3>Pool</h3>
+            <ul class="checkbox-list">
+              <li class="checked"><span><span class="check-icon"></span>◆ Verified (desktop users)</span><span class="count">782</span></li>
+              <li class="checked"><span><span class="check-icon"></span>○ Talent community</span><span class="count">358</span></li>
+            </ul>
+          </div>
+
+          <div class="filter-group">
+            <h3>Saved searches</h3>
+            <div class="saved-search">
+              <span class="name">Senior React, remote</span>
+              <span class="badge">12 new</span>
+            </div>
+            <div class="saved-search">
+              <span class="name">Junior FE, SF</span>
+              <span class="badge">4 new</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main results -->
+        <div class="search-main">
+          <div class="search-bar-row">
+            <input class="search-bar" placeholder='"frontend engineer with verified React + TypeScript, looking for remote"'>
+            <button class="ow-btn ow-btn-primary">Search</button>
+            <button class="ow-btn ow-btn-secondary">Save</button>
+          </div>
+          <div class="search-stats">
+            <strong>1,140</strong> candidates · <strong>782</strong> verified · ranked by match score
+          </div>
+
+          <!-- Candidate rows -->
+          <div class="candidate-row">
+            <div class="avatar-big">BW</div>
+            <div class="candidate-info">
+              <div class="name-row">
+                <span class="name">Brodey Wang</span>
+                <span class="pill pill-verified">◆ Verified</span>
+                <span class="pill pill-open">● Open · Internship</span>
+              </div>
+              <div class="meta">CS '27 · Cornell · 18 verified skills · last active today</div>
+              <div class="skills">
+                <span class="skill-tag verified">React ×14</span>
+                <span class="skill-tag verified">TypeScript ×9</span>
+                <span class="skill-tag verified">PostgreSQL ×6</span>
+                <span class="skill-tag">Figma</span>
+                <span class="skill-tag">Code review</span>
+                <span class="skill-tag" style="opacity:0.6">+13 more</span>
+              </div>
+            </div>
+            <div class="candidate-score">
+              <div class="score">92</div>
+              <div class="label">Match</div>
+            </div>
+            <div class="candidate-actions">
+              <button class="ow-btn ow-btn-primary ow-btn-sm">Express interest</button>
+              <button class="ow-btn ow-btn-secondary ow-btn-sm">Save to list</button>
+            </div>
+          </div>
+
+          <div class="candidate-row">
+            <div class="avatar-big">AK</div>
+            <div class="candidate-info">
+              <div class="name-row">
+                <span class="name">Aliya Khan</span>
+                <span class="pill pill-verified">◆ Verified</span>
+                <span class="pill pill-open">● Open · Full-time</span>
+              </div>
+              <div class="meta">3 yrs · ex-Stripe · 24 verified skills · last active 2d ago</div>
+              <div class="skills">
+                <span class="skill-tag verified">React ×38</span>
+                <span class="skill-tag verified">TypeScript ×31</span>
+                <span class="skill-tag verified">Next.js ×22</span>
+                <span class="skill-tag verified">PostgreSQL ×14</span>
+                <span class="skill-tag" style="opacity:0.6">+20 more</span>
+              </div>
+            </div>
+            <div class="candidate-score">
+              <div class="score">87</div>
+              <div class="label">Match</div>
+            </div>
+            <div class="candidate-actions">
+              <button class="ow-btn ow-btn-primary ow-btn-sm">Express interest</button>
+              <button class="ow-btn ow-btn-secondary ow-btn-sm">Save to list</button>
+            </div>
+          </div>
+
+          <div class="candidate-row" style="opacity: 0.85;">
+            <div class="avatar-big" style="background: linear-gradient(135deg, #94a3b8, #475569);">DT</div>
+            <div class="candidate-info">
+              <div class="name-row">
+                <span class="name">Diego Torres</span>
+                <span class="pill pill-community">○ Community</span>
+                <span class="pill pill-open">● Open · Internship</span>
+              </div>
+              <div class="meta">Self-reported · bootcamp grad · 8 skills claimed</div>
+              <div class="skills">
+                <span class="skill-tag">React</span>
+                <span class="skill-tag">TypeScript</span>
+                <span class="skill-tag">Tailwind</span>
+                <span class="skill-tag">Node.js</span>
+                <span class="skill-tag">Git</span>
+              </div>
+            </div>
+            <div class="candidate-score">
+              <div class="score" style="color: var(--text-muted);">71</div>
+              <div class="label">Self-claim</div>
+            </div>
+            <div class="candidate-actions">
+              <button class="ow-btn ow-btn-primary ow-btn-sm">Express interest</button>
+              <button class="ow-btn ow-btn-secondary ow-btn-sm">Save to list</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN B — HM DASHBOARD (HOME)
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">B</div>
+    <h2>HM Dashboard</h2>
+    <p>The home view after sign-in. Stats grid, recent matches, saved searches, subscription state. Front door to the marketplace.</p>
+    <p><strong>Primary job:</strong> show the value the HM is getting from their subscription. New matches, replies, candidates discovered.</p>
+    <div class="url">onlyworks.com/hiring</div>
+    <span class="tag">HM only</span>
+    <span class="tag">Post-login</span>
+  </div>
+  <div class="browser">
+    <div class="b-chrome">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="url-bar"><span class="protocol">https://</span>onlyworks.com/hiring</span>
+    </div>
+    <div class="page-body">
+      <div class="site-nav">
+        <div class="logo">Only<em>Works</em></div>
+        <div class="links">
+          <a href="#" class="active">Home</a>
+          <a href="#">Search</a>
+          <a href="#">Jobs</a>
+          <a href="#">Shortlist</a>
+          <a href="#">Outreach</a>
+        </div>
+        <div class="right">
+          <span class="pill pill-tier">Pro · $299/mo</span>
+          <div class="avatar">SC</div>
+        </div>
+      </div>
+
+      <div class="dash-main">
+        <div class="dash-hello">Good morning, <em>Sara.</em></div>
+        <div class="dash-sub">3 new matches on your saved searches since yesterday. 1 candidate replied to outreach.</div>
+
+        <div class="dash-stats">
+          <div class="dash-stat">
+            <div class="num">3</div>
+            <div class="name">Active jobs</div>
+          </div>
+          <div class="dash-stat">
+            <div class="num"><em>+18</em></div>
+            <div class="name">New matches this week</div>
+          </div>
+          <div class="dash-stat">
+            <div class="num">42</div>
+            <div class="name">Express interests sent</div>
+          </div>
+          <div class="dash-stat">
+            <div class="num">7</div>
+            <div class="name">Replies received</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-section">
+            <h3>Recent matches</h3>
+            <div class="match-row">
+              <div class="who">
+                <div class="name">Brodey Wang · CS '27</div>
+                <div class="for">For <strong>Frontend Engineer · Intern</strong> · ◆ React + TypeScript</div>
+              </div>
+              <div class="score">92</div>
+              <a href="#" class="action">View →</a>
+            </div>
+            <div class="match-row">
+              <div class="who">
+                <div class="name">Aliya Khan · 3 yrs ex-Stripe</div>
+                <div class="for">For <strong>Senior FE · Remote</strong> · ◆ React + Next.js + TypeScript</div>
+              </div>
+              <div class="score">87</div>
+              <a href="#" class="action">View →</a>
+            </div>
+            <div class="match-row">
+              <div class="who">
+                <div class="name">Marcus Reed · 5 yrs ex-Airbnb</div>
+                <div class="for">For <strong>Staff Designer</strong> · ◆ Figma + Design Systems</div>
+              </div>
+              <div class="score">84</div>
+              <a href="#" class="action">View →</a>
+            </div>
+            <div class="match-row">
+              <div class="who">
+                <div class="name">Priya Mehta · bootcamp grad</div>
+                <div class="for">For <strong>Frontend Engineer · Intern</strong> · ◆ React + Node</div>
+              </div>
+              <div class="score">79</div>
+              <a href="#" class="action">View →</a>
+            </div>
+            <div style="margin-top: 14px;">
+              <a href="#" style="font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-deep); text-decoration: none; font-weight: 700;">▸ View all 18 matches</a>
+            </div>
+          </div>
+
+          <div class="dash-section">
+            <h3>Plan &amp; usage</h3>
+            <div class="billing-card">
+              <div class="tier-row">
+                <span class="tier-name">Pro</span>
+                <span class="tier-price">$299/mo</span>
+              </div>
+              <div class="usage-row">
+                <span>Active job posts</span>
+                <span class="mono">3 / ∞</span>
+              </div>
+              <div class="usage-row">
+                <span>Express interests</span>
+                <span class="mono">42 / ∞</span>
+              </div>
+              <div class="usage-row">
+                <span>Saved searches</span>
+                <span class="mono">5 / ∞</span>
+              </div>
+              <div style="margin-top: 12px;">
+                <a href="#" style="font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-deep); text-decoration: none; font-weight: 700;">▸ Manage subscription</a>
+              </div>
+            </div>
+
+            <h3 style="margin-top: 22px;">Saved searches</h3>
+            <div class="saved-list">
+              <div class="saved-search">
+                <div>
+                  <div class="name">Senior React, remote</div>
+                  <div class="meta">156 results</div>
+                </div>
+                <span class="badge">12 new</span>
+              </div>
+              <div class="saved-search">
+                <div>
+                  <div class="name">Junior FE, SF</div>
+                  <div class="meta">87 results</div>
+                </div>
+                <span class="badge">4 new</span>
+              </div>
+              <div class="saved-search">
+                <div>
+                  <div class="name">Design + Figma, NYC</div>
+                  <div class="meta">62 results</div>
+                </div>
+                <span class="badge">2 new</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN C — JOB POST CREATION
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">C</div>
+    <h2>Create a job post</h2>
+    <p>Multi-step form. Title + description + required/nice-to-have skills + experience level + location. Triggers match-computation against the verified pool on save.</p>
+    <p><strong>Primary job:</strong> get the HM from "I have a role" to "show me candidates" in under 3 minutes.</p>
+    <div class="url">onlyworks.com/hiring/jobs/new</div>
+    <span class="tag">HM only</span>
+    <span class="tag">Paid tier</span>
+  </div>
+  <div class="browser">
+    <div class="b-chrome">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="url-bar"><span class="protocol">https://</span>onlyworks.com/hiring/jobs/new</span>
+    </div>
+    <div class="page-body">
+      <div class="site-nav">
+        <div class="logo">Only<em>Works</em></div>
+        <div class="links">
+          <a href="#">Home</a>
+          <a href="#">Search</a>
+          <a href="#" class="active">Jobs</a>
+          <a href="#">Shortlist</a>
+          <a href="#">Outreach</a>
+        </div>
+        <div class="right">
+          <span class="pill pill-tier">Pro · $299/mo</span>
+          <div class="avatar">SC</div>
+        </div>
+      </div>
+
+      <div class="job-form">
+        <div class="form-title"><em>New job</em> post</div>
+        <div class="form-sub">Save as draft anytime. Matches are auto-computed when you publish.</div>
+
+        <div class="step-progress">
+          <div class="step done">01 · Basics ✓</div>
+          <div class="step active">02 · Skills</div>
+          <div class="step">03 · Location &amp; comp</div>
+          <div class="step">04 · Review</div>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Job title</label>
+          <input class="form-input" value="Frontend Engineer — Intern" type="text">
+          <div class="form-hint">e.g., "Senior Backend Engineer" or "Product Designer · Junior"</div>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea">We're hiring a frontend intern to ship features alongside the founding team. You'll work in our React + TypeScript codebase, ship to production weekly, and own a slice of the product end-to-end…</textarea>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Required skills <span style="color: var(--accent-deep)">·</span> verified-by-capture only</label>
+          <div class="skill-picker">
+            <div class="picked">
+              <span class="skill-chip">◆ React <span class="x">×</span></span>
+              <span class="skill-chip">◆ TypeScript <span class="x">×</span></span>
+              <span class="skill-chip">◆ Tailwind CSS <span class="x">×</span></span>
+            </div>
+            <div class="search-row">⌕ &nbsp; Type to add a verified skill…</div>
+          </div>
+          <div class="form-hint">These determine match scores. Candidates must have evidence in their captured work.</div>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Nice-to-have skills</label>
+          <div class="skill-picker" style="border-color: var(--border);">
+            <div class="picked">
+              <span class="skill-chip" style="background: var(--bg-alt); border-color: var(--border); color: var(--text-secondary);">Next.js <span class="x">×</span></span>
+              <span class="skill-chip" style="background: var(--bg-alt); border-color: var(--border); color: var(--text-secondary);">Figma <span class="x">×</span></span>
+            </div>
+            <div class="search-row">⌕ &nbsp; Type to add…</div>
+          </div>
+        </div>
+
+        <div class="form-row-grid">
+          <div class="form-section">
+            <label class="form-label">Experience level</label>
+            <select class="form-input">
+              <option>Internship / pre-grad</option>
+              <option>Early-career (0–5 yrs)</option>
+              <option>Mid-career (3–15 yrs)</option>
+              <option>Senior+</option>
+            </select>
+          </div>
+          <div class="form-section">
+            <label class="form-label">Employment type</label>
+            <select class="form-input">
+              <option>Full-time</option>
+              <option>Internship</option>
+              <option>Contract</option>
+              <option>Part-time</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a href="#" class="save-draft">▸ Save draft</a>
+          <div class="right">
+            <button class="ow-btn ow-btn-secondary">← Back</button>
+            <button class="ow-btn ow-btn-primary">Continue →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN D — PUBLIC PROFILE
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">D</div>
+    <h2>Public profile</h2>
+    <p>The artifact. What workers share on LinkedIn / résumé / applications. What hiring managers see when they click a candidate from search.</p>
+    <p><strong>Primary job:</strong> prove. Verified skills with evidence. The "GitHub for non-developers" pitch made visible.</p>
+    <div class="url">onlyworks.com/ow/A7B2K9</div>
+    <span class="tag">Public</span>
+    <span class="tag">SEO-indexed</span>
+    <span class="tag">Sharable</span>
+  </div>
+  <div class="browser">
+    <div class="b-chrome">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="url-bar"><span class="protocol">https://</span>onlyworks.com/ow/A7B2K9</span>
+    </div>
+    <div class="page-body">
+      <div class="site-nav">
+        <div class="logo">Only<em>Works</em></div>
+        <div class="links">
+          <a href="#">How it works</a>
+          <a href="#">Hire talent</a>
+          <a href="#">Join community</a>
+        </div>
+        <div class="right">
+          <a href="#" style="font-family: var(--sans); font-size: 12px; color: var(--text-secondary); text-decoration: none;">Sign in</a>
+          <button class="ow-btn ow-btn-pill ow-btn-sm">Download desktop →</button>
+        </div>
+      </div>
+
+      <div class="public-profile">
+        <div class="pp-header">
+          <div class="pp-info">
+            <div class="pp-name">Brodey Wang</div>
+            <div class="pp-title">Software Engineer · CS '27 · Cornell University</div>
+            <div class="pp-pills">
+              <span class="pill pill-verified">◆ Verified by OnlyWorks</span>
+              <span class="pill pill-open">● Open to internships</span>
+              <span class="pill pill-tier">SF · NYC · Remote</span>
+            </div>
+          </div>
+          <div class="pp-actions">
+            <div class="pp-ow-id">
+              OnlyWorks ID
+              <strong>OW-A7B2K9</strong>
+            </div>
+            <button class="ow-btn ow-btn-pill">Express interest →</button>
+            <a href="#" style="font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); text-decoration: none; font-weight: 600;">▸ Copy link</a>
+          </div>
+        </div>
+
+        <p class="pp-summary">
+          A CS junior building toward their first frontend internship. 97 captures of verified work across 18 skills — primarily React, TypeScript, and PostgreSQL — with strong evidence of cross-stack problem solving and technical writing.
+        </p>
+
+        <div class="pp-section">
+          <div class="pp-section-head">
+            <span class="num">01</span>
+            <h2>Verified skills</h2>
+            <span class="note">18 · technical, soft, domain</span>
+          </div>
+
+          <div class="skill-list">
+            <div class="skill-line">
+              <div class="skill-main">
+                <div class="name">React</div>
+                <div class="evidence-line">
+                  <span>14 sessions</span><span class="sep">·</span>
+                  <span>last seen 2d ago</span><span class="sep">·</span>
+                  <span style="color: var(--accomp);">★ 8 accomplishments</span><span class="sep">·</span>
+                  <span style="color: var(--strength);">↑ 4 strength signals</span>
+                </div>
+              </div>
+              <div class="prof">
+                <span class="dots"><i></i><i></i><i></i></span>
+                <span class="prof-label">Advanced</span>
+              </div>
+              <span class="ev-count">View evidence</span>
+            </div>
+
+            <div class="skill-line">
+              <div class="skill-main">
+                <div class="name">TypeScript</div>
+                <div class="evidence-line">
+                  <span>9 sessions</span><span class="sep">·</span>
+                  <span>last seen 1d ago</span><span class="sep">·</span>
+                  <span style="color: var(--strength);">↑ 5 strength signals</span><span class="sep">·</span>
+                  <span style="color: var(--growth);">↗ 2 growth moments</span>
+                </div>
+              </div>
+              <div class="prof">
+                <span class="dots"><i></i><i></i><i class="empty"></i></span>
+                <span class="prof-label">Intermediate</span>
+              </div>
+              <span class="ev-count">View evidence</span>
+            </div>
+
+            <div class="skill-line">
+              <div class="skill-main">
+                <div class="name">PostgreSQL</div>
+                <div class="evidence-line">
+                  <span>6 sessions</span><span class="sep">·</span>
+                  <span>last seen 4d ago</span><span class="sep">·</span>
+                  <span style="color: var(--accomp);">★ 3 accomplishments</span><span class="sep">·</span>
+                  <span style="color: var(--growth);">↗ 3 growth moments</span>
+                </div>
+              </div>
+              <div class="prof">
+                <span class="dots"><i></i><i></i><i class="empty"></i></span>
+                <span class="prof-label">Intermediate</span>
+              </div>
+              <span class="ev-count">View evidence</span>
+            </div>
+
+            <div class="skill-line">
+              <div class="skill-main">
+                <div class="name">Figma</div>
+                <div class="evidence-line">
+                  <span>3 sessions</span><span class="sep">·</span>
+                  <span>last seen 1 week ago</span><span class="sep">·</span>
+                  <span style="color: var(--growth);">↗ 3 growth moments</span>
+                </div>
+              </div>
+              <div class="prof">
+                <span class="dots"><i></i><i class="empty"></i><i class="empty"></i></span>
+                <span class="prof-label">Emerging</span>
+              </div>
+              <span class="ev-count">View evidence</span>
+            </div>
+
+            <div class="skill-line">
+              <div class="skill-main">
+                <div class="name">Technical writing</div>
+                <div class="evidence-line">
+                  <span>8 sessions</span><span class="sep">·</span>
+                  <span>documentation, PR descriptions</span><span class="sep">·</span>
+                  <span style="color: var(--strength);">↑ 4 strength signals</span>
+                </div>
+              </div>
+              <div class="prof">
+                <span class="dots"><i></i><i></i><i class="empty"></i></span>
+                <span class="prof-label">Intermediate</span>
+              </div>
+              <span class="ev-count">View evidence</span>
+            </div>
+
+            <div class="skill-line">
+              <div class="skill-main">
+                <div class="name">Code review</div>
+                <div class="evidence-line">
+                  <span>4 sessions</span><span class="sep">·</span>
+                  <span>reviewing teammate PRs</span><span class="sep">·</span>
+                  <span style="color: var(--growth);">↗ 2 growth moments</span>
+                </div>
+              </div>
+              <div class="prof">
+                <span class="dots"><i></i><i class="empty"></i><i class="empty"></i></span>
+                <span class="prof-label">Emerging</span>
+              </div>
+              <span class="ev-count">View evidence</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pp-section">
+          <div class="pp-section-head">
+            <span class="num">02</span>
+            <h2>Recent work</h2>
+            <span class="note">Last 30 days · 23 sessions</span>
+          </div>
+          <p style="font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--text-secondary); line-height: 1.55; max-width: 640px;">
+            Brodey spent the last 30 days building an auth flow for a side project (Project Aurora), iterating on a Figma design system, and reviewing pull requests on a teammate's e-commerce starter. Most recent work focused on cross-stack debugging — connecting React Server Components to a Postgres backend.
+          </p>
+        </div>
+
+        <div class="pp-express-bar">
+          <div class="copy">
+            <h3>Hiring manager looking for skills like Brodey's?</h3>
+            <p>Subscribe to <strong>OnlyWorks Hiring</strong> from $99/mo and reach Brodey through Express Interest. Replies in 2–3 days on average.</p>
+          </div>
+          <button class="ow-btn ow-btn-pill ow-btn-lg">Start hiring →</button>
+        </div>
+
+        <div class="pp-footer">
+          <span>OW-A7B2K9 · verified by <a href="#">OnlyWorks</a></span>
+          <span>Last refreshed 2026-05-28 · captured via OnlyWorks Desktop</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════ -->
+<footer class="page-footer">
+  <div class="grid">
+    <div>
+      <h3>What this is</h3>
+      <p>Four web wireframes — the public-facing artifact (Public Profile) and the hiring-manager workflow (Search, Dashboard, Job Post). Combined with the <a href="wireframes.html">desktop wireframes</a>, this is the full v2.0 product surface.</p>
+    </div>
+    <div>
+      <h3>Design system</h3>
+      <p>Website light palette (warm paper #fafaf9, ink #080503, brand purple #8b5cf6). Instrument Serif display + Instrument Sans body + JetBrains Mono. Zero border-radius except pill CTAs. See <a href="00-design-system.html">00-design-system.html</a>.</p>
+    </div>
+    <div>
+      <h3>Next</h3>
+      <p>Web team scaffolds these in Next.js + Tailwind + shadcn/ui. The HM dashboard and Job Post UI are the v2.0 deliverables that unblock revenue. Public profile redesign is also v2.0.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

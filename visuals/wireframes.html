@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OnlyWorks v2 — Worker Desktop Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ════════════════════════════════════════════════════════
+     OnlyWorks v2 Wireframes — Dark Desktop palette
+     Aligned with /design-system.html v1.0
+     ════════════════════════════════════════════════════════ */
+
+  :root {
+    /* Page chrome (this document's frame, light warm paper) */
+    --page-bg: #fafaf9;
+    --page-text: #080503;
+    --page-muted: #a3a19b;
+    --page-border: #dad7d0;
+
+    /* Desktop dark palette — GitHub-dark base */
+    --bg-canvas: #0d1117;
+    --bg-default: #161b22;
+    --bg-overlay: #21262d;
+    --bg-subtle: #1c2128;
+    --border-default: #000000;
+    --border-subtle: #2a2a2a;
+    --text-primary: #f0f6fc;
+    --text-secondary: #c9d1d9;
+    --text-muted: #8b949e;
+    --accent-primary: #7c3aed;
+    --accent-light: #a78bfa;
+    --accent-emphasis: #8b5cf6;
+    --accent-glow: rgba(124, 58, 237, 0.5);
+
+    /* Semantic */
+    --success: #22c55e;
+    --warning: #d97706;
+    --error: #dc2626;
+    --accomp: #22c55e;
+    --strength: #3b82f6;
+    --blocker: #ef4444;
+    --growth: #a855f7;
+    --next-steps: #f59e0b;
+    --summary: #6b7280;
+
+    /* Fonts */
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Space Grotesk', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', SF Mono, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--page-bg);
+    color: var(--page-text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Page header ─────────────────────────────────────────── */
+  .page-header {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 80px 60px 60px;
+    border-bottom: 2px solid var(--page-text);
+  }
+  .page-header .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--page-muted);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .page-header h1 {
+    font-family: var(--serif);
+    font-size: 96px;
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+  }
+  .page-header h1 em {
+    font-style: italic;
+    color: var(--accent-emphasis);
+  }
+  .page-header .lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.35;
+    color: #44423d;
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+  .page-header .meta {
+    display: flex;
+    gap: 48px;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--page-muted);
+  }
+  .page-header .meta span strong {
+    display: block;
+    color: var(--page-text);
+    margin-top: 4px;
+    font-weight: 500;
+    font-size: 12px;
+  }
+
+  /* ── Screen section frame ─────────────────────────────────── */
+  .screen-section {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 80px 60px 60px;
+    border-bottom: 1px dashed var(--page-border);
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  .screen-meta .number {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 64px;
+    line-height: 1;
+    color: var(--accent-emphasis);
+    margin-bottom: 12px;
+  }
+  .screen-meta h2 {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin-bottom: 14px;
+  }
+  .screen-meta p {
+    font-size: 13px;
+    color: #44423d;
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .screen-meta p strong { color: var(--page-text); }
+  .screen-meta .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    background: var(--page-text);
+    color: var(--page-bg);
+    padding: 3px 7px;
+    margin-top: 10px;
+    margin-right: 4px;
+    font-weight: 500;
+  }
+
+  /* ── Window chrome ──────────────────────────────────────── */
+  .window {
+    background: var(--bg-canvas);
+    border: 1px solid var(--page-text);
+    box-shadow: 20px 20px 0 0 var(--page-border), 21px 21px 0 1px var(--page-text);
+  }
+  .chrome {
+    background: var(--bg-overlay);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chrome .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+  }
+  .chrome .dot:nth-child(1) { background: #ff5f56; }
+  .chrome .dot:nth-child(2) { background: #ffbd2e; }
+  .chrome .dot:nth-child(3) { background: #27c93f; }
+  .chrome .title {
+    margin-left: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  /* ── App frame (dark) ───────────────────────────────────── */
+  .app {
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    min-height: 600px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-default);
+  }
+  .app-header .logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .app-header .logo em {
+    color: var(--accent-light);
+    font-style: italic;
+  }
+  .app-header nav {
+    display: flex;
+    gap: 24px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .app-header nav a {
+    text-decoration: none;
+    color: inherit;
+    padding-bottom: 4px;
+  }
+  .app-header nav a.active {
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--accent-light);
+  }
+  .app-header .right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+  .app-content {
+    padding: 32px 36px 40px;
+  }
+
+  /* ── Section separator (dark) ───────────────────────────── */
+  .sep {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 28px 0 16px;
+  }
+  .sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-subtle);
+  }
+  .sep-label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ── Buttons (ow-btn system) ────────────────────────────── */
+  .ow-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 0;
+    border: 1px solid transparent;
+    cursor: pointer;
+    line-height: 1;
+    text-decoration: none;
+  }
+  .ow-btn-primary {
+    background: var(--accent-emphasis);
+    color: white;
+    border-color: var(--accent-emphasis);
+  }
+  .ow-btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+  }
+  .ow-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+  }
+  .ow-btn-danger {
+    background: var(--error);
+    color: white;
+    border-color: var(--error);
+  }
+  .ow-btn-sm { padding: 6px 12px; font-size: 11px; }
+
+  .btn-row { display: flex; gap: 8px; margin: 18px 0 24px; }
+
+  /* ── Pills ───────────────────────────────────────────────── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid;
+  }
+  .pill-verified {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border-color: #22c55e;
+  }
+  .pill-active {
+    background: rgba(124, 58, 237, 0.18);
+    color: var(--accent-light);
+    border-color: var(--accent-light);
+  }
+  .pill-open {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+    border-color: var(--success);
+  }
+
+  /* ── Status hero (Screen 01) ────────────────────────────── */
+  .status-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    padding: 4px 10px 4px 8px;
+    border: 1px solid var(--success);
+    background: rgba(34, 197, 94, 0.1);
+  }
+  .status-pill .pulse {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+  }
+  .status-pill .label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--success);
+    font-weight: 700;
+  }
+  .status-headline {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+  .status-headline em {
+    font-style: italic;
+    color: var(--accent-light);
+  }
+  .status-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .status-sub span:not(:last-child)::after {
+    content: " · ";
+    color: var(--border-subtle);
+    margin: 0 4px;
+  }
+
+  /* ── Stat grid (Screen 01) ──────────────────────────────── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 24px;
+  }
+  .stat {
+    padding: 16px 20px 16px 0;
+    border-right: 1px solid var(--border-subtle);
+  }
+  .stat:last-child { border-right: none; padding-right: 0; }
+  .stat .num {
+    font-family: var(--serif);
+    font-size: 38px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+  .stat .num em {
+    color: var(--accent-light);
+    font-style: italic;
+  }
+  .stat .name {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--accent-light);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent-emphasis);
+    padding-bottom: 2px;
+    margin: 4px 0 24px;
+  }
+
+  /* ── Toggle row ─────────────────────────────────────────── */
+  .toggle-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+  .toggle-item:last-child { border-bottom: none; }
+  .toggle-item .name {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .toggle {
+    width: 38px;
+    height: 20px;
+    background: var(--accent-emphasis);
+    position: relative;
+    cursor: pointer;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: white;
+    top: 3px;
+    left: 21px;
+  }
+  .toggle.off { background: var(--bg-overlay); border: 1px solid var(--border-subtle); }
+  .toggle.off::after { left: 3px; background: var(--text-muted); }
+
+  /* ── Portfolio (Screen 02) ──────────────────────────────── */
+  .profile-header {
+    margin-bottom: 28px;
+  }
+  .profile-header .name {
+    font-family: var(--serif);
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  .profile-header .title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+  .profile-header .pills-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .profile-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .portfolio-count {
+    font-family: var(--serif);
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin: 14px 0 6px;
+    color: var(--text-primary);
+  }
+  .portfolio-count em {
+    font-style: italic;
+    color: var(--accent-light);
+  }
+  .portfolio-count-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .category-label {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin: 22px 0 12px;
+  }
+  .category-label .count {
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: 8px;
+    letter-spacing: 0.12em;
+  }
+
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border-subtle);
+    border: 1px solid var(--border-subtle);
+  }
+  .skill {
+    background: var(--bg-default);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+  }
+  .skill .skill-name {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-primary);
+  }
+  .skill .proficiency {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+  .dots {
+    display: flex;
+    gap: 3px;
+  }
+  .dots i {
+    width: 7px;
+    height: 7px;
+    background: var(--accent-emphasis);
+    display: block;
+  }
+  .dots i.empty { background: var(--bg-overlay); }
+  .skill .meta {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+  .skill .view-evidence {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--accent-light);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .skill .view-evidence::before {
+    content: '▸ ';
+    margin-right: 2px;
+  }
+
+  /* Evidence panels using semantic colors */
+  .skill .evidence-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .ev-tag {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 5px;
+    border: 1px solid;
+    font-weight: 700;
+  }
+  .ev-accomp { color: var(--accomp); border-color: var(--accomp); background: rgba(34, 197, 94, 0.1); }
+  .ev-strength { color: var(--strength); border-color: var(--strength); background: rgba(59, 130, 246, 0.1); }
+  .ev-growth { color: var(--growth); border-color: var(--growth); background: rgba(168, 85, 247, 0.1); }
+
+  /* ── Privacy (Screen 03) ────────────────────────────────── */
+  .training-toggle {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: start;
+    padding: 22px 0 24px;
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 28px;
+  }
+  .toggle-large {
+    width: 64px;
+    height: 32px;
+    background: var(--success);
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle-large::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: white;
+    top: 4px;
+    left: 36px;
+  }
+  .toggle-large .label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 8px;
+    color: white;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .training-copy h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+  }
+  .training-copy p {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.55;
+    max-width: 480px;
+  }
+  .training-copy a {
+    color: var(--accent-light);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+
+  .checkbox-list {
+    list-style: none;
+    margin-bottom: 28px;
+  }
+  .checkbox-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .checkbox-list li:last-child { border-bottom: none; }
+  .check {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--accent-emphasis);
+    background: var(--accent-emphasis);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .check.empty { background: transparent; color: transparent; border-color: var(--border-subtle); }
+  .add-app {
+    color: var(--accent-light);
+    font-size: 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 6px 0;
+    font-family: inherit;
+    text-align: left;
+  }
+
+  .capture-reel {
+    margin-bottom: 28px;
+  }
+  .capture-row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .capture-row .time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .capture-row.filtered .desc {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .capture-row .app-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  /* ── Settings (Screen 04) ───────────────────────────────── */
+  .field-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+    align-items: baseline;
+  }
+  .field-row:last-child { border-bottom: none; }
+  .field-row .field-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+  }
+  .field-row .field-value {
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+  .radio-row {
+    display: flex;
+    gap: 20px;
+  }
+  .radio-row label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text-secondary);
+  }
+  .radio {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--text-muted);
+    border-radius: 50%;
+    position: relative;
+  }
+  .radio.on { border-color: var(--accent-light); }
+  .radio.on::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--accent-light);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+  }
+
+  /* ── Onboarding storyboard ───────────────────────────────── */
+  .onboarding-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .onboarding-card {
+    background: var(--bg-default);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 290px;
+    position: relative;
+  }
+  .onboarding-card .step {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+  }
+  .onboarding-card h4 {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text-primary);
+  }
+  .onboarding-card .body {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .onboarding-card .cta {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    background: var(--accent-emphasis);
+    color: white;
+    padding: 7px 10px;
+    text-align: center;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  .onboarding-card .perm-list {
+    list-style: none;
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+  .onboarding-card .perm-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+  .onboarding-card .perm-list li:last-child { border-bottom: none; }
+  .onboarding-card .perm-list .yes { color: var(--success); }
+
+  .onboarding-card .career-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .onboarding-card .career-options label {
+    font-size: 9.5px;
+    padding: 5px 7px;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+  }
+  .onboarding-card .career-options label.selected {
+    border-color: var(--accent-emphasis);
+    background: rgba(124, 58, 237, 0.12);
+    color: var(--text-primary);
+  }
+
+  .onboarding-card .email-field {
+    border: 1px solid var(--border-subtle);
+    padding: 7px 9px;
+    font-size: 11px;
+    font-family: var(--mono);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+
+  .danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--error);
+    background: transparent;
+    color: var(--error);
+    cursor: pointer;
+    margin-top: 16px;
+  }
+
+  /* ── Footer ──────────────────────────────────────────────── */
+  .page-footer {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 64px 60px 80px;
+    border-top: 2px solid var(--page-text);
+  }
+  .page-footer .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+  }
+  .page-footer h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--page-muted);
+    margin-bottom: 12px;
+  }
+  .page-footer p {
+    font-size: 12px;
+    color: #44423d;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .page-footer a {
+    color: var(--accent-emphasis);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+
+  @media print {
+    .screen-section { page-break-after: always; padding: 40px 30px 30px; }
+    .page-header { padding: 50px 40px 40px; }
+    .page-footer { padding: 40px 40px; }
+    body { background: white; }
+    .window { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     HEADER
+     ════════════════════════════════════════════════════════ -->
+<header class="page-header">
+  <div class="super">
+    <span>ONLYWORKS 4.0 · WORKER DESKTOP · DARK PALETTE</span>
+    <span>WIREFRAMES · INTERNAL · 2026-05-28</span>
+  </div>
+  <h1>Five screens.<br><em>One promise.</em></h1>
+  <p class="lede">
+    The v2.0 worker desktop runs invisibly in the background. The user opens it weekly to confirm their compounding portfolio is still growing. Five screens, dark by default, brand purple throughout — aligned with the OnlyWorks design system v1.0.
+  </p>
+  <div class="meta">
+    <span>SCREENS<strong>05</strong></span>
+    <span>STACK<strong>ELECTRON · REACT · TS</strong></span>
+    <span>PALETTE<strong>GITHUB-DARK BASE</strong></span>
+    <span>ACCENT<strong>#7C3AED</strong></span>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 01 — STATUS
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">01</div>
+    <h2>Status</h2>
+    <p>The default landing screen. Shows the user that capture is running, what the current session looks like, and how their portfolio is growing this week.</p>
+    <p><strong>Primary job:</strong> reassure. No friction. No decisions.</p>
+    <span class="tag">Always-on</span>
+    <span class="tag">Read-mostly</span>
+  </div>
+  <div class="window">
+    <div class="chrome">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="title">OnlyWorks · 4.0.0</span>
+    </div>
+    <div class="app">
+      <div class="app-header">
+        <div class="logo">Only<em>Works</em></div>
+        <nav>
+          <a href="#" class="active">Status</a>
+          <a href="#">Portfolio</a>
+          <a href="#">Privacy</a>
+        </nav>
+        <div class="right">
+          <span>OW-A7B2K9</span>
+          <span>⚙</span>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="status-hero">
+          <div class="status-pill">
+            <span class="pulse"></span>
+            <span class="label">● Active session</span>
+          </div>
+          <h2 class="status-headline">Brodey is working on <em>Project Aurora</em></h2>
+          <div class="status-sub">
+            <span>Since 2:14 PM</span><span>1h 17m</span><span>23 captures</span><span>VS Code</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="ow-btn ow-btn-secondary">Pause</button>
+          <button class="ow-btn ow-btn-primary">End session</button>
+        </div>
+
+        <div class="sep"><span class="sep-label">This week · May 21 — May 28</span></div>
+        <div class="stat-grid">
+          <div class="stat"><div class="num">14</div><div class="name">Sessions</div></div>
+          <div class="stat"><div class="num">23<span style="font-size:14px;color:var(--text-muted)">h</span></div><div class="name">Captured</div></div>
+          <div class="stat"><div class="num"><em>+3</em></div><div class="name">New skills</div></div>
+        </div>
+
+        <a href="#" class="cta-link">View Portfolio →</a>
+
+        <div class="sep"><span class="sep-label">Training data</span></div>
+        <div class="toggle-row">
+          <div class="toggle-item">
+            <span class="name">
+              Training data sharing
+              <span style="display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px;">Help us build OnlyWorks' own AI. Sensitive content filtered automatically.</span>
+            </span>
+            <div class="toggle"></div>
+          </div>
+        </div>
+        <p style="margin-top: 14px; font-family: var(--mono); font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em;">Capture runs continuously in the background while signed in. Adjust per-app rules in Privacy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 02 — PORTFOLIO
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">02</div>
+    <h2>Portfolio</h2>
+    <p>The artifact. Verified skills, organized by category, with evidence drawn from captured work — using the design system's semantic colors (accomp / strength / growth).</p>
+    <p><strong>Primary job:</strong> prove. To the user that the work was real. To the HM that the skill is real.</p>
+    <span class="tag">Sharable</span>
+    <span class="tag">Public profile</span>
+  </div>
+  <div class="window">
+    <div class="chrome">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="title">OnlyWorks · Portfolio</span>
+    </div>
+    <div class="app">
+      <div class="app-header">
+        <div class="logo">Only<em>Works</em></div>
+        <nav>
+          <a href="#">Status</a>
+          <a href="#" class="active">Portfolio</a>
+          <a href="#">Privacy</a>
+        </nav>
+        <div class="right">
+          <span>OW-A7B2K9</span>
+          <span>⚙</span>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="profile-header">
+          <h2 class="name">Brodey Wang</h2>
+          <div class="title">Software Engineer · CS '27 · Cornell</div>
+          <div class="pills-row">
+            <span class="pill pill-verified">◆ Verified</span>
+            <span class="pill pill-open">● Open to internships</span>
+            <span class="pill pill-active">Mid · Engineering</span>
+          </div>
+          <div class="profile-actions">
+            <button class="ow-btn ow-btn-secondary">Copy public link</button>
+            <button class="ow-btn ow-btn-secondary">Edit visibility</button>
+          </div>
+        </div>
+
+        <div class="portfolio-count">18<em>.</em></div>
+        <div class="portfolio-count-label">Verified skills · 97 evidence captures</div>
+
+        <div class="category-label"><em>Technical</em><span class="count">12</span></div>
+        <div class="skill-grid">
+          <div class="skill">
+            <div class="skill-name">React</div>
+            <div class="proficiency">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span>Advanced</span>
+            </div>
+            <div class="meta">14 sessions · last seen 2 days ago</div>
+            <div class="evidence-tags">
+              <span class="ev-tag ev-accomp">★ Accomp ×8</span>
+              <span class="ev-tag ev-strength">↑ Strength ×4</span>
+            </div>
+            <a class="view-evidence">View evidence</a>
+          </div>
+          <div class="skill">
+            <div class="skill-name">TypeScript</div>
+            <div class="proficiency">
+              <span class="dots"><i></i><i></i><i class="empty"></i></span>
+              <span>Intermediate</span>
+            </div>
+            <div class="meta">9 sessions · last seen 1 day ago</div>
+            <div class="evidence-tags">
+              <span class="ev-tag ev-strength">↑ Strength ×5</span>
+              <span class="ev-tag ev-growth">↗ Growth ×2</span>
+            </div>
+            <a class="view-evidence">View evidence</a>
+          </div>
+          <div class="skill">
+            <div class="skill-name">PostgreSQL</div>
+            <div class="proficiency">
+              <span class="dots"><i></i><i></i><i class="empty"></i></span>
+              <span>Intermediate</span>
+            </div>
+            <div class="meta">6 sessions · last seen 4 days ago</div>
+            <div class="evidence-tags">
+              <span class="ev-tag ev-accomp">★ Accomp ×3</span>
+              <span class="ev-tag ev-growth">↗ Growth ×3</span>
+            </div>
+            <a class="view-evidence">View evidence</a>
+          </div>
+          <div class="skill">
+            <div class="skill-name">Figma</div>
+            <div class="proficiency">
+              <span class="dots"><i></i><i class="empty"></i><i class="empty"></i></span>
+              <span>Emerging</span>
+            </div>
+            <div class="meta">3 sessions · last seen 1 week ago</div>
+            <div class="evidence-tags">
+              <span class="ev-tag ev-growth">↗ Growth ×3</span>
+            </div>
+            <a class="view-evidence">View evidence</a>
+          </div>
+        </div>
+
+        <div class="category-label"><em>Soft skills</em><span class="count">4</span></div>
+        <div class="skill-grid">
+          <div class="skill">
+            <div class="skill-name">Technical writing</div>
+            <div class="proficiency">
+              <span class="dots"><i></i><i></i><i class="empty"></i></span>
+              <span>Intermediate</span>
+            </div>
+            <div class="meta">8 sessions · documentation, PR descriptions</div>
+            <a class="view-evidence">View evidence</a>
+          </div>
+          <div class="skill">
+            <div class="skill-name">Code review</div>
+            <div class="proficiency">
+              <span class="dots"><i></i><i class="empty"></i><i class="empty"></i></span>
+              <span>Emerging</span>
+            </div>
+            <div class="meta">4 sessions · reviewing teammate PRs</div>
+            <a class="view-evidence">View evidence</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 03 — PRIVACY
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">03</div>
+    <h2>Privacy</h2>
+    <p>Training data consent, sensitive content filtering, the user's "what did we capture" review reel, and the nuclear delete-all button.</p>
+    <p><strong>Primary job:</strong> earn trust. The data is theirs. Consent is legible.</p>
+    <span class="tag">Load-bearing</span>
+    <span class="tag">Consent flow</span>
+  </div>
+  <div class="window">
+    <div class="chrome">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="title">OnlyWorks · Privacy</span>
+    </div>
+    <div class="app">
+      <div class="app-header">
+        <div class="logo">Only<em>Works</em></div>
+        <nav>
+          <a href="#">Status</a>
+          <a href="#">Portfolio</a>
+          <a href="#" class="active">Privacy</a>
+        </nav>
+        <div class="right">
+          <span>OW-A7B2K9</span>
+          <span>⚙</span>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="sep"><span class="sep-label">Training data sharing</span></div>
+        <div class="training-toggle">
+          <div class="toggle-large">
+            <span class="label">ON</span>
+          </div>
+          <div class="training-copy">
+            <h3>Help build OnlyWorks' own AI</h3>
+            <p>Captured frames are used to train our own work-aware model — replacing third-party AI calls at scale. Sensitive content is filtered automatically before any frame is uploaded.</p>
+            <p><a href="#">▸ Read what we collect</a></p>
+          </div>
+        </div>
+
+        <div class="sep"><span class="sep-label">Sensitive content rules</span></div>
+        <ul class="checkbox-list">
+          <li><span class="check">✓</span> Auto-blur passwords, banking, health information</li>
+          <li><span class="check">✓</span> Skip captures in Slack DMs</li>
+          <li><span class="check">✓</span> Skip captures in iMessage / Signal / Telegram</li>
+          <li><span class="check empty">·</span> Skip captures in browser incognito windows</li>
+          <li><button class="add-app">+ Add an app to skip</button></li>
+        </ul>
+
+        <div class="sep"><span class="sep-label">Recent captures · last 24h</span></div>
+        <div class="capture-reel">
+          <div class="capture-row">
+            <span class="time">3:42 PM</span>
+            <span class="desc">Project Aurora · auth.tsx · function signature edits</span>
+            <span class="app-tag">VS Code</span>
+          </div>
+          <div class="capture-row">
+            <span class="time">3:38 PM</span>
+            <span class="desc">Auth flow component layout · color tokens</span>
+            <span class="app-tag">Figma</span>
+          </div>
+          <div class="capture-row filtered">
+            <span class="time">3:31 PM</span>
+            <span class="desc">[Filtered: Slack DM]</span>
+            <span class="app-tag">Slack</span>
+          </div>
+          <div class="capture-row">
+            <span class="time">3:22 PM</span>
+            <span class="desc">React Router docs · nested routes</span>
+            <span class="app-tag">Browser</span>
+          </div>
+          <div class="capture-row filtered">
+            <span class="time">3:14 PM</span>
+            <span class="desc">[Filtered: password field detected]</span>
+            <span class="app-tag">Browser</span>
+          </div>
+          <div class="capture-row">
+            <span class="time">2:58 PM</span>
+            <span class="desc">PostgreSQL CLI · query optimization</span>
+            <span class="app-tag">Terminal</span>
+          </div>
+        </div>
+        <a href="#" style="font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-light); text-decoration: none;">▸ View all captures</a>
+
+        <div style="margin-top: 28px; padding-top: 22px; border-top: 1px dashed var(--border-subtle);">
+          <button class="danger">⚠ Delete all captured data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 04 — SETTINGS
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">04</div>
+    <h2>Settings</h2>
+    <p>Account info, theme, notifications, app sign-out. Nothing to discover.</p>
+    <p><strong>Primary job:</strong> get out of the way.</p>
+    <span class="tag">Familiar</span>
+    <span class="tag">Boring on purpose</span>
+  </div>
+  <div class="window">
+    <div class="chrome">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="title">OnlyWorks · Settings</span>
+    </div>
+    <div class="app">
+      <div class="app-header">
+        <div class="logo">Only<em>Works</em></div>
+        <nav>
+          <a href="#">Status</a>
+          <a href="#">Portfolio</a>
+          <a href="#">Privacy</a>
+        </nav>
+        <div class="right">
+          <span>OW-A7B2K9</span>
+          <span>⚙</span>
+        </div>
+      </div>
+      <div class="app-content">
+        <div class="sep"><span class="sep-label">Account</span></div>
+        <div class="field-row">
+          <span class="field-label">Email</span>
+          <span class="field-value">brodey@cornell.edu &nbsp;<span class="pill pill-verified" style="font-size: 8px;">◆ Student verified</span></span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Display name</span>
+          <span class="field-value">Brodey Wang</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">OW ID</span>
+          <span class="field-value" style="font-family: var(--mono); letter-spacing: 0.1em;">OW-A7B2K9</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Plan</span>
+          <span class="field-value">Student Pro <span style="color: var(--text-muted); font-size: 11px;">— free while enrolled</span></span>
+        </div>
+
+        <div class="sep"><span class="sep-label">Appearance</span></div>
+        <div class="field-row">
+          <span class="field-label">Theme</span>
+          <div class="radio-row">
+            <label><span class="radio"></span> Light</label>
+            <label><span class="radio on"></span> Dark</label>
+            <label><span class="radio"></span> Auto</label>
+          </div>
+        </div>
+
+        <div class="sep"><span class="sep-label">Notifications</span></div>
+        <div class="field-row">
+          <span class="field-label">Email me</span>
+          <ul class="checkbox-list" style="margin: 0;">
+            <li><span class="check">✓</span> When a hiring manager expresses interest</li>
+            <li><span class="check empty">·</span> Weekly portfolio summary</li>
+          </ul>
+        </div>
+
+        <div class="sep"><span class="sep-label">App</span></div>
+        <div class="field-row">
+          <span class="field-label">Version</span>
+          <span class="field-value">4.0.0 <a href="#" style="color: var(--accent-light); font-size: 11px; margin-left: 8px; text-decoration: none;">▸ Check for updates</a></span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Session</span>
+          <a href="#" style="color: var(--error); text-decoration: none; font-size: 13px;">▸ Sign out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 05 — ONBOARDING (storyboard)
+     ════════════════════════════════════════════════════════ -->
+<section class="screen-section">
+  <div class="screen-meta">
+    <div class="number">05</div>
+    <h2>First-run</h2>
+    <p>A 6-step setup flow that gets a new user from "just installed" to "actively capturing" in under 4 minutes.</p>
+    <p><strong>Primary job:</strong> activation. Time-to-first-capture is the metric.</p>
+    <span class="tag">High-stakes</span>
+    <span class="tag">Magic-link</span>
+    <span class="tag">Consent</span>
+  </div>
+  <div style="grid-column: 1 / -1; margin-top: 24px;">
+    <div class="onboarding-row">
+      <div class="onboarding-card">
+        <div class="step">Step 01 / 06</div>
+        <h4>Verified work, captured for you.</h4>
+        <div class="body">OnlyWorks runs quietly while you work. We turn what you do into a verified portfolio that hiring managers can find.</div>
+        <div class="cta">Get started →</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="step">Step 02 / 06</div>
+        <h4>Grant capture permissions</h4>
+        <ul class="perm-list">
+          <li>Screen Recording <span class="yes">✓</span></li>
+          <li>Accessibility <span class="yes">✓</span></li>
+          <li>Notifications <span class="yes">✓</span></li>
+        </ul>
+        <div class="body">All grants happen in macOS / Windows system settings.</div>
+        <div class="cta">Continue →</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="step">Step 03 / 06</div>
+        <h4>Sign in with a magic link</h4>
+        <div class="body">Enter your email. We'll send a one-time link. No passwords.</div>
+        <div class="email-field">brodey@cornell.edu</div>
+        <div class="cta">Send me a link →</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="step">Step 04 / 06</div>
+        <h4>Where are you in your career?</h4>
+        <div class="career-options">
+          <label class="selected">⬤ Student · pre-first-job</label>
+          <label>◯ Early-career · 0–5 yrs</label>
+          <label>◯ Mid-career or beyond</label>
+          <label>◯ Just here to track</label>
+        </div>
+        <div class="cta">Continue →</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="step">Step 05 / 06</div>
+        <h4>What you want to be hired for</h4>
+        <div class="career-options">
+          <label class="selected">✓ Frontend Engineer</label>
+          <label class="selected">✓ Full-stack Engineer</label>
+          <label>Product Designer</label>
+        </div>
+        <div class="body">SF · NYC · Remote · open to internships</div>
+        <div class="cta">Continue →</div>
+      </div>
+      <div class="onboarding-card">
+        <div class="step">Step 06 / 06</div>
+        <h4>Help build OnlyWorks' own AI</h4>
+        <div class="body">Share captured frames (filtered) to train our own model. Optional. Easy to turn off later.</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+          <div class="toggle-large" style="width: 48px; height: 24px;">
+            <span class="label" style="font-size: 7px;">ON</span>
+          </div>
+          <span style="font-size: 10px; color: var(--text-secondary);">Sharing on</span>
+        </div>
+        <div class="cta">Start capturing →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════════════════════ -->
+<footer class="page-footer">
+  <div class="grid">
+    <div>
+      <h3>Design system alignment</h3>
+      <p>This document uses the OnlyWorks design system v1.0: brand purple <code style="font-family: var(--mono); font-size: 11px;">#7C3AED</code>, zero border-radius, Instrument Serif display + Space Grotesk body + JetBrains Mono labels. See <a href="00-design-system.html">00-design-system.html</a> for the full token spec.</p>
+    </div>
+    <div>
+      <h3>What it isn't</h3>
+      <p>Worker desktop only. Hiring-manager dashboard, public profile page, Stripe checkout all live on the website surface — light palette, Instrument Sans body.</p>
+    </div>
+    <div>
+      <h3>Next</h3>
+      <p>Interns build these screens using <code style="font-family: var(--mono); font-size: 11px;">owButton()</code> + <code style="font-family: var(--mono); font-size: 11px;">owShowModal()</code> + the dark token set from the design system. Match structure here; the system handles components.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

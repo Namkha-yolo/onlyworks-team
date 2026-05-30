@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intent &amp;amp; history · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>02 · 25 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 02 · Where we came from</div>
+      <div class="title">Intent &amp;amp; history</div>
+      <div class="subtitle">How OnlyWorks got here. The pivots. What
+worked. What didn't. The OW Profile Rescue postmortem. Lessons not to
+relearn.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>25 min</strong></span>
+        <span>Audience<strong>Everyone</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks--intent-and-history"
+id="toc-onlyworks--intent-and-history">OnlyWorks — Intent and
+History</a>
+<ul>
+<li><a href="#origin-story" id="toc-origin-story">Origin Story</a></li>
+<li><a href="#evolution-timeline" id="toc-evolution-timeline">Evolution
+Timeline</a></li>
+<li><a href="#current-state" id="toc-current-state">Current
+State</a></li>
+<li><a href="#stated-v2-direction-from-v2-roadmapmd"
+id="toc-stated-v2-direction-from-v2-roadmapmd">Stated v2 Direction (from
+<code>v2-roadmap.md</code>)</a></li>
+<li><a href="#open-questions--tensions"
+id="toc-open-questions--tensions">Open Questions / Tensions</a></li>
+<li><a href="#customer-signal" id="toc-customer-signal">Customer
+Signal</a></li>
+<li><a href="#lessons-worth-preserving"
+id="toc-lessons-worth-preserving">Lessons Worth Preserving</a></li>
+<li><a href="#reference-files" id="toc-reference-files">Reference
+Files</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks--intent-and-history">OnlyWorks — Intent and
+History</h1>
+<p>Source: git log, recovered <code>CLAUDE/</code> docs (deleted in
+commit <code>6134ed0</code>, recoverable from <code>6134ed0^</code>),
+CHANGELOG.md, README.md, and the v2 roadmap. Captures the story behind
+the product so the v2 rebuild doesn't discard hard-won lessons.</p>
+<h2 id="origin-story">Origin Story</h2>
+<p>OnlyWorks began <strong>September 14, 2025</strong> with a single
+commit ("Initial commit: Only Works Desktop App") describing itself as a
+<strong>"Desktop productivity tracker for Only Works"</strong>. Within
+nine days the founders had screenshots → Gemini AI → reports working
+end-to-end ("THIS IS THE WORKING VERSION WITH GEMINI", Sep 23).</p>
+<p>The earliest pitch in <code>intern_tasks/INTERN_ONBOARDING.md</code>
+frames it bluntly:</p>
+<blockquote>
+<p><strong>"AI-powered work verification platform. Think of it as 'proof
+of work' for knowledge workers."</strong> "You run the desktop app while
+you work. It captures what you're doing (screenshots, active apps, OCR
+text). When you're done, it generates an AI report summarizing your
+accomplishments. Over time, these reports build into a verified
+portfolio — your 'OW Profile' — that you can share with employers or
+clients."</p>
+</blockquote>
+<p>Three audiences named from day one: <strong>individuals</strong>
+("prove what you worked on"), <strong>managers</strong> ("see what your
+team accomplished without micromanaging"), <strong>employers</strong>
+("hire candidates with verified work history — coming soon"). The order
+matters: individual self-portfolio came first, hiring was the future
+bet.</p>
+<h2 id="evolution-timeline">Evolution Timeline</h2>
+<p><strong>Sep–Oct 2025 — MVP &amp; "is this a Gemini wrapper?"</strong>
+Working screenshot capture, Google OAuth, Gemini + Qwen experiments
+(local model abandoned — Gemini won). Reports + sharable links +
+dashboard. Teams schema appears Oct 13 — collaboration was always in
+scope.</p>
+<p><strong>Nov–Dec 2025 — "Mentor" era and the help widget
+detour</strong> A "supportive mentor" prompt drove reports. A help
+widget with gamification ("satisfying micro-interactions", Dec 15) and
+an "AI tutor / assistant service / struggle detection" system was built
+by a contributor (Brodey). Cost optimization docs and "fatal flaws
+analysis" appear late December — the team was already worried about
+Gemini token spend.</p>
+<p><strong>Jan 2, 2026 — The forensic auditor pivot</strong> Commit
+<code>4534a66</code> ("Implement forensic work auditor system")
+<strong>replaces the "supportive mentor" prompt with a "forensic
+auditor" prompt</strong>, adds dual Manager/Worker views, and introduces
+"detection patterns for performative vs genuine work." This is the
+philosophical shift — from coach to verifier. Two days later: "two-tier
+report system" (<code>2fa44a8</code>).</p>
+<p><strong>Feb 22, 2026 — v3.0.0/3.0.1: the big cleanup</strong>
+"Modular architecture + 28 bug fixes for Windows/Mac release." Then
+v3.0.1 explicitly removes the AI tutor: <em>"Remove AI tutor system
+(assistant service, struggle detection, help widget)"</em> and
+introduces <strong>"Vision-first reports"</strong> with adaptive 10–60s
+capture and image resizing for bandwidth. Schema consolidation drops
+<code>session_summaries</code>, deprecates <code>batch_reports</code>.
+The product had bloated; v3 stripped it down to verification.</p>
+<p><strong>Mar 3–7, 2026 — Killing the paywall</strong> Two commits
+within four days: <code>1672140</code> "product updated with
+OW-ACCESS-CODE removed", then <code>d8d9af1</code> <strong>"Remove
+access code paywall system entirely"</strong> — deletes a 505-line
+<code>access-gate.js</code>. The early-access gating model
+sunsetted.</p>
+<p><strong>Mar 10, 2026 — OW Profile as a resume</strong>
+<code>6de282a</code> "Redesign OW Profile page as resume-style layout",
+followed by <code>c62130e</code> "verified skills resume, distinct from
+reports". The product reframes from "reports about your day" to "a
+resume that builds itself."</p>
+<p><strong>Apr 8, 2026 — The hiring pivot</strong> Migration 014 creates
+5 tables: <code>hiring_managers</code>, <code>job_posts</code>,
+<code>job_matches</code>, <code>interest_expressions</code>,
+<code>shortlists</code>. Two-tier model launches: anonymous public
+search + paid job posting. The website <code>/hiring</code> page is
+"overhauled from waitlist to search + registration." This is the
+explicit commercial bet — OnlyWorks becomes a marketplace, with the
+desktop app as the data-collection engine for candidate
+verification.</p>
+<p><strong>Apr 14, 2026 — The "OW Profile Rescue"</strong> A multi-bug
+postmortem in CHANGELOG.md: users reported profiles showing <strong>"2
+skills when they had 16 reports analyzed."</strong> Four cascading
+bugs:</p>
+<ol type="1">
+<li>Broken cache invalidation</li>
+<li>Hardcoded <code>['technical','soft','domain']</code> category
+whitelist dropping 71% of skills</li>
+<li>Doubled <code>OW-OW-</code> ID prefix</li>
+<li>OAuth signup failure</li>
+</ol>
+<p>New migration 016 creates a durable <code>verified_skills</code>
+table because <em>"skills no longer live only in
+<code>ow_profile_cache.ow_profile_data</code> (lossy cache) or
+<code>generated_reports.skills_used</code> (per-report JSONB) — they now
+have a permanent home that survives cache corruption."</em> Real user
+impact noted: "namkha's profile: 2 skills → 21 skills; brodeywang2004's
+profile: now 39 skills."</p>
+<p><strong>Apr 27, 2026 — Doc nuke</strong> All <code>CLAUDE/</code>
+markdown docs and <code>intern_tasks/</code> deleted (commits
+<code>6134ed0</code>, <code>17d9476</code>) — possibly to clean the repo
+before bringing in interns/PRs, but it destroyed the institutional
+memory.</p>
+<p><strong>Apr 27 onward — Windows polish</strong> Last five commits are
+all Windows-specific: native OCR via Windows.Media.Ocr, active-win
+binary, pre-flight diagnostic service, Mica backdrop on Win11, global
+shortcut to toggle sessions. The Windows port is being hardened.</p>
+<h2 id="current-state">Current State</h2>
+<p>The architecture diagram (<code>CLAUDE/architecture.mmd</code>, May
+14) shows the current shape: <strong>desktop app + Next.js website +
+Express backend + Supabase</strong>, plus external Resend (email),
+Gemini (AI), Stripe (payments), Pinecone ("profile vector index, skill
+embeddings"), and GitHub Releases.</p>
+<p>Background workers run a <strong>"stale-session finalizer every 10
+min"</strong> and a <strong>"talent-community nurture cycle every 1 hr ·
+day-3 / 14 / 30"</strong> — the most recent net-new system is a
+<strong>Talent Community</strong> with email nurture sequences and
+<code>/talent</code>, <code>/talent/verify</code>,
+<code>/talent/welcome</code> website routes plus <code>talent_*</code>
+tables (migration 018). The search service has been split:
+<code>_searchVerified</code> (real users) +
+<code>_searchCommunity</code> (with a "+50 boost"). This appears to be a
+pre-seeded candidate pool — possibly scraped or imported profiles being
+nurtured into becoming real users.</p>
+<p>Recent commits (last 7 days) focus on Windows reliability (pre-flight
+diagnostics, OCR, throttling, signed builds) and small UX fixes (Mac
+traffic-light safe-area, removing unimplemented language selector stub).
+No new product features — the team is in stabilization mode.</p>
+<h2 id="stated-v2-direction-from-v2-roadmapmd">Stated v2 Direction (from
+<code>v2-roadmap.md</code>)</h2>
+<p><strong>P0 (cost/quality):</strong></p>
+<ul>
+<li>Invalid session handling for &lt;5min sessions (skip AI processing —
+explicit cost concern)</li>
+<li>Split models (<code>gemini-2.0-flash</code> for pipeline,
+<code>gemini-2.0-pro</code> for final reports)</li>
+<li>Remove "Desktop" from UI strings</li>
+<li>Fuzzy hiring search via synonyms</li>
+</ul>
+<p><strong>P1 (revenue):</strong></p>
+<ul>
+<li>Stripe integration for hiring-manager paid tier
+(<code>hiring_managers.subscription_status</code> and
+<code>stripe_customer_id</code> columns exist but
+<code>/api/hiring/subscribe</code> endpoint <strong>never
+built</strong>)</li>
+<li>Job Post Creation UI (backend done, frontend missing)</li>
+<li>Resume on onboarding</li>
+</ul>
+<p><strong>P2/P3 (long-term):</strong></p>
+<ul>
+<li><strong>Resume Verification Pipeline</strong> (the core loop):
+"upload resume → extract skills → generate assignments → user completes
+in OW → AI verifies skills" — <code>assignments</code> table and
+<code>skill_verifications</code> table planned but unbuilt</li>
+<li>Notification center</li>
+<li>LinkedIn connector (PDF approach favored — "fragile, may violate
+ToS" for scraping)</li>
+<li>Conceptual skill detection ("Figma → UI Design" mapping)</li>
+<li>Saved searches, JD-paste-to-match</li>
+</ul>
+<p>The roadmap explicitly defers fine-tuning ("only after approaches 1-3
+are exhausted") and semantic embeddings.</p>
+<h2 id="open-questions--tensions">Open Questions / Tensions</h2>
+<ol type="1">
+<li><p><strong>Self-portfolio vs hiring marketplace.</strong> The
+features doc says "Core Product: AI-powered work verification platform"
+— singular. But the architecture has <em>two</em> viable product modes
+glued together: a personal proof-of-work tool (OW Profile, reports,
+sessions) and a B2B hiring marketplace (search, job posts, Express
+Interest, paid HM tier). Revenue lives in hiring; daily usage lives in
+self-portfolio.</p></li>
+<li><p><strong>Monitoring vs self-reflection.</strong> April 6's commit
+<code>Remove spyware terminology</code> is the most telling moment:
+<em>"Recording → Session Active, REC → SESSION, Stop Recording → End
+Session, screenshots → visual snapshots, Screen Recording → Screen
+Access, Employee Monitoring → Workplace Use, monitoring → data
+collection."</em> The mandatory "What's your focus today?" intention
+modal was killed too. The team is actively running away from
+surveillance framing — but every underlying mechanism (continuous
+screenshots, OCR, keystroke counts, click coordinates, training-data
+pipeline) IS surveillance. There's an unresolved gap between what the
+product does and how it's allowed to talk about itself.</p></li>
+<li><p><strong>Manager view vs worker view.</strong> January's
+"dual-report generation (Manager + Worker views)" persists in the
+manager page, but the recent emphasis is on the worker building their
+own portfolio.</p></li>
+<li><p><strong>Pre-seeded vs real talent pool.</strong> The Talent
+Community + <code>_searchCommunity · +50 boost</code> strongly implies
+salting search results with scraped/imported non-user profiles. This is
+an unresolved go-to-market question being papered over with
+infrastructure.</p></li>
+<li><p><strong>Reports — for whom?</strong> Custom reports capped at
+5/month, daily reports auto-generate, share via link or email only ("No
+local downloads — reports are shared via link or email only; the
+download handlers were removed on 2026-04-02"). Removing downloads
+suggests reports are increasingly <em>shareable artifacts</em> rather
+than personal records.</p></li>
+</ol>
+<h2 id="customer-signal">Customer Signal</h2>
+<p>Direct evidence is thin but specific:</p>
+<ul>
+<li><strong>The "OW Profile Rescue" postmortem (Apr 14) is the strongest
+signal.</strong> <em>"Users reported OW profiles showing empty or
+severely under-populated ('2 skills when they had 16 reports
+analyzed')."</em> Four users were stuck in stale-cache state confirmed
+by SQL. Named users: <strong>namkha</strong> (founder, 2→21 skills),
+<strong>brodeywang2004</strong> (contributor, 39 skills), <strong><a
+href="mailto:aw896@cornell.edu">aw896@cornell.edu</a></strong> (24
+skills). 14 users total had populated skill portfolios.</li>
+<li><strong>97 reports across 10 users</strong> in the backfill
+(<code>scripts/backfill-verified-skills.js --apply</code> → "97 reports
+scanned, 111 skills upserted, 90 rows created, 10 users captured").
+After AI re-extraction: <strong>141 verified-skill rows across 14
+users</strong>.</li>
+<li><strong>Two stuck users</strong>:
+<code>nishkarsh1512@gmail.com</code>,
+<code>claireqcheng@gmail.com</code> with "onboarding_completed=true,
+profile_complete=false, username=null... Zero reports each, no active
+complaint."</li>
+<li><strong>Issue #12</strong> (GitHub): Google signup failing with
+"Database error saving new user" — a real user-blocking bug.</li>
+<li><strong>Brodey</strong> appears as a contributor and the source of
+the gamification/help-widget detour in Dec 2025.</li>
+</ul>
+<p>Total active-user base: <strong>~10–15 people, mostly the founders,
+interns, and friends</strong>. No NPS, no churn metric, no
+support-ticket system referenced anywhere.</p>
+<h2 id="lessons-worth-preserving">Lessons Worth Preserving</h2>
+<ol type="1">
+<li><p><strong>The "forensic auditor" vs "supportive mentor"
+lesson.</strong> A swing from coach to verifier produced higher-signal
+reports. Don't let the AI hallucinate praise.</p></li>
+<li><p><strong>Privacy filtering is load-bearing.</strong>
+<code>sensitive-filter.js</code> (two-layer: window-title and free-text)
+anonymizes Slack/iMessage/banking apps before data hits Gemini. The only
+way the product can ethically exist; don't regress.</p></li>
+<li><p><strong>Caches lie. Build durable storage for high-value derived
+data.</strong> The April 14 postmortem learned this the hard way:
+<code>ow_profile_cache.ow_profile_data</code> was the only home for
+verified skills, and one invalidation bug nuked it. The fix —
+first-class <code>verified_skills</code> table with reader-side fallback
+— is the pattern.</p></li>
+<li><p><strong>Hardcoded enums kill features silently.</strong> The
+<code>['technical', 'soft', 'domain']</code> whitelist dropped 71% of
+skills emitted by the AI. Schema/UI must accept what the AI actually
+produces.</p></li>
+<li><p><strong>OAuth in embedded BrowserWindow doesn't work.</strong>
+Both Google and LinkedIn block it. System browser + polling is the only
+durable pattern (lessons from v3.7.2 → v3.7.7).</p></li>
+<li><p><strong>Sessions need three-layer recovery</strong> (April 24,
+v3.11.0): renderer rehydration on every load + desktop orphan
+reconciliation + backend stale-session finalizer every 10 minutes.
+<em>"Catches sessions abandoned by crashed / force-quit / dead-battery
+clients even if the user never relaunches the desktop
+app."</em></p></li>
+<li><p><strong>Spyware language poisons the product.</strong> The
+terminology overhaul (April 6) was treated as a real feature shipped
+across 15 files.</p></li>
+<li><p><strong>Cost is a top-tier feature.</strong> Multiple commits
+about Gemini token spend, image resizing (1280x720 JPEG q70), adaptive
+10–60s capture intervals, sessions &lt;5min skipping AI, and 5/month
+custom-report cap. The team has been forced to learn this.</p></li>
+<li><p><strong>The IPC bridge is the schema.</strong> "~169 channels"
+between renderer and main. Any rebuild that doesn't model this surface
+area carefully will regress dozens of small UX behaviors.</p></li>
+<li><p><strong>Build one canonical thing.</strong> The April 11 design
+audit found 8 parallel button systems and 3 modal systems with duplicate
+<code>.modal-overlay</code> selectors. The fix was painful (~683 lines
+of CSS deleted). Don't ship a rebuild that opens this door
+again.</p></li>
+</ol>
+<h2 id="reference-files">Reference Files</h2>
+<ul>
+<li><code>/tmp/CHANGELOG.md</code>, <code>/tmp/CLAUDE_HIST.md</code>,
+<code>/tmp/features.md</code>, <code>/tmp/v2-roadmap.md</code> —
+recovered docs (git commit <code>6134ed0^</code>)</li>
+<li><code>/Users/xerneas/onlyworks_desktop/CLAUDE/architecture.mmd</code>
+— current architecture diagram (most up-to-date system view, May 14,
+2026)</li>
+<li><code>/Users/xerneas/onlyworks_desktop/CLAUDE/supabase_schema.sql</code>
+— current DB schema</li>
+<li><code>/Users/xerneas/onlyworks_desktop/README.md</code> —
+public-facing tech README (v3.7.7 era)</li>
+<li><code>/Users/xerneas/onlyworks_desktop/CLAUDE.md</code> — current
+root project rules</li>
+</ul>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>02 · 2026</span>
+</footer>
+
+</body>
+</html>

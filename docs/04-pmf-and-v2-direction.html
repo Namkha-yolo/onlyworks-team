@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMF &amp;amp; v2 direction · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>04 · 30 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 04 · Strategy</div>
+      <div class="title">PMF &amp;amp; v2 direction</div>
+      <div class="subtitle">Who v2 is for. Three ICPs, three revenue
+streams. Pricing. Marketing channels. What we drop. What we keep.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>30 min</strong></span>
+        <span>Audience<strong>Everyone</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks--pmf-analysis-and-v2-direction"
+id="toc-onlyworks--pmf-analysis-and-v2-direction">OnlyWorks — PMF
+Analysis and v2 Direction</a>
+<ul>
+<li><a href="#headline-positioning"
+id="toc-headline-positioning">Headline Positioning</a></li>
+<li><a href="#why-this-combination" id="toc-why-this-combination">Why
+This Combination</a></li>
+<li><a href="#where-path-a-survives-in-v2"
+id="toc-where-path-a-survives-in-v2">Where Path A Survives in
+v2</a></li>
+<li><a href="#target-user-icp" id="toc-target-user-icp">Target User
+(ICP)</a></li>
+<li><a href="#value-proposition-worker-side"
+id="toc-value-proposition-worker-side">Value Proposition (worker
+side)</a></li>
+<li><a href="#value-proposition-hiring-side"
+id="toc-value-proposition-hiring-side">Value Proposition (hiring
+side)</a></li>
+<li><a href="#differentiation-vs-competitors"
+id="toc-differentiation-vs-competitors">Differentiation vs.
+Competitors</a></li>
+<li><a href="#pricing" id="toc-pricing">Pricing</a></li>
+<li><a href="#roadmap-v20--v22" id="toc-roadmap-v20--v22">Roadmap (v2.0
+→ v2.2)</a></li>
+<li><a href="#what-to-drop-be-honest"
+id="toc-what-to-drop-be-honest">What to Drop (be honest)</a></li>
+<li><a href="#what-must-survive-the-non-negotiables"
+id="toc-what-must-survive-the-non-negotiables">What Must Survive (the
+non-negotiables)</a></li>
+<li><a href="#backend-implications"
+id="toc-backend-implications">Backend Implications</a></li>
+<li><a href="#risks-and-open-questions"
+id="toc-risks-and-open-questions">Risks and Open Questions</a></li>
+<li><a href="#marketing-channels-where-these-users-actually-live"
+id="toc-marketing-channels-where-these-users-actually-live">Marketing
+channels (where these users actually live)</a></li>
+<li><a href="#comparison-table-what-v1-is-vs-what-v2-should-be"
+id="toc-comparison-table-what-v1-is-vs-what-v2-should-be">Comparison
+Table: What v1 Is vs What v2 Should Be</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks--pmf-analysis-and-v2-direction">OnlyWorks — PMF
+Analysis and v2 Direction</h1>
+<p>This document defines who v2 is for, what to build, and what to
+defer. Reflects: (a) the team's existing direction (verified portfolio +
+hiring marketplace), (b) the v2 roadmap (already documented), (c) the
+backend reality (Stripe gap, half-built verification loop, real-user
+talent community), and (d) the founder's preference to lean on Path B
+(brag doc / promo packet) and Path C (verified portfolio) over Path A
+(billing clerk).</p>
+<h2 id="headline-positioning">Headline Positioning</h2>
+<blockquote>
+<p><strong>OnlyWorks captures your work. Your work becomes a verified
+portfolio, your status reports write themselves, and hiring managers
+find you.</strong></p>
+</blockquote>
+<p>One product. One underlying capture engine. Three distinct output
+channels for three distinct revenue streams.</p>
+<ul>
+<li><strong>D2C marketplace (free workers + paid HMs):</strong> Workers
+build verified portfolios passively; hiring managers pay to search +
+reach them.</li>
+<li><strong>D2C utility (workers / Pro):</strong> Promo packets, weekly
+summaries, public profile — career-builder tools layered on top of the
+portfolio.</li>
+<li><strong>B2B internal reporting (team subscription,
+per-seat):</strong> Your team's captured work becomes their
+auto-generated status reports, eliminating "what did you do this week?"
+friction. The team feature in v1 was always for this — just never framed
+clearly.</li>
+</ul>
+<p>Three jobs, one engine:</p>
+<ul>
+<li>Capture once → portfolio + status reports + promo packets +
+marketplace signal, all derived from the same underlying frames.</li>
+</ul>
+<p>This is the unification of Paths B + C + hiring marketplace + the
+team feature (re-positioned). Path A (billing/invoice automation)
+remains deferred to v3 or skip.</p>
+<h2 id="why-this-combination">Why This Combination</h2>
+<p><strong>Path B (brag doc / promo packet)</strong> = the
+<em>active</em> worker use case. Quarterly/annual reviews. Promo cycles.
+Justifying raises. The Lattice/Workday review-prep workflow. Real demand
+exists; brag-doc workflows are now standard at FAANG.</p>
+<p><strong>Path C (verified portfolio)</strong> = the <em>passive</em>
+worker use case. A profile that builds itself from real work. Sharable
+to anyone. The "career resume that's actually true."</p>
+<p><strong>Hiring marketplace</strong> = the <em>monetization</em>.
+Workers don't pay (or pay tiny amounts). Hiring managers pay <span
+class="math inline">100−</span>500/mo for search access + job posts +
+outreach.</p>
+<p>These three reinforce each other:</p>
+<ul>
+<li>The promo packet gives workers a <em>daily</em> reason to keep the
+desktop running (otherwise capture quality degrades on review-prep
+day).</li>
+<li>The verified portfolio is the <em>artifact</em> that promotes and
+the asset that gets searched.</li>
+<li>The hiring side monetizes the artifact without charging
+workers.</li>
+</ul>
+<p>Compare to Path A standalone (billing clerk):</p>
+<ul>
+<li>Strong wedge, validated by PointOne, <span
+class="math inline">30−</span>80/mo ARPU per user.</li>
+<li>But: requires a real product pivot. The current portfolio + hiring
+stack becomes dead weight. The team has built ~80% of B+C+hiring; only
+20% of A.</li>
+<li>The founder also indicated uncertainty about A's implications.</li>
+</ul>
+<h2 id="where-path-a-survives-in-v2">Where Path A Survives in v2</h2>
+<p>Path A (AI billing) does not disappear — it becomes a <strong>feature
+for the freelancer subset of the ICP</strong>, shipped in v2.1 or
+v3:</p>
+<ul>
+<li>Tag sessions to clients (manual or auto-detected from screen
+content)</li>
+<li>Generate invoice line items from captured sessions</li>
+<li>Export to CSV / QuickBooks / FreshBooks</li>
+</ul>
+<p>It's a side door for the 10-20% of users who are billing-by-hour
+freelancers. It doesn't drive the marketing, the pricing, or the
+architecture.</p>
+<p><strong>Why this matters:</strong> the team can validate whether
+billing is a real wedge later, <em>without</em> committing the entire
+company to it now. If 30% of v2 free users want billing integrations,
+build Path A as a $19/mo add-on. If 5% do, skip it.</p>
+<h2 id="target-user-icp">Target User (ICP)</h2>
+<p><strong>One unifying frame:</strong> people actively building their
+career who want hiring managers to find them — across two life
+stages.</p>
+<h3
+id="primary-segment-a-students-and-early-career-professionals-05-years">Primary
+segment A: Students and early-career professionals (0–5 years)</h3>
+<p>The sharpest, highest-intent segment.</p>
+<p>Concretely:</p>
+<ul>
+<li><strong>Status:</strong> undergraduate/graduate students, bootcamp
+students, recent grads, first/second-job employees, interns</li>
+<li><strong>Behavior pattern:</strong> building projects (hackathons,
+capstone projects, school assignments, side projects, internships, first
+jobs)</li>
+<li><strong>The job:</strong> translate "I built a thing" into "here are
+the verified skills I demonstrated" → show to HMs</li>
+<li><strong>Hiring stage:</strong> actively seeking first job,
+internship, or next role</li>
+<li><strong>Tech profile:</strong> comfortable with desktop apps and
+permissions; lives in VS Code / Figma / Notion / browser tabs; aware of
+the resume-building hustle</li>
+<li><strong>No employer concerns</strong> about installing
+screen-capture (they're often not employed, or it's their own
+machine)</li>
+<li><strong>Time-rich, money-poor</strong> — high engagement potential,
+low individual willingness to pay</li>
+<li><strong>Why they install:</strong> "If OnlyWorks watches me build my
+projects, it will auto-build my portfolio and connect me with
+employers." This is the explicit value prop.</li>
+</ul>
+<p>Examples of the canonical user (the "Brodey" persona):</p>
+<ul>
+<li>CS undergrad building a hackathon project who wants to show
+recruiters what they did</li>
+<li>Design student working on senior thesis who wants verified evidence
+of Figma + research skills</li>
+<li>Bootcamp grad with 3 portfolio projects looking for their first
+job</li>
+<li>Intern at a startup wanting to track and verify what they shipped
+over the summer</li>
+</ul>
+<h3
+id="primary-segment-b-mid-career-knowledge-workers-315-years-experience">Primary
+segment B: Mid-career knowledge workers (3–15 years experience)</h3>
+<p>The deeper, more durable segment.</p>
+<ul>
+<li><strong>Status:</strong> Currently employed individual contributors
+and middle managers at tech-adjacent companies</li>
+<li><strong>Career disposition:</strong> "Always open to better
+opportunities" — passive job-seekers, the ~70% of LinkedIn users who
+haven't quit but would talk</li>
+<li><strong>The job:</strong> maintain a verified career portfolio that
+makes them findable + ready for promo cycles</li>
+<li><strong>Activation events:</strong> promo cycle, performance review,
+manager change, layoff fear, recruiter ping</li>
+<li><strong>Tech profile:</strong> macOS-first (~70%) / Windows (~30%);
+Slack + Notion + Figma + GitHub natives</li>
+</ul>
+<p>Both segments converge on the same product. The desktop captures
+work, the AI extracts verified skills, the portfolio gets seen by
+HMs.</p>
+<h3 id="secondary-hiring-managers-and-recruiters">Secondary: hiring
+managers and recruiters</h3>
+<ul>
+<li>Pays for: search access, job posting, Express Interest outreach</li>
+<li>Sweet spot: companies that hire for digital roles, especially open
+to early-career talent (where verified-by-capture skills beat the noisy
+signal of GPA + GitHub + resume embellishment)</li>
+</ul>
+<h3 id="out-of-scope-deliberate">Out of scope (deliberate)</h3>
+<ul>
+<li>Solo freelancers billing hourly → Path A, defer to v3</li>
+<li>Manager-watching-team workflows → bossware reputation risk</li>
+<li>Enterprise compliance buyers → 4-person team can't sell
+enterprise</li>
+<li>Job seekers in non-digital industries → tooling fit is weak</li>
+<li>Established senior leaders (Staff+, Director+) who don't need
+verified skills</li>
+</ul>
+<h2 id="value-proposition-worker-side">Value Proposition (worker
+side)</h2>
+<p>Three things workers get, in priority order:</p>
+<ol type="1">
+<li><p><strong>"Your work history, captured for you."</strong> A
+verified portfolio that builds itself. Run OnlyWorks while you work or
+build → AI extracts skills, accomplishments, projects → portfolio
+updates automatically. This is the base layer. For students this is the
+entire reason to use it: prove you actually built the thing.</p></li>
+<li><p><strong>"Get found, not searched out."</strong> When the right
+opportunity matches your verified profile, you get a private alert from
+a hiring manager. No application spam, no LinkedIn shoutouts. This is
+the passive job-seeker hook — and for students, it's the
+"internship/first-job dream": HMs come to you with verified evidence of
+your skills.</p></li>
+<li><p><strong>"Your promo packet, ready every Friday."</strong>
+(Mid-career segment.) Every week, OnlyWorks summarizes what you shipped,
+what skills you demonstrated, and what to talk about in your 1:1. When
+promo season hits, you have 26-52 weekly summaries already
+written.</p></li>
+</ol>
+<p>The student-flavored value prop: <em>"Build your project with
+OnlyWorks running. Get a verified portfolio + skill profile that hiring
+managers can actually trust. Get reached out to instead of
+applying."</em></p>
+<p>The mid-career-flavored value prop: <em>"A verified career history
+that's always current. Compounds while you work. Get found by recruiters
+for what you actually do, not what you wrote on LinkedIn."</em></p>
+<h2 id="value-proposition-hiring-side">Value Proposition (hiring
+side)</h2>
+<p>For HMs and recruiters:</p>
+<ol type="1">
+<li><p><strong>"Search verified candidates, not LinkedIn
+profiles."</strong> Skills are derived from actual captured work — not
+self-claims. Match scores reflect frequency + recency of demonstrated
+skill.</p></li>
+<li><p><strong>"See evidence before you message."</strong> Every
+candidate has expandable evidence per skill — which projects, which
+apps, what they actually did. This is the "GitHub for non-developers"
+pitch.</p></li>
+<li><p><strong>"Reach passive candidates respectfully."</strong> Express
+Interest is async, candidate-controlled, can't be spammed. Opt-out per
+HM is one-click.</p></li>
+</ol>
+<h2 id="differentiation-vs-competitors">Differentiation vs.
+Competitors</h2>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Wins on</th>
+<th>We win on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LinkedIn / LinkedIn Recruiter</td>
+<td>Network effect, brand, ubiquity</td>
+<td>Verified-by-capture vs self-claimed skills</td>
+</tr>
+<tr>
+<td>Polywork / Read.cv</td>
+<td>Aesthetic, design-forward</td>
+<td>Active capture = always-current, no manual updates</td>
+</tr>
+<tr>
+<td>Brag Doc tools (Teal, BragBook)</td>
+<td>Simple, focused</td>
+<td>Auto-generated from work, not journal-as-you-go</td>
+</tr>
+<tr>
+<td>Hubstaff / Time Doctor (bossware)</td>
+<td>(don't want to win here)</td>
+<td>Single-player, no manager view, privacy-first framing</td>
+</tr>
+<tr>
+<td>Hired / AngelList Talent</td>
+<td>Active job-board market</td>
+<td>Always-on passive verification, no apply-spam needed</td>
+</tr>
+<tr>
+<td>Granola (meeting AI)</td>
+<td>Meeting-specific dominance</td>
+<td>Screen-wide capture catches the 80% of work outside meetings</td>
+</tr>
+</tbody>
+</table>
+<p>The differentiator stack:</p>
+<ol type="1">
+<li><strong>Verified-by-capture</strong>, not self-claimed → trust
+signal HMs can't get elsewhere</li>
+<li><strong>Privacy-first</strong> (on-device OCR, sensitive-content
+filtering, no team views) → defuses the bossware reflex</li>
+<li><strong>Passive portfolio</strong> → no journaling discipline
+required, works for the 90% who don't blog</li>
+<li><strong>Single ICP narrative</strong> → "mid-career digital ICs and
+managers" beats "anyone who works"</li>
+</ol>
+<h2 id="pricing">Pricing</h2>
+<p>Three tiers. Worker side is mostly free; revenue comes from hiring
+managers.</p>
+<p><strong>Worker tiers</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Price</th>
+<th>What's included</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free</td>
+<td>$0</td>
+<td>Capture + portfolio + 1 weekly summary email + share public profile
++ appear in HM search (opt-out)</td>
+<td>Drive activation and supply for the hiring side. Students and most
+workers stay here.</td>
+</tr>
+<tr>
+<td>Pro</td>
+<td>$9/mo annual / $12/mo monthly</td>
+<td>Unlimited summary emails + custom reports + sensitive-content
+controls + theme/personalization + export to PDF</td>
+<td>Pricey enough to filter signal users; cheap enough to be
+impulse</td>
+</tr>
+<tr>
+<td>Student (Free Pro)</td>
+<td>$0 with .edu email verification</td>
+<td>Everything in Pro, free while enrolled</td>
+<td>Students are the highest-intent supply for the marketplace; remove
+price friction</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hiring manager tiers</strong> (D2C marketplace revenue)</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Price</th>
+<th>What's included</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free</td>
+<td>$0</td>
+<td>Browse search teasers (anon hashed IDs), see talent community, no
+outreach</td>
+</tr>
+<tr>
+<td>Starter</td>
+<td>$99/mo</td>
+<td>5 active job posts, 25 Express Interest sends/mo, full
+verified-candidate search</td>
+</tr>
+<tr>
+<td>Pro</td>
+<td>$299/mo</td>
+<td>Unlimited job posts, unlimited Express Interest, saved searches,
+candidate notes</td>
+</tr>
+<tr>
+<td>Recruiter Team</td>
+<td>$599/mo</td>
+<td>3 seats, shared shortlists, ATS integration (v2.1+)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Internal team reporting tiers</strong> (B2B per-seat — v2.2+,
+separate revenue stream)</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Price</th>
+<th>What's included</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Team Starter</td>
+<td>$9/seat/mo (min 5 seats)</td>
+<td>Auto-generated weekly/sprint status reports, employee reviews +
+sends, Slack + email delivery, manager digest</td>
+</tr>
+<tr>
+<td>Team Pro</td>
+<td>$19/seat/mo (min 10 seats)</td>
+<td>+ Custom report templates, integrations (Jira, GitHub, Linear), 1:1
+prep notes, OKR check-ins, admin controls</td>
+</tr>
+<tr>
+<td>Team Enterprise</td>
+<td>Custom</td>
+<td>+ SSO, audit logs, BAA, custom data retention</td>
+</tr>
+</tbody>
+</table>
+<p>Compared to async-standup incumbents:</p>
+<ul>
+<li>Geekbot (<span class="math inline">2.50–</span>5/seat): manual
+answers in Slack</li>
+<li>Range (<span class="math inline">6–</span>8/seat): manual updates +
+retro</li>
+<li>Friday: manual standups</li>
+<li><strong>OnlyWorks differentiator: reports written from actual
+captured work, not from "answer these 3 questions every
+Monday."</strong> That's a real time-saver (~30 min/week/employee).</li>
+</ul>
+<p><strong>Why this pricing:</strong></p>
+<ul>
+<li>Worker pricing is intentionally cheap because the worker is the
+<em>supply</em>. We lose money on Pro server costs at $9/mo but Pro buys
+signaling commitment + better data quality (less likely to install,
+capture nothing, churn).</li>
+<li>HM pricing benchmarks against LinkedIn Recruiter Lite (<span
+class="math inline">170/<em>m</em><em>o</em>), <em>f</em><em>u</em><em>l</em><em>l</em><em>R</em><em>e</em><em>c</em><em>r</em><em>u</em><em>i</em><em>t</em><em>e</em><em>r</em>(</span>900+/mo),
+Hired (placement fees 15-25% first-year salary). Starter at $99 is a
+"try it" price; Pro at $299 is the bet.</li>
+<li><strong>CRITICAL:</strong> Stripe must be integrated before any of
+this matters. Today, the HM paid tier is gated by a
+<code>subscription_status</code> column that requires a manual DB
+update. No checkout flow exists.</li>
+</ul>
+<h2 id="roadmap-v20--v22">Roadmap (v2.0 → v2.2)</h2>
+<p>Note: The team's existing v2 roadmap was already aligned with this
+direction. P0 (cost/quality) + P1 (revenue) are the right priorities.
+Below restructures around the rebuild context.</p>
+<h3 id="v20--compounding-portfolio-months-1-3">v2.0 — "Compounding
+Portfolio" (Months 1-3)</h3>
+<p>The daily hook (per founder gut check): <strong>passive portfolio
+that builds itself.</strong> Desktop is invisible-but-trustworthy;
+complexity lives on the web side. The worker doesn't need to engage
+daily — they need to trust that something good is being built.</p>
+<p><strong>Worker desktop side (~5 screens total, slim)</strong></p>
+<ul>
+<li>New app: Electron + React + TS + Vite + Tailwind + tRPC, built in
+<code>onlyworks_desktop_v2/</code></li>
+<li>Port: capture, OCR, auto-updater, magic-link auth, token refresh
+(see architecture review)</li>
+<li>Screens:
+<ol type="1">
+<li><strong>Status</strong> — capture is running, today's count, current
+session indicator</li>
+<li><strong>Portfolio</strong> — verified skills + evidence, sortable,
+editable visibility</li>
+<li><strong>Privacy</strong> — opt-in/out of training data, sensitive
+content rules, what-we-captured review reel</li>
+<li><strong>Settings</strong> — account, appearance, sign-out, app
+version</li>
+<li><strong>First-run</strong> — permission grants + magic-link auth +
+training data consent</li>
+</ol></li>
+<li>Drop: Manager/team views, Goals UI, Activity page, Sessions page,
+dashboard greeting clutter, tutorial coach-marks (replace with
+empty-state copy)</li>
+<li>Email magic link only (defer OAuth to v2.1)</li>
+<li><strong>Unified capture pipeline</strong> (per architecture review)
+— one CaptureEngine, multiple consumers: OCR for reports,
+TrainingDataConsumer for model-training data (consent-gated)</li>
+</ul>
+<p><strong>Web side (where marketplace UX lives)</strong></p>
+<ul>
+<li>Public profile (already exists, polish)</li>
+<li>Hiring search (already exists)</li>
+<li>HM dashboard with job posts + matches + Express Interest (per v2
+roadmap P1)</li>
+<li>HM Stripe checkout + billing portal</li>
+</ul>
+<p><strong>Backend changes</strong></p>
+<ul>
+<li>Stripe integration: Checkout + webhook +
+<code>/api/hiring/subscribe</code> + <code>/api/hiring/portal</code>
+(2-3 days) — <strong>#1 unblocker for revenue</strong></li>
+<li>Per-user AI cost cap across text + vision paths (1 day)</li>
+<li>Talent community nurture worker (day-3/14/30 emails, ~1 day)</li>
+<li>Training data storage + consent tracking (new endpoints for
+<code>TrainingDataConsumer</code>)</li>
+<li>Clean up: delete mocked <code>AIAnalysisService</code>,
+<code>/api/backtest</code>, unused
+<code>@pinecone-database/pinecone</code> dep</li>
+</ul>
+<p><strong>Out of scope for v2.0</strong></p>
+<ul>
+<li>Assignment-based verification ("upload resume → assignment → AI
+grades" loop) — defer to v2.2 or skip entirely if real-work verification
+proves sufficient</li>
+<li>Promo packet generation — defer to v2.1 (the daily hook is
+portfolio, not packet)</li>
+<li>Weekly summary email — defer to v2.1; test whether the passive hook
+is enough first</li>
+<li>Billing/invoice integrations (Path A) — defer to v3 or kill</li>
+<li>Resume upload + AI parsing — only resurrect if assignment
+verification is built in v2.2</li>
+</ul>
+<p><strong>Training data milestone (long game):</strong></p>
+<ul>
+<li>v2.0 starts the data collection (consent-gated, from unified
+pipeline)</li>
+<li>Target: 1M+ labeled frames within 12 months</li>
+<li>At ~12 months: evaluate fine-tuning OnlyWorks-specific multimodal
+model to replace Gemini calls at scale</li>
+<li>Strategic bet: Gemini is fine for v2.0–v2.2; own model unlocks
+better unit economics at &gt;5k DAU</li>
+</ul>
+<p><strong>Success criteria for v2.0:</strong></p>
+<ul>
+<li>100 weekly active workers (most outside the immediate network)</li>
+<li>5 paid hiring managers (<span class="math inline">500−</span>1500
+MRR)</li>
+<li>Capture-to-profile pipeline working without bug reports for 4
+weeks</li>
+<li>80%+ of free users opt-in to training data sharing (signal that the
+consent UX is clear)</li>
+</ul>
+<h3 id="v21--promo-packet-months-4-6">v2.1 — "Promo Packet" (Months
+4-6)</h3>
+<p><strong>Worker side</strong></p>
+<ul>
+<li>New "Weekly Summary" email auto-sent every Friday (the active use
+case Path B promised)</li>
+<li>New "Promo Packet" generator: select date range → generate
+management-friendly narrative (accomplishments framed for review
+committees, impact-first language)</li>
+<li>Public profile redesign (better-looking, more shareable)</li>
+<li>LinkedIn OAuth (if user research shows magic link is friction)</li>
+</ul>
+<p><strong>Backend changes</strong></p>
+<ul>
+<li>Talent Community nurture worker (day-3 / day-14 / day-30
+emails)</li>
+<li>Job match quality improvements (synonyms, fuzzy search per v2
+roadmap P0)</li>
+<li>Saved searches for HMs</li>
+</ul>
+<p><strong>Hiring side</strong></p>
+<ul>
+<li>Job Post UI in desktop (notifications when matches come in)</li>
+</ul>
+<h3 id="v22--internal-reporting--verification-at-scale-months-7-9">v2.2
+— "Internal Reporting + Verification at scale" (Months 7-9)</h3>
+<p><strong>B2B Team feature (the big v2.2 deliverable)</strong></p>
+<ul>
+<li>Team UI rebuilt with consent-first design — employee reviews their
+auto-generated status report before it's sent; manager sees aggregated
+digest, not raw captures</li>
+<li>Status report templates: Weekly status, sprint retro, 1:1 prep, OKR
+check-in, quarterly review</li>
+<li>Slack delivery (post-to-channel or DM)</li>
+<li>Email delivery via Resend (already wired)</li>
+<li>Team subscription via Stripe (per-seat, monthly billing, min
+seats)</li>
+<li>Admin dashboard: invite team, set report cadence, view delivery
+status (NOT view raw captures)</li>
+<li>Privacy guarantees in the product itself: every captured frame goes
+through the same sensitive-content filter; managers never see
+screenshots, only AI-synthesized summaries the employee has
+approved</li>
+<li>Marketing positioning: "Stop writing status reports. Your AI writes
+them from your actual work, you review and send."</li>
+</ul>
+<p><strong>Worker side</strong></p>
+<ul>
+<li>(Optional) Assignment-based verification: upload resume → AI
+extracts unverified skills → generates assignments → user completes in
+OW → AI verifies. <strong>Only build this if the "captured work"
+verification proves insufficient for HM trust.</strong> Talk to 20 HMs
+first.</li>
+</ul>
+<p><strong>Backend changes</strong></p>
+<ul>
+<li>Move to Postgres trigram/jsonpath search (in-memory
+<code>ow_profile_cache</code> scan won't scale past ~5k candidates)</li>
+<li>Move in-memory rate limits and magic-link store to Redis
+(single-instance scaling cliff)</li>
+<li>Cost: per-user monthly AI budget enforcement</li>
+<li>New <code>team_subscriptions</code> Stripe webhook handling
+(per-seat metered billing differs from HM tier)</li>
+</ul>
+<h2 id="what-to-drop-be-honest">What to Drop (be honest)</h2>
+<p>These features exist but should not survive the v2 rebuild:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Why drop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><del>Team management UI</del> — <strong>KEEP, defer to v2.2 with new
+positioning</strong></td>
+<td>Was framed as bossware in v1; in v2.2 it becomes the
+internal-reporting feature ("save people time on status reports").
+Backend infra stays intact in v2.0; UI rebuilt in v2.2 with
+consent-first design.</td>
+</tr>
+<tr>
+<td>Goals page</td>
+<td>Half-built, no PMF signal, route currently shows placeholder</td>
+</tr>
+<tr>
+<td>Activity page as separate nav</td>
+<td>Roll into Today / Portfolio</td>
+</tr>
+<tr>
+<td>Sessions page</td>
+<td>Already deprecated (router maps to Activity)</td>
+</tr>
+<tr>
+<td>Resume upload + AI parsing</td>
+<td>Not core to the verified-by-capture story; resurrect if assignment
+verification is built in v2.2</td>
+</tr>
+<tr>
+<td>Tutorial coach-marks (26KB)</td>
+<td>Replace with empty states + tooltips</td>
+</tr>
+<tr>
+<td>OAuth Google/LinkedIn at signup</td>
+<td>Magic link is enough for v2.0; add OAuth in v2.1 only if conversion
+suffers</td>
+</tr>
+<tr>
+<td>5/mo custom report cap</td>
+<td>Reframe — reports are not the unit of value, the portfolio is</td>
+</tr>
+<tr>
+<td>Day Reports (separate flow from session reports)</td>
+<td>Merge into a single "Daily Summary"</td>
+</tr>
+<tr>
+<td>Manager/Worker view toggle on reports</td>
+<td>Single-player positioning; manager view is dead weight</td>
+</tr>
+<tr>
+<td>Email sharing via Resend (worker side)</td>
+<td>Copy-link is enough</td>
+</tr>
+<tr>
+<td>Training-data pipeline (Pipeline 1)</td>
+<td>No ML training planned with 4-person team</td>
+</tr>
+<tr>
+<td>Two parallel session APIs (<code>session:*</code> +
+<code>sessions:*</code>)</td>
+<td>Consolidate to one</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-must-survive-the-non-negotiables">What Must Survive (the
+non-negotiables)</h2>
+<ul>
+<li><strong>Capture pipeline</strong> (algorithm intact, restructure
+into CaptureEngine + consumers)</li>
+<li><strong>OCR on-device</strong> (macOS Vision + Windows.Media.Ocr —
+drop Tesseract.js fallback)</li>
+<li><strong>Sensitive content filtering</strong>
+(<code>sensitive-filter.js</code> pattern — load-bearing for the privacy
+story)</li>
+<li><strong>Auto-updater</strong> (electron-updater + GitHub releases,
+port verbatim)</li>
+<li><strong>Auth + token refresh + sleep/wake handling</strong> (port
+verbatim)</li>
+<li><strong>macOS TCC permission relaunch trick</strong>
+(<code>_launchTrustState</code>, port verbatim)</li>
+<li><strong>electron-builder config</strong> (signing, notarization,
+NSIS, Mica)</li>
+<li><strong>verified_skills table + write path</strong> (durable storage
+that the OW Profile Rescue forced)</li>
+<li><strong>Three-layer session recovery</strong> (renderer rehydration
++ desktop orphan reconciliation + backend stale-session finalizer)</li>
+<li><strong>Forensic auditor prompt direction</strong> (don't let the AI
+hallucinate praise; verify, don't coach)</li>
+</ul>
+<h2 id="backend-implications">Backend Implications</h2>
+<p>Reflect findings from the backend audit. These must be addressed for
+v2 viability:</p>
+<ol type="1">
+<li><p><strong>Stripe integration is the #1 unblocker for
+revenue.</strong> ~2-3 days of work. <code>stripe_customer_id</code> and
+<code>subscription_status</code> columns already exist. Need: Checkout
+Session creation endpoint, customer.subscription.created webhook,
+billing portal link, gate <code>/api/hiring/jobs</code> to actual paid
+status. This is the only thing blocking v2.0 from earning a single
+dollar.</p></li>
+<li><p><strong>The "+50 verified boost" only matters when there are real
+candidates.</strong> Today, ~14 users have populated portfolios. Until
+the desktop drives growth into the verified pool, hiring search returns
+near-empty results and the talent community side dominates. Plan v2.0
+launch to coincide with a content/growth push (target: 500 verified
+workers within 90 days of launch).</p></li>
+<li><p><strong>The talent community nurture worker is missing.</strong>
+Migration 018 added the columns (<code>nurture_emails_sent</code>) but
+no cron/worker exists. Without it, magic-link signups go cold. ~1 day to
+build with existing Resend setup.</p></li>
+<li><p><strong>AI cost ceiling is precarious.</strong> Per-user vision
+cost cap exists ($0.50/day) but text reports don't have one.
+Stale-session finalizer can run full Gemini batches on abandoned
+sessions, doubling costs. Add a daily per-user AI budget across all
+paths (~1 day).</p></li>
+<li><p><strong>Dead code to clean up.</strong>
+<code>AIAnalysisService</code> is mocked, <code>/api/backtest</code> is
+in-memory dev-only, <code>@pinecone-database/pinecone</code> is in deps
+but never imported. ~0.5 days of deletes.</p></li>
+<li><p><strong>Skip the planned <code>assignments</code> /
+<code>skill_verifications</code> tables</strong> in v2.0. The current
+<code>verified_skills</code> table populated from real captured work is
+sufficient signal for HMs <em>if</em> the captured-work signal is good.
+Only build assignment-based verification if HM interviews reveal trust
+gap.</p></li>
+</ol>
+<h2 id="risks-and-open-questions">Risks and Open Questions</h2>
+<p><strong>The biggest risk:</strong> the worker side is free, the
+hiring side requires marketplace liquidity. For HMs to pay, they need a
+pool of verified candidates worth searching. For workers to install +
+run capture daily, they need a reason — promo packet utility is the bet,
+but it's a quarterly/annual event, not daily.</p>
+<p><strong>Mitigations:</strong></p>
+<ul>
+<li>Make the weekly summary email the daily/weekly hook (compounding
+utility — every week of capture builds the portfolio).</li>
+<li>The worker free tier is essential — don't gate the portfolio.</li>
+<li>Seed the hiring search by inviting Brodey + the existing 14 users +
+every member of the founder's network as the first 50 verified
+candidates. The first 5 paid HMs will be friends and warm intros.</li>
+</ul>
+<p><strong>Open questions to test in the first 4 weeks:</strong></p>
+<ol type="1">
+<li>Do mid-career ICs actually install and keep running a passive
+capture tool? (Easy to test: ship v2.0 to internal network of 20,
+measure weekly active over 4 weeks.)</li>
+<li>Do HMs trust skills derived from captured work? Or do they bounce
+off "this seems weird, where does this data come from?" (Test with 20 HM
+interviews before building v2.1.)</li>
+<li>Does the promo packet narrative resonate, or is it too niche? (Test
+by offering it as a v2.0 free feature even though we said it's v2.1 —
+measure usage in last week of v2.0 beta.)</li>
+<li>Will users tolerate screen capture in 2026 (post-Recall, post-Rewind
+acquisition)? (Privacy story is load-bearing; test the messaging.)</li>
+</ol>
+<p><strong>Existential risks:</strong></p>
+<ul>
+<li>LinkedIn launches verified-by-capture (unlikely near-term — they
+have brand to protect)</li>
+<li>Google/Microsoft bake verified work history into OS-level products
+(Microsoft Recall is dead, but the idea lives)</li>
+<li>Regulatory pushback on workplace AI monitoring (EU AI Act kicks in
+Aug 2026 or deferred Dec 2027 — single-player positioning sidesteps
+"high-risk" classification but watch for changes)</li>
+<li>Cost: Gemini per-user economics break at scale (current vision cap =
+$15/user/month, that's a meaningful margin hit on a $9/mo worker
+subscription)</li>
+</ul>
+<h2 id="marketing-channels-where-these-users-actually-live">Marketing
+channels (where these users actually live)</h2>
+<p>For the student segment specifically:</p>
+<ul>
+<li>College CS / design club partnerships</li>
+<li>Bootcamp partnerships (General Assembly, Hack Reactor, Lambda, App
+Academy, Le Wagon, Y Combinator's Startup School)</li>
+<li>Hackathon sponsorships (MLH circuit, university hackathons)</li>
+<li>TikTok / Instagram career-content creators (the "how I got my first
+job" niche)</li>
+<li>Career service offices (counselors recommend tools)</li>
+<li>r/cscareerquestions, r/learnprogramming, r/recruitinghell (the
+latter is dense with hiring frustration)</li>
+<li>"Project from scratch" YouTube tutorials — sponsor the
+build-along</li>
+</ul>
+<p>For the mid-career segment:</p>
+<ul>
+<li>LinkedIn Ads (career-stage targeting works)</li>
+<li>Indie Hackers, Hacker News (the "side project to first SaaS revenue"
+cohort)</li>
+<li>Engineering / design newsletters (Pragmatic Engineer, Refactoring,
+UX Collective)</li>
+<li>Substack newsletters in your audience's space</li>
+</ul>
+<p>For the hiring side:</p>
+<ul>
+<li>LinkedIn Ads (targeting Recruiter / Talent Acquisition titles at
+SMB-mid)</li>
+<li>ATS partnerships (Lever, Greenhouse have integration
+marketplaces)</li>
+<li>Recruiter communities (RecruitingDaily, r/recruiting)</li>
+</ul>
+<h2 id="comparison-table-what-v1-is-vs-what-v2-should-be">Comparison
+Table: What v1 Is vs What v2 Should Be</h2>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>v1 today</th>
+<th>v2 target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Audiences</td>
+<td>"Everyone" (workers, managers, employers)</td>
+<td>Students + early-career + mid-career career-builders + HMs hiring
+them + teams that want their status reports written for them</td>
+</tr>
+<tr>
+<td>Revenue model</td>
+<td>Stubbed (no Stripe, no paid users)</td>
+<td>Three streams: HMs pay <span class="math inline">99−</span>599/mo
+(marketplace), workers freemium ($9 Pro), teams <span
+class="math inline">9−</span>19/seat/mo (internal reporting, v2.2)</td>
+</tr>
+<tr>
+<td>Worker daily hook</td>
+<td>Open dashboard, view today's session</td>
+<td>Weekly summary email + auto-portfolio update</td>
+</tr>
+<tr>
+<td>Worker active hook</td>
+<td>Manually generate custom reports (5/mo cap)</td>
+<td>Promo packet generator (date range → manager-friendly
+narrative)</td>
+</tr>
+<tr>
+<td>Worker passive hook</td>
+<td>Share OW profile link manually</td>
+<td>Get matched + alerted by hiring managers</td>
+</tr>
+<tr>
+<td>Verification source</td>
+<td>AI extracts skills from screen captures (already live)</td>
+<td>Same, but durable + scored + sortable</td>
+</tr>
+<tr>
+<td>Capture story</td>
+<td>"Workplace use" (recently dewspeaked from "monitoring")</td>
+<td>"Captures your work to build your portfolio" — single-player +
+privacy-first</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>Vanilla JS + innerHTML + 5,700-line CSS + 169 IPC channels</td>
+<td>Electron + React + TS + Vite + Tailwind + tRPC + ~30 IPC
+channels</td>
+</tr>
+<tr>
+<td>Codebase</td>
+<td>~37k LOC in src/, lots of dead code</td>
+<td>~10-12k LOC, focused</td>
+</tr>
+</tbody>
+</table>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>04 · 2026</span>
+</footer>
+
+</body>
+</html>

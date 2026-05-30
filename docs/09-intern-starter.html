@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intern starter guide · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>09 · 20 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 09 · Onboarding</div>
+      <div class="title">Intern starter guide</div>
+      <div class="subtitle">Week 0 template-app exercise. Reading order.
+Conventions for code, commits, PRs, dependencies. How code review
+works.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>20 min</strong></span>
+        <span>Audience<strong>Interns</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks-v2--intern-starter-guide"
+id="toc-onlyworks-v2--intern-starter-guide">OnlyWorks v2 — Intern
+Starter Guide</a>
+<ul>
+<li><a href="#week-0--before-you-touch-onlyworks"
+id="toc-week-0--before-you-touch-onlyworks">Week 0 — Before you touch
+OnlyWorks</a></li>
+<li><a href="#week-1--your-first-onlyworks-task"
+id="toc-week-1--your-first-onlyworks-task">Week 1 — Your first OnlyWorks
+task</a></li>
+<li><a href="#conventions-you-will-follow"
+id="toc-conventions-you-will-follow">Conventions you will
+follow</a></li>
+<li><a href="#decisions-and-process"
+id="toc-decisions-and-process">Decisions and process</a></li>
+<li><a href="#what-you-should-ship-by-end-of-week-4"
+id="toc-what-you-should-ship-by-end-of-week-4">What you should ship by
+end of Week 4</a></li>
+<li><a href="#things-we-dont-want-you-to-do"
+id="toc-things-we-dont-want-you-to-do">Things we don't want you to
+do</a></li>
+<li><a href="#things-we-do-want-you-to-do"
+id="toc-things-we-do-want-you-to-do">Things we DO want you to
+do</a></li>
+<li><a href="#the-shape-of-a-week" id="toc-the-shape-of-a-week">The
+shape of a week</a></li>
+<li><a href="#final-word" id="toc-final-word">Final word</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks-v2--intern-starter-guide">OnlyWorks v2 — Intern
+Starter Guide</h1>
+<p>You're an intern on the OnlyWorks team. This document tells you what
+to do in your <strong>first two weeks</strong> before touching
+production code, what the conventions are, and how decisions get
+made.</p>
+<p>If you're reading this, you've already accepted the role.
+Welcome.</p>
+<hr />
+<h2 id="week-0--before-you-touch-onlyworks">Week 0 — Before you touch
+OnlyWorks</h2>
+<p><strong>Goal:</strong> prove to yourself you can ship in our stack
+before you touch our codebase. ~5 working days.</p>
+<h3 id="day-12--build-a-template-app">Day 1–2 · Build a template
+app</h3>
+<p>Build a tiny <strong>Electron + Vite + React + TypeScript +
+tRPC</strong> todo app from scratch. Yes, a todo app. It exists to teach
+you the stack, not to be impressive.</p>
+<p>Requirements:</p>
+<ul>
+<li>New repo on your GitHub account (private is fine)</li>
+<li><code>electron-vite create my-todo --template=react-ts</code></li>
+<li>Tailwind v4 + shadcn/ui set up</li>
+<li>One tRPC procedure: <code>todos.add(text)</code>,
+<code>todos.list()</code>, <code>todos.toggle(id)</code></li>
+<li>Renderer calls the procedures through a typed tRPC client</li>
+<li>One Zustand store for UI state (e.g., filter state)</li>
+<li>TanStack Query wrapping the tRPC calls</li>
+<li>Magic-link auth? Skip. Just hardcode a user.</li>
+<li>One animation on add (use the shadcn <code>motion</code>
+patterns)</li>
+<li>macOS or Windows build that runs end-to-end with
+<code>npm run dev</code></li>
+<li>One unit test using Vitest</li>
+</ul>
+<p>Done when:</p>
+<ul>
+<li>You can run <code>npm run dev</code>, the window opens, you can
+add/check/delete todos, and your terminal shows tRPC calls
+happening.</li>
+<li>You can explain to Namkha what tRPC over IPC means and why we use
+it.</li>
+<li>You can explain why we pinned every dependency.</li>
+</ul>
+<h3 id="day-3--read-the-planning-docs">Day 3 · Read the planning
+docs</h3>
+<p>In this order. Don't skim. Take notes.</p>
+<ol type="1">
+<li><strong><code>08-plain-english-plan.md</code></strong> — the whole
+product story. ~15 min.</li>
+<li><strong><code>02-intent-and-history.md</code></strong> — where
+OnlyWorks came from, what's been tried, what's been learned. ~25
+min.</li>
+<li><strong><code>04-pmf-and-v2-direction.md</code></strong> — who v2 is
+for, three revenue streams. ~30 min.</li>
+<li><strong><code>05-v2.0-scope.md</code></strong> — feature spec for
+what you're building. ~25 min.</li>
+<li><strong><code>07-build-order.md</code></strong> — week-by-week task
+list. Find your tasks. ~15 min.</li>
+<li><strong><code>visuals/wireframes.html</code></strong> +
+<strong><code>visuals/web-wireframes.html</code></strong> — what the
+product looks like. ~20 min.</li>
+<li><strong><code>visuals/00-design-system.html</code></strong> — the
+design system you'll implement against. ~30 min.</li>
+</ol>
+<p>At the end, write a 1-page response to Namkha covering:</p>
+<ul>
+<li>The one part of the plan that you're most excited about</li>
+<li>The one part you're skeptical about</li>
+<li>One question you don't know the answer to</li>
+</ul>
+<p>This is so we know you actually read it. It also tells us what to
+clarify on day 1.</p>
+<h3 id="day-4--read-v1-code">Day 4 · Read v1 code</h3>
+<p>Skim the OnlyWorks v1 codebase at
+<code>/Users/xerneas/onlyworks_desktop</code>. Focus on:</p>
+<ul>
+<li><code>src/main.js</code> — what does the OnlyWorksApp class do at
+startup?</li>
+<li><code>src/services/capture-service.js</code> — the capture pipeline.
+Read it end to end (it's 1,417 lines, sorry).</li>
+<li><code>src/services/ocr-service.js</code> — the OCR pipeline with
+platform-native paths.</li>
+<li><code>src/services/auto-updater.js</code> — what we're porting
+verbatim.</li>
+<li><code>src/services/backend-auth.js</code> — encrypted token
+storage.</li>
+<li><code>src/preload.js</code> — the IPC bridge that's about to be
+replaced with tRPC.</li>
+<li>One page module of your choice, e.g.,
+<code>src/app/modules/page-dashboard.js</code> — see how the v1 renderer
+is built. You're throwing this pattern away. Understand why.</li>
+<li><code>package.json</code> — <code>build</code> block
+(electron-builder config). We're keeping most of this.</li>
+</ul>
+<p>You will not be tested on this. But when you hit a tricky platform
+bug in v2, the answer is usually in v1.</p>
+<h3 id="day-5--set-up-your-environment">Day 5 · Set up your
+environment</h3>
+<ul>
+<li>macOS interns: get an Apple Developer account, install Xcode CLT,
+set up signing certs (Namkha will provide).</li>
+<li>Windows interns: get a Windows VM (Parallels or local), install
+Node.js 25+, Git.</li>
+<li>Cross-platform interns: do both.</li>
+<li>Install <code>pnpm</code> (faster than npm). Install GitHub
+CLI.</li>
+<li>Get added to:
+<ul>
+<li>GitHub: <code>Namkha-yolo/onlyworks_desktop</code> (write access to
+the v2 directory we'll create)</li>
+<li>GitHub: <code>Namkha-yolo/onlyworks-backend-server</code> (read
+access)</li>
+<li>Linear or whatever issue tracker we use</li>
+<li>Slack/Discord team channel</li>
+</ul></li>
+<li>Add SSH key. Set up commit signing with GPG (optional but
+encouraged).</li>
+</ul>
+<p>Done with Week 0 when:</p>
+<ul>
+<li>Your template app builds and runs</li>
+<li>You've read all the planning docs</li>
+<li>You can sign in to all our shared tools</li>
+<li>You've written your 1-page response</li>
+</ul>
+<hr />
+<h2 id="week-1--your-first-onlyworks-task">Week 1 — Your first OnlyWorks
+task</h2>
+<p>You have one task in week 1. It's listed in
+<code>07-build-order.md</code>. You will finish it before Friday.</p>
+<p>For everyone in week 1, the deliverable is small enough to be done in
+3–4 working days. The fifth day is for code review iteration.
+<strong>Don't try to over-deliver.</strong> Don't add features. Just
+finish the listed task.</p>
+<h3 id="what-a-good-week-1-pr-looks-like">What a "good" week-1 PR looks
+like</h3>
+<ul>
+<li>One feature branch off <code>main</code></li>
+<li>One commit (squash before requesting review)</li>
+<li>A clear PR description: what changed, why, what testing you did</li>
+<li>All CI checks pass (lint, types, tests)</li>
+<li>Build runs locally on macOS or Windows (whichever you own)</li>
+<li>No new dependencies added without asking</li>
+<li>No <code>console.log</code> debugging left in</li>
+<li>No TODO comments left in the code (open an issue instead)</li>
+</ul>
+<h3 id="how-code-review-works">How code review works</h3>
+<ul>
+<li>Tag Namkha. She reviews every PR for weeks 1–4.</li>
+<li>Expect 1–3 review rounds. This is normal. Don't take notes
+personally.</li>
+<li>Address every comment before re-requesting review. If you disagree,
+explain why in a reply — don't just close the comment.</li>
+<li>"LGTM" or "✅ approve" from Namkha = ship it (squash merge to
+main).</li>
+</ul>
+<p>After week 4, intern PR review pairs:</p>
+<ul>
+<li>A reviews B</li>
+<li>B reviews C</li>
+<li>C reviews A</li>
+<li>Namkha reviews anything tagged <code>needs-decision</code> or
+<code>architecture</code></li>
+</ul>
+<hr />
+<h2 id="conventions-you-will-follow">Conventions you will follow</h2>
+<h3 id="code-style">Code style</h3>
+<ul>
+<li><strong>TypeScript:</strong> strict mode on. No <code>any</code>
+unless you write a comment explaining why. Prefer <code>unknown</code> +
+narrowing.</li>
+<li><strong>Imports:</strong> absolute paths from <code>src/</code> root
+(configure tsconfig paths).</li>
+<li><strong>Files:</strong> one component per file. Component name =
+filename (PascalCase for components, kebab-case for utilities).</li>
+<li><strong>Naming:</strong> prefer descriptive over short.
+<code>isCapturing</code> not <code>cap</code>. <code>onSessionEnd</code>
+not <code>onEnd</code>.</li>
+<li><strong>No defensive code without a reason.</strong> Don't add
+<code>try/catch</code> "just in case." Let errors bubble; we have global
+error handlers.</li>
+<li><strong>No comments that restate the code.</strong> Only comment the
+WHY, not the WHAT.</li>
+<li><strong>No emojis in code.</strong> Yes really. The CSS has
+<code>border-radius: 0</code> and we have a brand to maintain.</li>
+</ul>
+<h3 id="component-conventions">Component conventions</h3>
+<ul>
+<li>Use the design system tokens from
+<code>visuals/00-design-system.html</code>. No new design tokens without
+explicit ask.</li>
+<li>All components composed of shadcn/ui primitives + Tailwind utility
+classes. No custom CSS unless absolutely necessary.</li>
+<li>Sharp corners (<code>rounded-none</code>) — except marketing CTAs
+(<code>rounded-full</code>) and avatars/dots
+(<code>rounded-full</code>).</li>
+<li>Buttons: only use the <code>Button</code> component with
+<code>variant="primary|secondary|ghost|danger"</code>. No custom button
+styles.</li>
+<li>Modals: only use the <code>Modal</code> component (which wraps
+shadcn's <code>Dialog</code>). No raw <code>&lt;div&gt;</code>
+modals.</li>
+</ul>
+<h3 id="file--folder-structure-v2-desktop">File / folder structure (v2
+desktop)</h3>
+<pre><code>onlyworks_desktop_v2/
+├── electron/                  # Main process
+│   ├── main.ts                # App entry
+│   ├── capture/               # CaptureEngine + consumers
+│   │   ├── engine.ts
+│   │   ├── ocr-consumer.ts
+│   │   ├── training-consumer.ts
+│   │   └── sensitive-filter.ts
+│   ├── auth/                  # Token storage + magic link
+│   ├── auto-updater.ts
+│   └── ipc/                   # tRPC router
+├── src/                       # Renderer (React)
+│   ├── App.tsx
+│   ├── routes/                # TanStack Router
+│   │   ├── status.tsx
+│   │   ├── portfolio.tsx
+│   │   ├── privacy.tsx
+│   │   ├── settings.tsx
+│   │   └── onboarding/
+│   ├── components/            # shadcn primitives + composed
+│   ├── hooks/
+│   ├── stores/                # Zustand
+│   └── styles/
+├── shared/                    # Types shared between main + renderer
+├── native/                    # macOS Swift + Windows PS1 (ported from v1)
+├── tests/
+└── package.json</code></pre>
+<h3 id="commits">Commits</h3>
+<p>We use conventional commits (loosely):</p>
+<ul>
+<li><code>feat(capture): add SHA-256 dedup</code></li>
+<li><code>fix(auth): refresh token after sleep/wake</code></li>
+<li><code>refactor(portfolio): extract SkillCard component</code></li>
+<li><code>chore(deps): pin electron to 33.2.1</code></li>
+<li><code>docs(planning): update v2.0 scope</code></li>
+</ul>
+<p>Squash commits before merging. The PR title becomes the commit
+message on main.</p>
+<h3 id="branching">Branching</h3>
+<ul>
+<li>Branch from <code>main</code>. Name:
+<code>intern-X/short-task-name</code> or
+<code>feat/short-task-name</code></li>
+<li>Push frequently. Small commits are fine in your local branch —
+squash on merge.</li>
+<li>Don't merge to main directly. PR + review only.</li>
+<li>If your branch gets stale (&gt;1 week), rebase on main. Don't merge
+main into your branch.</li>
+</ul>
+<h3 id="dependency-policy">Dependency policy</h3>
+<ul>
+<li>We use <code>pnpm</code>. <code>pnpm-lock.yaml</code> is
+committed.</li>
+<li>Don't add a dependency without asking. Many problems have a stdlib
+answer.</li>
+<li>All deps pinned to exact versions (<code>"react": "18.3.1"</code>,
+not <code>"^18.3.1"</code>). No surprise upgrades.</li>
+<li>If you must add a dep, the PR description must answer: why this dep,
+why this version, what alternatives were considered, what's the
+bundle-size cost.</li>
+</ul>
+<hr />
+<h2 id="decisions-and-process">Decisions and process</h2>
+<h3 id="daily">Daily</h3>
+<ul>
+<li><strong>15-min standup</strong> in Slack at the start of your day.
+Format:
+<ul>
+<li>Yesterday: what shipped, what's blocked</li>
+<li>Today: one task</li>
+<li>Blockers: anything in your way</li>
+</ul></li>
+<li>If async standup feels insufficient, propose a 10-min video
+call.</li>
+</ul>
+<h3 id="weekly">Weekly</h3>
+<ul>
+<li><strong>Friday demo (30 min)</strong> — each person shows what
+shipped this week. Including bugs found.</li>
+<li><strong>Friday retro (30 min)</strong> — what worked, what didn't,
+what to adjust next week.</li>
+</ul>
+<h3 id="pairing">Pairing</h3>
+<ul>
+<li>For weeks 1–4: Namkha pair-programs with each intern twice/week for
+1 hour. These are not optional. They surface bugs early.</li>
+<li>After week 4: optional, intern-initiated.</li>
+</ul>
+<h3 id="no-meeting-wednesdays">No-meeting Wednesdays</h3>
+<ul>
+<li>No standups, no demos, no calls on Wednesdays.</li>
+<li>Deep work only. If you need to interrupt someone, ask first.</li>
+</ul>
+<h3 id="when-youre-blocked">When you're blocked</h3>
+<p>In this order:</p>
+<ol type="1">
+<li><strong>Search the codebase.</strong> <code>git grep</code> is your
+friend. v1 likely has the answer.</li>
+<li><strong>Search the planning docs.</strong> Most gotchas are in
+<code>01-component-inventory.md</code> and
+<code>03-architecture-review.md</code>.</li>
+<li><strong>Ask the team in Slack.</strong> Don't sit silent for &gt;30
+minutes if blocked.</li>
+<li><strong>Ping Namkha</strong> for decisions or architecture
+questions.</li>
+<li><strong>Open a GitHub Issue with label
+<code>needs-decision</code></strong> if it'll block multiple people.
+Don't silently pivot the design.</li>
+</ol>
+<h3 id="when-you-disagree-with-a-decision">When you disagree with a
+decision</h3>
+<p>Say so. We don't punish disagreement; we punish silence followed by
+surprise.</p>
+<ul>
+<li>Slack DM the relevant person, not the whole channel.</li>
+<li>Bring an alternative + tradeoff analysis, not just "I don't like
+X."</li>
+<li>Once a decision is made, commit to it. Don't relitigate it in PR
+review.</li>
+</ul>
+<hr />
+<h2 id="what-you-should-ship-by-end-of-week-4">What you should ship by
+end of Week 4</h2>
+<p>By end of week 4 (the foundation phase), the team collectively should
+have:</p>
+<ul>
+<li>A green-building v2 desktop app that opens a window and shows
+"Hello"</li>
+<li>Auth + auto-updater ported and working</li>
+<li>CaptureEngine skeleton firing <code>frame</code> events</li>
+<li>OcrConsumer working on at least one platform</li>
+<li>TrainingDataConsumer scaffolded with consent flow</li>
+<li>Sensitive content filter ported from v1</li>
+<li>Backend Stripe Checkout + webhook + portal working</li>
+</ul>
+<p>Individually you should have:</p>
+<ul>
+<li>Shipped 8–12 PRs</li>
+<li>Resolved every CI failure on your branches</li>
+<li>Reviewed at least 4 PRs (from week 4 onwards)</li>
+<li>Hit every Friday demo with something to show</li>
+</ul>
+<p>If you're behind, raise it on day 1 of the week — not week 3.</p>
+<hr />
+<h2 id="things-we-dont-want-you-to-do">Things we don't want you to
+do</h2>
+<p>These will get pushback in review. Save yourself the cycles.</p>
+<ul>
+<li><strong>Don't add a new design system class.</strong> Use the
+existing tokens.</li>
+<li><strong>Don't introduce a new state management library.</strong>
+Zustand + TanStack Query is the whole stack.</li>
+<li><strong>Don't write a custom modal.</strong> Use the
+<code>Modal</code> component.</li>
+<li><strong>Don't add <code>// TODO</code>, <code>// FIXME</code>,
+<code>// HACK</code> comments.</strong> Open an issue with the same
+description.</li>
+<li><strong>Don't push to <code>main</code> directly.</strong> Even tiny
+commits.</li>
+<li><strong>Don't merge your own PR.</strong> Wait for approval.</li>
+<li><strong>Don't skip CI by <code>--no-verify</code>.</strong> If a
+hook fails, fix the cause, not the symptom.</li>
+<li><strong>Don't add <code>console.log</code> to shipped code.</strong>
+Use the logger.</li>
+<li><strong>Don't refactor while porting from v1.</strong> Get the v1
+code working in TS first. Refactor in a separate PR if needed.</li>
+<li><strong>Don't change the design without checking.</strong> If a
+screen needs to differ from the wireframe, propose in Slack first.</li>
+<li><strong>Don't optimize prematurely.</strong> First make it work,
+then make it right, then maybe make it fast.</li>
+</ul>
+<hr />
+<h2 id="things-we-do-want-you-to-do">Things we DO want you to do</h2>
+<ul>
+<li><strong>Ask "why" questions.</strong> Many decisions have reasoning
+that isn't documented. Make us document it.</li>
+<li><strong>Find bugs while building.</strong> Open issues as you notice
+them. Don't fix random bugs in unrelated PRs.</li>
+<li><strong>Suggest improvements.</strong> After week 4, propose changes
+via GitHub issues. Even big ones.</li>
+<li><strong>Help each other.</strong> PR review is collaboration, not
+gatekeeping.</li>
+<li><strong>Take breaks.</strong> Tired code is buggy code.</li>
+<li><strong>Tell us if something feels off.</strong> Process,
+communication, scope, code — say something on day 1, not week 8.</li>
+</ul>
+<hr />
+<h2 id="the-shape-of-a-week">The shape of a week</h2>
+<p>Here's roughly what your week looks like after Week 0:</p>
+<table>
+<thead>
+<tr>
+<th>Day</th>
+<th>Block 1 (AM)</th>
+<th>Block 2 (PM)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon</td>
+<td>Standup → one task</td>
+<td>Implementation</td>
+</tr>
+<tr>
+<td>Tue</td>
+<td>Implementation</td>
+<td>Implementation</td>
+</tr>
+<tr>
+<td>Wed</td>
+<td>Deep work · no meetings</td>
+<td>PR opens by EOD</td>
+</tr>
+<tr>
+<td>Thu</td>
+<td>Review + iterate</td>
+<td>Pairing w/ Namkha (1 hr)</td>
+</tr>
+<tr>
+<td>Fri</td>
+<td>Final fixes</td>
+<td>Demo + retro</td>
+</tr>
+</tbody>
+</table>
+<p>Adapt to your rhythm. Just hit the demo on Friday with something
+real.</p>
+<hr />
+<h2 id="final-word">Final word</h2>
+<p>The most valuable thing you can do in your first month is
+<strong>make small mistakes loud and early</strong>. We will not punish
+you for breaking something. We will punish silence — finding out in week
+6 that you've been blocked since week 3 is the failure mode we're trying
+to avoid.</p>
+<p>If you don't know how to do something, that's fine. If you pretend
+you do and ship something broken, that's not.</p>
+<p>Welcome aboard. Let's go.</p>
+<p>— Namkha</p>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>09 · 2026</span>
+</footer>
+
+</body>
+</html>

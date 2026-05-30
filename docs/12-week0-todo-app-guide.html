@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 0 — Todo App Build Guide · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>12 · 45 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 12 · For Interns</div>
+      <div class="title">Week 0 — Todo App Build Guide</div>
+      <div class="subtitle">Step-by-step Electron + React + tRPC +
+Tailwind + shadcn build. Stack walkthrough, code snippets, pitfalls, and
+curated learning resources.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>45 min</strong></span>
+        <span>Audience<strong>Interns</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#week-0--todo-app-build-guide"
+id="toc-week-0--todo-app-build-guide">Week 0 — Todo App Build Guide</a>
+<ul>
+<li><a href="#1--prerequisites" id="toc-1--prerequisites">1 ·
+Prerequisites</a></li>
+<li><a href="#2--the-stack-and-why-each-piece"
+id="toc-2--the-stack-and-why-each-piece">2 · The stack (and why each
+piece)</a></li>
+<li><a href="#3--what-youre-building" id="toc-3--what-youre-building">3
+· What you're building</a></li>
+<li><a href="#4--step-by-step-build" id="toc-4--step-by-step-build">4 ·
+Step-by-step build</a></li>
+<li><a href="#5--self-check-before-review"
+id="toc-5--self-check-before-review">5 · Self-check before
+review</a></li>
+<li><a href="#6--common-pitfalls" id="toc-6--common-pitfalls">6 · Common
+pitfalls</a></li>
+<li><a href="#7--the-why-questions-you-must-be-able-to-answer"
+id="toc-7--the-why-questions-you-must-be-able-to-answer">7 · The "why"
+questions you must be able to answer</a></li>
+<li><a href="#8--when-youre-stuck" id="toc-8--when-youre-stuck">8 · When
+you're stuck</a></li>
+<li><a href="#9--submission" id="toc-9--submission">9 ·
+Submission</a></li>
+<li><a href="#10--curated-learning-resources"
+id="toc-10--curated-learning-resources">10 · Curated learning
+resources</a></li>
+<li><a href="#11--after-week-0" id="toc-11--after-week-0">11 · After
+Week 0</a></li>
+</ul></li>
+</ul>
+
+<h1 id="week-0--todo-app-build-guide">Week 0 — Todo App Build Guide</h1>
+<p>This is your <strong>Week 0 template-app exercise</strong>. By the
+end of it you will have built an Electron + React + TypeScript + tRPC
+todo app from scratch, in roughly 4-6 working days. Then you will spend
+the rest of Week 0 reading planning docs and v1 source.</p>
+<p>The exercise exists for one reason: <strong>to make sure you can ship
+in our stack before you touch real OnlyWorks code.</strong> It is
+intentionally tiny. Don't try to make it impressive. Make it work, then
+make sure you understand every choice.</p>
+<blockquote>
+<p><strong>You don't need to read the whole guide before
+starting.</strong> Read sections 1–3 (Prereqs + Stack), then work
+top-to-bottom through Section 4. The "Common pitfalls" section is for
+when something breaks.</p>
+</blockquote>
+<hr />
+<h2 id="1--prerequisites">1 · Prerequisites</h2>
+<p>Install these before you do anything else.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Install command</th>
+<th>Verify</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Node.js</strong></td>
+<td>20.x or 22.x LTS</td>
+<td><a href="https://nodejs.org">nodejs.org</a> (use <code>nvm</code> if
+you have it)</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td><strong>pnpm</strong></td>
+<td>latest</td>
+<td><code>npm install -g pnpm</code></td>
+<td><code>pnpm --version</code></td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>any recent</td>
+<td>macOS: <code>xcode-select --install</code> / Windows: <a
+href="https://git-scm.com">git-scm.com</a></td>
+<td><code>git --version</code></td>
+</tr>
+<tr>
+<td><strong>GitHub CLI</strong></td>
+<td>latest</td>
+<td><code>brew install gh</code> /
+<code>winget install GitHub.cli</code></td>
+<td><code>gh --version</code></td>
+</tr>
+<tr>
+<td><strong>VS Code</strong></td>
+<td>any recent</td>
+<td><a
+href="https://code.visualstudio.com">code.visualstudio.com</a></td>
+<td>open it</td>
+</tr>
+</tbody>
+</table>
+<p>Recommended VS Code extensions:</p>
+<ul>
+<li><strong>ESLint</strong> (<code>dbaeumer.vscode-eslint</code>)</li>
+<li><strong>Prettier</strong> (<code>esbenp.prettier-vscode</code>)</li>
+<li><strong>Tailwind CSS IntelliSense</strong>
+(<code>bradlc.vscode-tailwindcss</code>)</li>
+<li><strong>Error Lens</strong> (<code>usernamehw.errorlens</code>) —
+surfaces TS errors inline; you'll wonder how you lived without it</li>
+</ul>
+<p><strong>Platform-specific:</strong></p>
+<ul>
+<li><strong>macOS:</strong> Xcode Command Line Tools
+(<code>xcode-select --install</code>). No Apple Developer account needed
+for this exercise (you're not signing).</li>
+<li><strong>Windows:</strong> Run inside a real Windows install or a
+Windows VM (Parallels / UTM / WSL2 will <em>not</em> work for Electron
+native modules). Install Visual Studio Build Tools with the "Desktop
+development with C++" workload if <code>electron-builder</code>
+complains during install.</li>
+</ul>
+<p>If any of the above doesn't work on your machine, <strong>stop and
+ping Namkha</strong>. Don't spend 4 hours debugging Node install
+paths.</p>
+<hr />
+<h2 id="2--the-stack-and-why-each-piece">2 · The stack (and why each
+piece)</h2>
+<p>You'll wire all of these into one app. Skim the official "Getting
+Started" page for each before you start typing.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Library</th>
+<th>Official docs</th>
+<th>Why we use it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Desktop runtime</strong></td>
+<td>Electron 33</td>
+<td><a
+href="https://www.electronjs.org/docs/latest">electronjs.org/docs</a></td>
+<td>Cross-platform desktop with Chromium renderer + Node main
+process</td>
+</tr>
+<tr>
+<td><strong>Dev tooling</strong></td>
+<td>electron-vite</td>
+<td><a href="https://electron-vite.org/">electron-vite.org</a></td>
+<td>Fast HMR for both main + renderer. No webpack pain.</td>
+</tr>
+<tr>
+<td><strong>UI framework</strong></td>
+<td>React 18</td>
+<td><a href="https://react.dev/learn">react.dev</a></td>
+<td>Industry standard, what v2 uses</td>
+</tr>
+<tr>
+<td><strong>Types</strong></td>
+<td>TypeScript 5.5 (strict)</td>
+<td><a
+href="https://www.typescriptlang.org/docs/">typescriptlang.org/docs</a></td>
+<td>No <code>any</code>. Strict mode catches half your bugs at compile
+time.</td>
+</tr>
+<tr>
+<td><strong>Build tool</strong></td>
+<td>Vite</td>
+<td><a href="https://vitejs.dev/guide/">vitejs.dev/guide</a></td>
+<td>Drives the renderer side of electron-vite</td>
+</tr>
+<tr>
+<td><strong>Styling</strong></td>
+<td>Tailwind v3</td>
+<td><a
+href="https://tailwindcss.com/docs/installation">tailwindcss.com/docs</a></td>
+<td>Utility-first; matches v2 scaffold</td>
+</tr>
+<tr>
+<td><strong>Components</strong></td>
+<td>shadcn/ui</td>
+<td><a href="https://ui.shadcn.com">ui.shadcn.com</a></td>
+<td>Copy-paste components, not a library — you own the source</td>
+</tr>
+<tr>
+<td><strong>Typed IPC</strong></td>
+<td>tRPC v11</td>
+<td><a href="https://trpc.io/docs">trpc.io/docs</a></td>
+<td>End-to-end type safety between main + renderer</td>
+</tr>
+<tr>
+<td><strong>Server state</strong></td>
+<td>TanStack Query v5</td>
+<td><a
+href="https://tanstack.com/query/latest/docs/framework/react/overview">tanstack.com/query</a></td>
+<td>Caching, refetching, mutations. Wraps tRPC.</td>
+</tr>
+<tr>
+<td><strong>UI state</strong></td>
+<td>Zustand</td>
+<td><a
+href="https://zustand.docs.pmnd.rs/">zustand.docs.pmnd.rs</a></td>
+<td>Tiny global stores. For state that isn't from the server.</td>
+</tr>
+<tr>
+<td><strong>Animation</strong></td>
+<td>framer-motion</td>
+<td><a href="https://motion.dev/">motion.dev</a></td>
+<td>List-insert animations</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>Vitest</td>
+<td><a href="https://vitest.dev/">vitest.dev</a></td>
+<td>Vite-native test runner</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The four-word sentence that explains everything:</strong>
+<em>type safety from DB to pixel.</em> If you change a procedure's
+return type in main, the renderer's TypeScript compile fails. You catch
+the bug before you run it.</p>
+<blockquote>
+<p><strong>A note on Tailwind versions:</strong> Tailwind v4 exists and
+works. We use <strong>v3.4.10</strong> because shadcn/ui's setup story
+is most stable on v3 and that's what the v2 scaffold pins. Don't fight
+the version.</p>
+</blockquote>
+<hr />
+<h2 id="3--what-youre-building">3 · What you're building</h2>
+<p>A todo app with:</p>
+<ul>
+<li>Add / list / toggle-complete / delete todos</li>
+<li>Filter by All / Active / Completed</li>
+<li>A list-insert animation when you add an item</li>
+<li>Persistence to disk in the main process (a JSON file is fine — no
+DB)</li>
+<li>One unit test</li>
+</ul>
+<p>That's it. No login. No accounts. No backend server. The "server" is
+your Electron main process.</p>
+<p>A reasonable visual reference: <a
+href="https://todomvc.com">todomvc.com</a>. Don't copy the styling — use
+Tailwind + shadcn defaults.</p>
+<hr />
+<h2 id="4--step-by-step-build">4 · Step-by-step build</h2>
+<h3 id="step-1--create-the-repo--scaffold">Step 1 · Create the repo +
+scaffold</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> my-todo <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> my-todo</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo create my-todo <span class="at">--private</span> <span class="at">--source</span><span class="op">=</span>. <span class="at">--remote</span><span class="op">=</span>origin</span></code></pre></div>
+<p>Scaffold with electron-vite:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> create @quick-start/electron@latest my-todo-app <span class="at">--</span> <span class="at">--template</span> react-ts</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> my-todo-app</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> install</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> dev</span></code></pre></div>
+<p>You should see a window pop up that says "Electron + Vite + React".
+Close it.</p>
+<p><strong>Read the scaffold:</strong></p>
+<ul>
+<li><code>electron/main/index.ts</code> — the main process entry
+point</li>
+<li><code>electron/preload/index.ts</code> — the bridge between main and
+renderer</li>
+<li><code>src/App.tsx</code> — the React renderer</li>
+<li><code>electron.vite.config.ts</code> — build config</li>
+</ul>
+<p>Commit the scaffold before you change anything:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add . <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;chore: initial electron-vite scaffold&quot;</span></span></code></pre></div>
+<h3 id="step-2--pin-versions">Step 2 · Pin versions</h3>
+<p>Open <code>package.json</code>. Remove every <code>^</code> and
+<code>~</code> from version numbers. Pin everything. Example:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;dependencies&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;react&quot;</span><span class="fu">:</span> <span class="st">&quot;18.3.1&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;react-dom&quot;</span><span class="fu">:</span> <span class="st">&quot;18.3.1&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Run <code>pnpm install</code> again. Commit:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add package.json pnpm-lock.yaml <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;chore: pin all dependencies to exact versions&quot;</span></span></code></pre></div>
+<p><strong>Why pinning:</strong> see Section 7. Be ready to explain this
+in your review.</p>
+<h3 id="step-3--add-tailwind-v3--shadcnui">Step 3 · Add Tailwind v3 +
+shadcn/ui</h3>
+<p>Install Tailwind:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-D</span> tailwindcss@3.4.10 postcss@8.4.41 autoprefixer@10.4.20</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> dlx tailwindcss init <span class="at">-p</span></span></code></pre></div>
+<p>Edit <code>tailwind.config.js</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">/** </span><span class="an">@type</span><span class="co"> {import(&#39;tailwindcss&#39;).Config} */</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">content</span><span class="op">:</span> [<span class="st">&#39;./index.html&#39;</span><span class="op">,</span> <span class="st">&#39;./src/**/*.{ts,tsx}&#39;</span>]<span class="op">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">theme</span><span class="op">:</span> { <span class="dt">extend</span><span class="op">:</span> {} }<span class="op">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">plugins</span><span class="op">:</span> []<span class="op">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Replace the contents of <code>src/assets/index.css</code> (or
+wherever the global CSS lives) with:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">@tailwind</span> base<span class="op">;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">@tailwind</span> components<span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">@tailwind</span> utilities<span class="op">;</span></span></code></pre></div>
+<p>Make sure it's imported by your renderer entry
+(<code>src/main.tsx</code>):</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="st">&#39;./assets/index.css&#39;</span></span></code></pre></div>
+<p>Run <code>pnpm dev</code>. If the existing styles look different (no
+rounded buttons, etc.), Tailwind is in. Good.</p>
+<p>Now install shadcn/ui. Follow the official Vite guide step-by-step:
+<a
+href="https://ui.shadcn.com/docs/installation/vite">ui.shadcn.com/docs/installation/vite</a>.
+The key commands:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> dlx shadcn@latest init</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> dlx shadcn@latest add button input checkbox</span></code></pre></div>
+<p>You'll be prompted about TS config paths and style choice. Pick
+<strong>TypeScript / Default style / Neutral / yes CSS
+variables</strong>.</p>
+<p>This will add files into <code>src/components/ui/</code>. Read one
+(<code>button.tsx</code>) — notice it's <em>your</em> source code, not
+an import from a package. That's the point.</p>
+<p>Commit:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add . <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat: tailwind v3 + shadcn/ui setup&quot;</span></span></code></pre></div>
+<blockquote>
+<p><strong>Common breakage here:</strong> shadcn's CLI may write a
+<code>tailwind.config.ts</code> next to your
+<code>tailwind.config.js</code>. Delete the <code>.js</code> one and
+keep the <code>.ts</code>. Also: it adds CSS variables to your global
+CSS — that's correct, don't remove them.</p>
+</blockquote>
+<h3 id="step-4--add-trpc-v11-to-the-main-process">Step 4 · Add tRPC v11
+to the main process</h3>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add @trpc/server@11.0.0-rc.477 zod@3.23.8</span></code></pre></div>
+<p>Create <code>electron/main/trpc/router.ts</code>:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { initTRPC } <span class="im">from</span> <span class="st">&#39;@trpc/server&#39;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { z } <span class="im">from</span> <span class="st">&#39;zod&#39;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { todoStore } <span class="im">from</span> <span class="st">&#39;../store&#39;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> t <span class="op">=</span> initTRPC<span class="op">.</span><span class="fu">create</span>({ isServer<span class="op">:</span> <span class="kw">true</span> })</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> router <span class="op">=</span> t<span class="op">.</span><span class="fu">router</span>({</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  todos<span class="op">:</span> t<span class="op">.</span><span class="fu">router</span>({</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    list<span class="op">:</span> t<span class="op">.</span><span class="at">procedure</span><span class="op">.</span><span class="fu">query</span>(() <span class="kw">=&gt;</span> todoStore<span class="op">.</span><span class="fu">list</span>())<span class="op">,</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    add<span class="op">:</span> t<span class="op">.</span><span class="at">procedure</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ text<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">min</span>(<span class="dv">1</span>)<span class="op">.</span><span class="fu">max</span>(<span class="dv">280</span>) }))</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">mutation</span>(({ input }) <span class="kw">=&gt;</span> todoStore<span class="op">.</span><span class="fu">add</span>(input<span class="op">.</span><span class="at">text</span>))<span class="op">,</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    toggle<span class="op">:</span> t<span class="op">.</span><span class="at">procedure</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ id<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>() }))</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">mutation</span>(({ input }) <span class="kw">=&gt;</span> todoStore<span class="op">.</span><span class="fu">toggle</span>(input<span class="op">.</span><span class="at">id</span>))<span class="op">,</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">delete</span><span class="op">:</span> t<span class="op">.</span><span class="at">procedure</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ id<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>() }))</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">mutation</span>(({ input }) <span class="kw">=&gt;</span> todoStore<span class="op">.</span><span class="fu">delete</span>(input<span class="op">.</span><span class="at">id</span>))<span class="op">,</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  })<span class="op">,</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AppRouter <span class="op">=</span> <span class="kw">typeof</span> router</span></code></pre></div>
+<p>Create <code>electron/main/store.ts</code> — the in-memory +
+JSON-persisted store:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { app } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { existsSync<span class="op">,</span> readFileSync<span class="op">,</span> writeFileSync } <span class="im">from</span> <span class="st">&#39;fs&#39;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { join } <span class="im">from</span> <span class="st">&#39;path&#39;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { randomUUID } <span class="im">from</span> <span class="st">&#39;crypto&#39;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> Todo <span class="op">=</span> { id<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> text<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> done<span class="op">:</span> <span class="dt">boolean</span><span class="op">;</span> createdAt<span class="op">:</span> <span class="dt">number</span> }</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> file <span class="op">=</span> <span class="fu">join</span>(app<span class="op">.</span><span class="fu">getPath</span>(<span class="st">&#39;userData&#39;</span>)<span class="op">,</span> <span class="st">&#39;todos.json&#39;</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> todos<span class="op">:</span> Todo[] <span class="op">=</span> <span class="fu">existsSync</span>(file) <span class="op">?</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(<span class="fu">readFileSync</span>(file<span class="op">,</span> <span class="st">&#39;utf8&#39;</span>)) <span class="op">:</span> []</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> persist <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="fu">writeFileSync</span>(file<span class="op">,</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(todos<span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="dv">2</span>))</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> todoStore <span class="op">=</span> {</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  list<span class="op">:</span> () <span class="kw">=&gt;</span> todos<span class="op">,</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  add<span class="op">:</span> (text<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> t<span class="op">:</span> Todo <span class="op">=</span> { id<span class="op">:</span> <span class="fu">randomUUID</span>()<span class="op">,</span> text<span class="op">,</span> done<span class="op">:</span> <span class="kw">false</span><span class="op">,</span> createdAt<span class="op">:</span> <span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() }</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    todos <span class="op">=</span> [t<span class="op">,</span> <span class="op">...</span>todos]</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">persist</span>()</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> t</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  toggle<span class="op">:</span> (id<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    todos <span class="op">=</span> todos<span class="op">.</span><span class="fu">map</span>(t <span class="kw">=&gt;</span> t<span class="op">.</span><span class="at">id</span> <span class="op">===</span> id <span class="op">?</span> { <span class="op">...</span>t<span class="op">,</span> done<span class="op">:</span> <span class="op">!</span>t<span class="op">.</span><span class="at">done</span> } <span class="op">:</span> t)</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">persist</span>()</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">delete</span><span class="op">:</span> (id<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    todos <span class="op">=</span> todos<span class="op">.</span><span class="fu">filter</span>(t <span class="kw">=&gt;</span> t<span class="op">.</span><span class="at">id</span> <span class="op">!==</span> id)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">persist</span>()</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Wire the router to IPC.</strong> tRPC over IPC isn't built-in
+to v11, so you need a tiny adapter. The community pattern is to use
+<code>ipcMain.handle</code> for each procedure call. Easiest path:
+install <code>electron-trpc</code>:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add electron-trpc@0.7.1</span></code></pre></div>
+<p>Then in <code>electron/main/index.ts</code>, before
+<code>app.whenReady()</code>:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { createIPCHandler } <span class="im">from</span> <span class="st">&#39;electron-trpc/main&#39;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { router } <span class="im">from</span> <span class="st">&#39;./trpc/router&#39;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">whenReady</span>()<span class="op">.</span><span class="fu">then</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">createIPCHandler</span>({ router<span class="op">,</span> windows<span class="op">:</span> [mainWindow] })</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Reference: <a
+href="https://github.com/jsonnull/electron-trpc">github.com/jsonnull/electron-trpc</a>.</p>
+<p>In <code>electron/preload/index.ts</code>, expose the IPC bridge:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { exposeElectronTRPC } <span class="im">from</span> <span class="st">&#39;electron-trpc/main&#39;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">process</span><span class="op">.</span><span class="fu">once</span>(<span class="st">&#39;loaded&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> { <span class="fu">exposeElectronTRPC</span>() })</span></code></pre></div>
+<p>Commit:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add . <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat: tRPC router + persistent store in main process&quot;</span></span></code></pre></div>
+<h3 id="step-5--wire-the-typed-trpc-client-into-the-renderer">Step 5 ·
+Wire the typed tRPC client into the renderer</h3>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add @trpc/client@11.0.0-rc.477</span></code></pre></div>
+<p>Create <code>src/lib/trpc.ts</code>:</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { createTRPCReact } <span class="im">from</span> <span class="st">&#39;@trpc/react-query&#39;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { ipcLink } <span class="im">from</span> <span class="st">&#39;electron-trpc/renderer&#39;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { httpBatchLink } <span class="im">from</span> <span class="st">&#39;@trpc/client&#39;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AppRouter } <span class="im">from</span> <span class="st">&#39;../../electron/main/trpc/router&#39;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> trpc <span class="op">=</span> <span class="fu">createTRPCReact</span><span class="op">&lt;</span>AppRouter<span class="op">&gt;</span>()</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> trpcClient <span class="op">=</span> trpc<span class="op">.</span><span class="fu">createClient</span>({</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  links<span class="op">:</span> [<span class="fu">ipcLink</span>()]<span class="op">,</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Note that <code>AppRouter</code> is imported as a <strong>type
+only</strong> — there's no runtime code crossing the process boundary.
+This is the magic of tRPC. Hover over
+<code>trpc.todos.add.useMutation</code> in your renderer and TypeScript
+will know the exact input shape.</p>
+<h3 id="step-6--set-up-tanstack-query">Step 6 · Set up TanStack
+Query</h3>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add @tanstack/react-query@5.51.23 @trpc/react-query@11.0.0-rc.477</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-D</span> @tanstack/react-query-devtools@5.51.23</span></code></pre></div>
+<p>In <code>src/main.tsx</code>, wrap your app:</p>
+<pre class="tsx"><code>import { QueryClient, QueryClientProvider } from &#39;@tanstack/react-query&#39;
+import { ReactQueryDevtools } from &#39;@tanstack/react-query-devtools&#39;
+import { trpc, trpcClient } from &#39;./lib/trpc&#39;
+
+const queryClient = new QueryClient()
+
+ReactDOM.createRoot(document.getElementById(&#39;root&#39;)!).render(
+  &lt;trpc.Provider client={trpcClient} queryClient={queryClient}&gt;
+    &lt;QueryClientProvider client={queryClient}&gt;
+      &lt;App /&gt;
+      &lt;ReactQueryDevtools /&gt;
+    &lt;/QueryClientProvider&gt;
+  &lt;/trpc.Provider&gt;
+)</code></pre>
+<p>When you next run <code>pnpm dev</code> you'll see a flower-shaped
+icon in the corner of the window — that's the Query Devtools. Open it.
+You will use this every day.</p>
+<h3 id="step-7--add-zustand-for-filter-state">Step 7 · Add Zustand for
+filter state</h3>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add zustand@4.5.4</span></code></pre></div>
+<p>Create <code>src/stores/filter.ts</code>:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { create } <span class="im">from</span> <span class="st">&#39;zustand&#39;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> Filter <span class="op">=</span> <span class="st">&#39;all&#39;</span> <span class="op">|</span> <span class="st">&#39;active&#39;</span> <span class="op">|</span> <span class="st">&#39;completed&#39;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> FilterStore <span class="op">=</span> {</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  filter<span class="op">:</span> Filter</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  setFilter<span class="op">:</span> (f<span class="op">:</span> Filter) <span class="kw">=&gt;</span> <span class="dt">void</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> useFilterStore <span class="op">=</span> <span class="fu">create</span><span class="op">&lt;</span>FilterStore<span class="op">&gt;</span>(<span class="kw">set</span> <span class="kw">=&gt;</span> ({</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  filter<span class="op">:</span> <span class="st">&#39;all&#39;</span><span class="op">,</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  setFilter<span class="op">:</span> filter <span class="kw">=&gt;</span> <span class="kw">set</span>({ filter })<span class="op">,</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>}))</span></code></pre></div>
+<p><strong>Why Zustand for this and TanStack Query for todos?</strong>
+TanStack Query is for <em>server</em> state — anything that lives
+outside your renderer (in main, on a backend, in a DB). The filter is
+purely a UI choice; it doesn't exist on the server. Zustand owns it.</p>
+<p>If you only remember one rule: <strong>"is this data the source of
+truth, or a cached copy?"</strong> If cached → TanStack Query. If source
+of truth → Zustand (or <code>useState</code> if it's local).</p>
+<h3 id="step-8--build-the-ui">Step 8 · Build the UI</h3>
+<p>Replace <code>src/App.tsx</code> with something like this. Read it,
+don't paste blindly:</p>
+<pre class="tsx"><code>import { useState } from &#39;react&#39;
+import { trpc } from &#39;./lib/trpc&#39;
+import { useFilterStore } from &#39;./stores/filter&#39;
+import { Button } from &#39;./components/ui/button&#39;
+import { Input } from &#39;./components/ui/input&#39;
+import { Checkbox } from &#39;./components/ui/checkbox&#39;
+import { AnimatePresence, motion } from &#39;framer-motion&#39;
+
+export default function App() {
+  const [text, setText] = useState(&#39;&#39;)
+  const { filter, setFilter } = useFilterStore()
+  const utils = trpc.useUtils()
+
+  const todos = trpc.todos.list.useQuery()
+  const add = trpc.todos.add.useMutation({
+    onSuccess: () =&gt; utils.todos.list.invalidate(),
+  })
+  const toggle = trpc.todos.toggle.useMutation({
+    onSuccess: () =&gt; utils.todos.list.invalidate(),
+  })
+  const remove = trpc.todos.delete.useMutation({
+    onSuccess: () =&gt; utils.todos.list.invalidate(),
+  })
+
+  const visible = (todos.data ?? []).filter(t =&gt;
+    filter === &#39;all&#39; ? true : filter === &#39;active&#39; ? !t.done : t.done
+  )
+
+  return (
+    &lt;div className=&quot;mx-auto max-w-xl p-8&quot;&gt;
+      &lt;h1 className=&quot;mb-6 text-2xl font-semibold&quot;&gt;Todos&lt;/h1&gt;
+
+      &lt;form
+        onSubmit={e =&gt; {
+          e.preventDefault()
+          if (text.trim()) {
+            add.mutate({ text: text.trim() })
+            setText(&#39;&#39;)
+          }
+        }}
+        className=&quot;mb-4 flex gap-2&quot;
+      &gt;
+        &lt;Input value={text} onChange={e =&gt; setText(e.target.value)} placeholder=&quot;Add a todo&quot; /&gt;
+        &lt;Button type=&quot;submit&quot; disabled={add.isPending}&gt;Add&lt;/Button&gt;
+      &lt;/form&gt;
+
+      &lt;div className=&quot;mb-4 flex gap-2&quot;&gt;
+        {([&#39;all&#39;, &#39;active&#39;, &#39;completed&#39;] as const).map(f =&gt; (
+          &lt;Button
+            key={f}
+            variant={filter === f ? &#39;default&#39; : &#39;outline&#39;}
+            size=&quot;sm&quot;
+            onClick={() =&gt; setFilter(f)}
+          &gt;
+            {f}
+          &lt;/Button&gt;
+        ))}
+      &lt;/div&gt;
+
+      &lt;ul className=&quot;space-y-2&quot;&gt;
+        &lt;AnimatePresence&gt;
+          {visible.map(t =&gt; (
+            &lt;motion.li
+              key={t.id}
+              layout
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -16 }}
+              className=&quot;flex items-center gap-3 rounded border p-2&quot;
+            &gt;
+              &lt;Checkbox checked={t.done} onCheckedChange={() =&gt; toggle.mutate({ id: t.id })} /&gt;
+              &lt;span className={t.done ? &#39;flex-1 text-muted-foreground line-through&#39; : &#39;flex-1&#39;}&gt;
+                {t.text}
+              &lt;/span&gt;
+              &lt;Button variant=&quot;ghost&quot; size=&quot;sm&quot; onClick={() =&gt; remove.mutate({ id: t.id })}&gt;
+                ✕
+              &lt;/Button&gt;
+            &lt;/motion.li&gt;
+          ))}
+        &lt;/AnimatePresence&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+<p>Install framer-motion:</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add framer-motion@11.5.4</span></code></pre></div>
+<p>Run <code>pnpm dev</code>. Add a todo. Watch the animation. Toggle
+one. Reload the window — your todos persist because the JSON file in
+<code>app.getPath('userData')</code> survives.</p>
+<p>Commit:</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add . <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat: working todo UI with tRPC + tanstack query + zustand + framer-motion&quot;</span></span></code></pre></div>
+<h3 id="step-9--write-the-vitest-unit-test">Step 9 · Write the Vitest
+unit test</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-D</span> vitest@2.0.5</span></code></pre></div>
+<p>Create <code>src/stores/filter.test.ts</code>:</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { describe<span class="op">,</span> expect<span class="op">,</span> it<span class="op">,</span> beforeEach } <span class="im">from</span> <span class="st">&#39;vitest&#39;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useFilterStore } <span class="im">from</span> <span class="st">&#39;./filter&#39;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">&#39;useFilterStore&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">beforeEach</span>(() <span class="kw">=&gt;</span> useFilterStore<span class="op">.</span><span class="fu">setState</span>({ filter<span class="op">:</span> <span class="st">&#39;all&#39;</span> }))</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">&#39;starts with filter=all&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expect</span>(useFilterStore<span class="op">.</span><span class="fu">getState</span>()<span class="op">.</span><span class="at">filter</span>)<span class="op">.</span><span class="fu">toBe</span>(<span class="st">&#39;all&#39;</span>)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">&#39;updates filter via setFilter&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    useFilterStore<span class="op">.</span><span class="fu">getState</span>()<span class="op">.</span><span class="fu">setFilter</span>(<span class="st">&#39;completed&#39;</span>)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expect</span>(useFilterStore<span class="op">.</span><span class="fu">getState</span>()<span class="op">.</span><span class="at">filter</span>)<span class="op">.</span><span class="fu">toBe</span>(<span class="st">&#39;completed&#39;</span>)</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Add to <code>package.json</code>:</p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;scripts&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;test&quot;</span><span class="fu">:</span> <span class="st">&quot;vitest run&quot;</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Run:</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> test</span></code></pre></div>
+<p>Two tests passing. Commit:</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add . <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;test: filter store unit tests&quot;</span></span></code></pre></div>
+<h3 id="step-10--verify-then-ship">Step 10 · Verify, then ship</h3>
+<p>Run the full loop:</p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> dev      <span class="co"># window opens, todos work end-to-end</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> test     <span class="co"># passes</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> build    <span class="co"># produces a packaged app (optional but recommended)</span></span></code></pre></div>
+<p>Push:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div>
+<p>Send Namkha the repo URL. Done.</p>
+<hr />
+<h2 id="5--self-check-before-review">5 · Self-check before review</h2>
+<p>You're ready for review when you can answer <strong>yes</strong> to
+all of these without looking anything up:</p>
+<ul class="task-list">
+<li><label><input type="checkbox" /><code>pnpm dev</code> opens a window
+and todos work</label></li>
+<li><label><input type="checkbox" /><code>pnpm test</code> runs and
+passes</label></li>
+<li><label><input type="checkbox" />Every dep in
+<code>package.json</code> is pinned to an exact version</label></li>
+<li><label><input type="checkbox" />Closing and reopening the app
+preserves your todos</label></li>
+<li><label><input type="checkbox" />You added at least one item and felt
+the animation</label></li>
+<li><label><input type="checkbox" />You can explain <strong>why</strong>
+the filter lives in Zustand and the todo list lives in TanStack
+Query</label></li>
+<li><label><input type="checkbox" />You can explain <strong>what tRPC
+over IPC means</strong> in two sentences</label></li>
+<li><label><input type="checkbox" />You can explain <strong>why we
+pinned every dependency</strong> (Section 7)</label></li>
+<li><label><input type="checkbox" />You have no <code>console.log</code>
+calls left in the code</label></li>
+<li><label><input type="checkbox" />You have no <code>any</code>
+types</label></li>
+<li><label><input type="checkbox" />Your commits are squashable into one
+feature commit</label></li>
+</ul>
+<hr />
+<h2 id="6--common-pitfalls">6 · Common pitfalls</h2>
+<h3
+id="cannot-find-module-electronmaintrpcrouter-in-the-renderer">"Cannot
+find module '../../electron/main/trpc/router'" in the renderer</h3>
+<p>Your <code>tsconfig</code> paths aren't picking up the relative
+reference. Solutions in order of preference:</p>
+<ol type="1">
+<li>Use a path alias like <code>@shared/router</code> and define a
+shared types directory.</li>
+<li>Move <code>AppRouter</code> to a <code>shared/</code> folder.</li>
+<li>Use the relative import as-is — it works as long as you
+<code>import type</code> it.</li>
+</ol>
+<h3 id="tailwind-classes-do-nothing">Tailwind classes do nothing</h3>
+<ul>
+<li>Did you import the CSS file in <code>main.tsx</code>?</li>
+<li>Does <code>tailwind.config.js</code>'s <code>content</code> glob
+match where your components actually live?</li>
+<li>Did <code>postcss.config.js</code> get generated? Without it,
+Tailwind silently no-ops.</li>
+</ul>
+<h3 id="shadcn-components-look-unstyled">shadcn components look
+unstyled</h3>
+<ul>
+<li>Check that the global CSS variables block is present in your global
+CSS.</li>
+<li>Check that <code>tailwind.config.ts</code> has the shadcn-extended
+theme (the init script writes this).</li>
+</ul>
+<h3 id="trpc-calls-fail-with-no-handler-or-hang-forever">tRPC calls fail
+with "no handler" or hang forever</h3>
+<ul>
+<li><code>electron-trpc</code> requires both
+<code>createIPCHandler</code> in main <strong>and</strong>
+<code>exposeElectronTRPC</code> in preload. Both, not one.</li>
+<li>The preload script must run before <code>app.whenReady</code>. If
+you've moved preload setup, this can silently break.</li>
+</ul>
+<h3 id="build-fails-with-native-module-errors-on-windows">Build fails
+with native module errors on Windows</h3>
+<p>Install Visual Studio Build Tools with C++ workload. Restart your
+terminal. Rerun <code>pnpm install</code>.</p>
+<h3 id="build-fails-with-apple-notarization-errors-on-macos">Build fails
+with Apple notarization errors on macOS</h3>
+<p>You don't need notarization for this exercise. Run
+<code>pnpm dev</code> not <code>pnpm build</code>. If you want to build,
+comment out signing config in <code>electron-builder.yml</code>.</p>
+<h3 id="why-is-pnpm-dev-so-slow-on-first-run">"Why is
+<code>pnpm dev</code> so slow on first run?"</h3>
+<p>It's not slow — Electron has to download (~70 MB), Chromium has to
+bootstrap, Vite has to do its first build, and the tRPC IPC handshake
+has to complete. Subsequent runs use HMR and feel instant.</p>
+<h3 id="should-i-use-hashrouter--browserrouter-for-routing">"Should I
+use HashRouter / BrowserRouter for routing?"</h3>
+<p>Not for this exercise — one page is fine. In v2 we use TanStack
+Router. Don't pre-emptively add routing here.</p>
+<hr />
+<h2 id="7--the-why-questions-you-must-be-able-to-answer">7 · The "why"
+questions you must be able to answer</h2>
+<p>These come up in your review. Prepare answers now.</p>
+<p><strong>Q: Why tRPC over IPC instead of plain
+<code>ipcRenderer.invoke</code>?</strong> A: tRPC gives you end-to-end
+TypeScript types between two processes. If you change a procedure's
+return type in main, the renderer's <code>useQuery</code> call fails to
+typecheck — you find the bug at compile time, not at runtime. Plain
+<code>ipcRenderer.invoke</code> is <code>any</code> on both ends; you'd
+manually mirror types and hope they don't drift.</p>
+<p><strong>Q: Why TanStack Query if tRPC already calls main?</strong> A:
+TanStack Query handles caching, deduplication, optimistic updates,
+refetching, retry-on-error, and SSR — all things you'd otherwise
+hand-roll. The <code>@trpc/react-query</code> adapter wires tRPC
+procedures into Query primitives so you get both type safety
+<em>and</em> state management.</p>
+<p><strong>Q: Why Zustand if React has <code>useState</code> /
+<code>useContext</code>?</strong> A: Context re-renders every consumer
+on every change. Zustand uses selectors so only components that read a
+specific slice re-render. For app-wide UI state (theme, modals,
+filters), it's cheaper than Context and simpler than Redux.</p>
+<p><strong>Q: Why pin every dependency?</strong> A: We were burned in v1
+by an <code>electron-builder</code> minor release that broke macOS
+signing. With <code>^</code> versions, two engineers can install the
+same <code>package.json</code> and get different
+<code>node_modules</code>, which breaks "works on my machine" debugging.
+Pinning costs us nothing (we can always upgrade explicitly) and removes
+a class of bug.</p>
+<p><strong>Q: Why Electron and not Tauri?</strong> A: Tauri is excellent
+but its native API surface is narrower than Electron's, and our team's
+expertise — and v1's existing code — is Electron. We'd save bundle size
+but lose months of platform-specific knowledge. For v2 we keep Electron
+and let Tauri prove itself further before reconsidering.</p>
+<p><strong>Q: Why electron-vite specifically?</strong> A: It gives us
+Vite's HMR on both processes (main + renderer) without writing custom
+build orchestration. The alternative is Webpack via electron-forge,
+which is slower to iterate on and more config-heavy.</p>
+<p><strong>Q: Why <code>border-radius: 0</code> in the OnlyWorks design
+system?</strong> A: Sharp corners are a brand choice — they read as
+serious, editorial, and unlike the rounded-everything default of most
+SaaS. Avatar circles and pills are the documented exception. (You're not
+testing this in the todo app, but you'll be asked about it.)</p>
+<hr />
+<h2 id="8--when-youre-stuck">8 · When you're stuck</h2>
+<p>In this order:</p>
+<ol type="1">
+<li><strong>Read the error message.</strong> Sounds obvious. Most people
+don't.</li>
+<li><strong>Search this guide.</strong> Cmd-F / Ctrl-F. Section 6 covers
+most issues.</li>
+<li><strong>Search the official docs of the failing layer.</strong> If
+it's a Tailwind error, search the Tailwind docs — not Stack
+Overflow.</li>
+<li><strong>Search GitHub Issues for the failing package.</strong>
+Filter by issues from the last 6 months.</li>
+<li><strong>Ask in Slack.</strong> Don't sit silent for more than 30
+minutes if you're truly blocked. Include:
+<ul>
+<li>What you ran</li>
+<li>What you expected</li>
+<li>What you got (error verbatim — paste the whole thing, not your
+interpretation)</li>
+<li>What you already tried</li>
+</ul></li>
+<li><strong>Ask Namkha.</strong> Only after 1–5.</li>
+</ol>
+<p><strong>Anti-pattern:</strong> going off-script and using a different
+stack (Vue, plain Electron forge, Next.js) because tRPC is annoying. The
+annoyance <em>is</em> the lesson. Don't route around it.</p>
+<hr />
+<h2 id="9--submission">9 · Submission</h2>
+<p>When done:</p>
+<ol type="1">
+<li>Push to your private GitHub repo.</li>
+<li>Open a draft PR against <code>main</code> of your repo titled
+<code>Week 0 — Todo App</code> (the PR is just a convenient template for
+the description).</li>
+<li>In the PR description, answer these three questions in 2–3 sentences
+each:
+<ul>
+<li>What does "tRPC over IPC" mean and why is it valuable?</li>
+<li>When would you use Zustand and when would you use TanStack
+Query?</li>
+<li>Why is every dependency pinned to an exact version?</li>
+</ul></li>
+<li>Share the repo URL with Namkha in Slack.</li>
+</ol>
+<p>Namkha will do a 20-minute screen-share review with you. Expect
+questions from Section 7.</p>
+<hr />
+<h2 id="10--curated-learning-resources">10 · Curated learning
+resources</h2>
+<p><strong>Read these if any layer feels shaky.</strong> All are
+official or maintainer-blessed.</p>
+<h3 id="electron--electron-vite">Electron + electron-vite</h3>
+<ul>
+<li><a
+href="https://www.electronjs.org/docs/latest/tutorial/quick-start">Electron
+Quick Start</a></li>
+<li><a href="https://electron-vite.org/guide/">electron-vite Getting
+Started</a></li>
+<li><a
+href="https://www.electronjs.org/docs/latest/tutorial/process-model">Process
+Model overview</a> — read this once, you'll think clearer about main vs
+renderer forever</li>
+</ul>
+<h3 id="react--typescript">React + TypeScript</h3>
+<ul>
+<li><a href="https://react.dev/learn">React Learn</a> — the new official
+tutorial</li>
+<li><a
+href="https://react-typescript-cheatsheet.netlify.app/">TypeScript
+Cheatsheet for React</a> — patterns + anti-patterns</li>
+<li><a
+href="https://www.totaltypescript.com/books/total-typescript-essentials">Total
+TypeScript essentials</a> — free, the best modern TS intro</li>
+</ul>
+<h3 id="tailwind--shadcn">Tailwind + shadcn</h3>
+<ul>
+<li><a
+href="https://tailwindcss.com/docs/installation/using-vite">Tailwind
+Installation (Vite)</a></li>
+<li><a href="https://ui.shadcn.com/docs/installation/vite">shadcn
+Installation (Vite)</a></li>
+<li><a href="https://ui.shadcn.com/docs/components">shadcn Components
+catalog</a> — every component you'll need is in here</li>
+</ul>
+<h3 id="trpc">tRPC</h3>
+<ul>
+<li><a href="https://trpc.io/docs">tRPC v11 docs</a></li>
+<li><a href="https://github.com/jsonnull/electron-trpc">electron-trpc
+README</a> — the IPC adapter</li>
+<li>Theo's video <a
+href="https://www.youtube.com/watch?v=2LYM8gf184U">tRPC explained in 5
+minutes</a> — good intuition pump</li>
+</ul>
+<h3 id="tanstack-query">TanStack Query</h3>
+<ul>
+<li><a
+href="https://tanstack.com/query/latest/docs/framework/react/overview">TanStack
+Query overview</a></li>
+<li><a href="https://tkdodo.eu/blog/practical-react-query">TkDodo's
+blog</a> — the de facto deep-dive series, written by the maintainer.
+Skim the index, read "Practical React Query" first.</li>
+</ul>
+<h3 id="zustand">Zustand</h3>
+<ul>
+<li><a href="https://github.com/pmndrs/zustand">Zustand README</a> —
+yes, the README is the docs. It's short.</li>
+<li><a href="https://leerob.io/blog/react-state-management">The state of
+state management 2024</a> — context on why Zustand beat Redux</li>
+</ul>
+<h3 id="vitest">Vitest</h3>
+<ul>
+<li><a href="https://vitest.dev/guide/">Vitest Getting Started</a></li>
+</ul>
+<h3 id="framer-motion">Framer Motion</h3>
+<ul>
+<li><a href="https://motion.dev/docs/react">motion.dev docs</a></li>
+<li><a
+href="https://motion.dev/docs/react-animate-presence">AnimatePresence
+guide</a> — what you used in the todo list</li>
+</ul>
+<hr />
+<h2 id="11--after-week-0">11 · After Week 0</h2>
+<p>When you finish this guide and your repo is shipped:</p>
+<ol type="1">
+<li>Read the OnlyWorks v2 planning docs in this order:
+<ul>
+<li><code>08-plain-english-plan.md</code> (10 min)</li>
+<li><code>02-intent-and-history.md</code> (25 min)</li>
+<li><code>04-pmf-and-v2-direction.md</code> (30 min)</li>
+<li><code>05-v2.0-scope.md</code> (25 min)</li>
+<li><code>07-build-order.md</code> — find your name (15 min)</li>
+<li><code>09-intern-starter.md</code> — conventions (20 min)</li>
+<li><code>visuals/00-design-system.html</code> (30 min)</li>
+<li><code>visuals/wireframes.html</code> +
+<code>web-wireframes.html</code> (20 min)</li>
+</ul></li>
+<li>Skim v1 source at <code>/Users/xerneas/onlyworks_desktop</code> per
+<code>09-intern-starter.md</code> § Day 4.</li>
+<li>Set up your shared-tool access (GitHub repos, Slack, Linear, signing
+certs).</li>
+<li>Write your 1-page response to Namkha (see
+<code>09-intern-starter.md</code> § Day 3).</li>
+</ol>
+<p>Then Week 1 starts. Welcome to OnlyWorks.</p>
+<hr />
+<p><strong>Last updated:</strong> 2026-05-29</p>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>12 · 2026</span>
+</footer>
+
+</body>
+</html>

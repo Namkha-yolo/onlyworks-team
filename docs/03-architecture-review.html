@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture review · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>03 · reference</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 03 · Reference</div>
+      <div class="title">Architecture review</div>
+      <div class="subtitle">What's outdated in v1. What's worth keeping.
+Recommended v2 stack. Capture pipeline simplification. What to port vs
+what to rewrite.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>reference</strong></span>
+        <span>Audience<strong>Builders</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks-desktop--architecture-review-for-v2-rebuild"
+id="toc-onlyworks-desktop--architecture-review-for-v2-rebuild">OnlyWorks
+Desktop — Architecture Review (for v2 rebuild)</a>
+<ul>
+<li><a href="#tldr" id="toc-tldr">TL;DR</a></li>
+<li><a href="#stack-whats-outdated" id="toc-stack-whats-outdated">Stack:
+What's Outdated</a></li>
+<li><a href="#stack-whats-worth-keeping-conceptually"
+id="toc-stack-whats-worth-keeping-conceptually">Stack: What's Worth
+Keeping (conceptually)</a></li>
+<li><a href="#recommended-v2-stack"
+id="toc-recommended-v2-stack">Recommended v2 Stack</a></li>
+<li><a href="#ipc--backend-communication"
+id="toc-ipc--backend-communication">IPC / Backend Communication</a></li>
+<li><a href="#capture-pipeline-unified-single-trigger-multi-consumer"
+id="toc-capture-pipeline-unified-single-trigger-multi-consumer">Capture
+Pipeline: Unified Single-Trigger, Multi-Consumer</a></li>
+<li><a href="#ui-layer" id="toc-ui-layer">UI Layer</a></li>
+<li><a href="#build--dist" id="toc-build--dist">Build / Dist</a></li>
+<li><a href="#code-that-can-be-ported-vs-must-be-rewritten"
+id="toc-code-that-can-be-ported-vs-must-be-rewritten">Code That Can Be
+Ported vs Must Be Rewritten</a></li>
+<li><a href="#risks-of-rebuild" id="toc-risks-of-rebuild">Risks of
+Rebuild</a></li>
+<li><a href="#key-files-for-v2-porting"
+id="toc-key-files-for-v2-porting">Key Files for v2 Porting</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks-desktop--architecture-review-for-v2-rebuild">OnlyWorks
+Desktop — Architecture Review (for v2 rebuild)</h1>
+<p>Source: code audit at 2026-05-28. This document tells the v2 team
+what to throw away, what to keep, and what to port verbatim.</p>
+<h2 id="tldr">TL;DR</h2>
+<p>The codebase is a 3-year-old Electron app that grew organically into
+a fully imperative <code>innerHTML</code> + <code>window.*</code>
+globals SPA glued to a ~169-channel IPC surface. <strong>Throw away the
+entire renderer layer</strong> (vanilla JS modules,
+<code>app.html</code> script-tag loading, <code>onclick</code> handlers,
+5,700-line CSS file) and the IPC bridge as written. <strong>Keep the
+native plumbing</strong>: OCR helpers, <code>capture-service.js</code>
+event/duplicate/inactivity logic, <code>auto-updater</code> flow, OAuth
++ token refresh, and the <code>src/ipc/</code> domain split as a
+<em>pattern</em> (not the files themselves). The two-pipeline capture
+system is over-engineered for what is essentially "screenshot + extract
+text + send to backend."</p>
+<h2 id="stack-whats-outdated">Stack: What's Outdated</h2>
+<ul>
+<li><strong><code>src/app/app.html</code> (386 lines)</strong> — 37
+<code>&lt;script&gt;</code> tags loaded in a strict order, with a
+hard-coded "load order matters" comment. The first time an intern adds a
+module out of order, things break silently. There is no module system,
+no tree shaking, no bundler.</li>
+<li><strong><code>src/app/modules/exports.js</code> (206 lines)</strong>
+— manually re-exports ~100 functions onto <code>window.*</code> so that
+<code>onclick="..."</code> attributes in <code>innerHTML</code> strings
+can find them. Every new function requires a touch to this file or it's
+silently dead.</li>
+<li><strong><code>src/app/modules/page-dashboard.js</code> (22 KB) /
+<code>page-ow-profile.js</code> (47 KB)</strong> — each page is one
+giant function that string-concatenates HTML with <code>${}</code>
+interpolation, with <code>sanitizeHTML()</code> calls sprinkled
+defensively. 92 inline <code>onclick=</code> handlers across
+<code>src/app/modules/</code>. Any tab switch tears the entire DOM down
+and rebuilds it.</li>
+<li><strong><code>src/app/styles/styles.css</code> (123 KB / ~5,700
+lines)</strong> — single file, no preprocessor, no scoping. Class-name
+collisions managed by social convention (the CLAUDE.md rules about
+<code>ow-*</code> and the deleted
+<code>.btn-*</code>/<code>.modal-*</code> classes are evidence of
+firefighting).</li>
+<li><strong><code>src/preload.js</code> (444 lines)</strong> — every IPC
+channel hand-mirrored. No types, no codegen, no validation. Renderer
+can't know what's available without grepping. ~169 channels exposed
+(counting nested <code>auth.*</code>, <code>teams.*</code>, etc. — there
+are 109 actual <code>ipcMain.handle</code> callsites in
+<code>src/ipc/</code>, the rest are event listeners and aliases).</li>
+<li><strong><code>vendor/anime.min.js</code> +
+<code>animate.min.css</code></strong> in <code>app.html</code> plus the
+150-line inline <code>&lt;script&gt;</code> at the bottom — a different
+animation paradigm than the rest of the code, and the inline IIFE
+attaches <code>IntersectionObserver</code> + sparkle effects to the
+global DOM. Pure noise in 2026.</li>
+<li><strong>Electron 27</strong> (current is 33+). At least two majors
+behind on security patches.</li>
+<li><strong><code>tesseract.js</code> shipped</strong> as a fallback
+even though both macOS Vision and Windows.Media.Ocr exist on the
+platforms that matter.</li>
+</ul>
+<h2 id="stack-whats-worth-keeping-conceptually">Stack: What's Worth
+Keeping (conceptually)</h2>
+<ul>
+<li><strong><code>src/ipc/</code> domain split</strong> (auth / teams /
+reports / sessions / etc.) is the right shape — it just needs a typed
+router instead of hand-rolled <code>registerXHandlers(context)</code>
+boilerplate.</li>
+<li><strong><code>components.js</code></strong> factories
+(<code>owButton</code>, <code>owModal</code>, <code>owPanel</code>,
+<code>owStatCard</code>, <code>owEmptyState</code>) — the <em>API</em>
+is clean and maps 1:1 to a React/Solid component model. The bodies are
+HTML strings, but the call sites are correct.</li>
+<li><strong>Utility-class CSS</strong> (<code>ow-flex</code>,
+<code>ow-mb-lg</code>, <code>ow-text-muted</code>,
+<code>ow-gap-sm</code> visible all over <code>page-dashboard.js</code>)
+— already Tailwind-shaped, just hand-rolled.</li>
+<li><strong><code>src/core/</code> lifecycle split</strong>
+(<code>window-manager</code>, <code>tray-manager</code>,
+<code>menu-manager</code>, <code>lifecycle</code>,
+<code>auto-updater-flow</code>, <code>pipeline-init</code>,
+<code>token-refresh</code>, <code>oauth-flow</code>,
+<code>error-handlers</code>) — clean separation, mostly portable.</li>
+<li><strong><code>OnlyWorksApp</code> class with a <code>context</code>
+object passed to all IPC handlers</strong>
+(<code>src/main.js:191</code>) — a primitive DI container. Decent
+pattern, just needs typing.</li>
+<li><strong>macOS TCC snapshot at launch</strong>
+(<code>_launchTrustState</code> in <code>main.js</code>) — clever,
+hard-won, must survive the rewrite.</li>
+<li><strong>Domain-specific native handling</strong>: macOS
+<code>active-win</code> + AppleScript fallbacks, Windows
+<code>active-win</code> + PowerShell fallback, Mica backdrop, Windows
+timer throttling switches. Months of bug-fix learning.</li>
+</ul>
+<h2 id="recommended-v2-stack">Recommended v2 Stack</h2>
+<p><strong>Optimize for: 3 interns who can ship features without
+breaking each other.</strong></p>
+<ul>
+<li><strong>Shell: Electron, not Tauri.</strong> Tauri sounds appealing
+(Rust core, smaller binary), but the rough edges that <em>matter to
+OnlyWorks</em> — <code>desktopCapturer</code>,
+<code>globalShortcut</code>, system tray, deep links,
+<code>auto-updater</code> parity, native uIOhook bindings, sleep/wake
+events, screen recording permission flow, NSIS + DMG with signing — all
+are first-class in Electron and DIY in Tauri. Interns will learn faster
+on the bigger ecosystem. Save Tauri for a later optimization pass.</li>
+<li><strong>Renderer: React + TypeScript + Vite.</strong> Boring,
+default, hireable. Solid/Svelte are slightly better tech but interns
+will have written more React already, and the docs / Stack Overflow
+surface for React is unbeatable. TypeScript is non-negotiable for a team
+this size — it replaces a <em>huge</em> amount of the runtime defensive
+code (<code>sanitizeHTML</code> calls,
+<code>if (result?.data?.user)</code> chains, <code>window.*</code>
+global lookups).</li>
+<li><strong>Routing: TanStack Router</strong> (or
+<code>react-router</code>). The current "blow away
+<code>#main-content</code> and rebuild" pattern in
+<code>router.js</code> becomes obsolete.</li>
+<li><strong>Styling: Tailwind v4 + shadcn/ui.</strong> The team is
+already 60% there with the <code>ow-*</code> utility classes. shadcn
+gives copy-pasteable components that interns can read and modify —
+better than a black-box component library.</li>
+<li><strong>State: TanStack Query for server state + Zustand for UI
+state.</strong> No Redux. The current pattern is
+<code>window.AppStore</code> + manual cache invalidation
+(<code>invalidateReportsCache</code> in exports.js) — React Query
+replaces 100% of that.</li>
+<li><strong>Forms: React Hook Form + Zod.</strong> Replaces
+<code>owFormField</code> + manual validation.</li>
+<li><strong>Build: Vite + electron-vite or electron-forge.</strong> Hot
+reload in the renderer is a massive intern-velocity win.</li>
+<li><strong>Testing: Vitest</strong> (already in use — keep it). Add
+Playwright for end-to-end if the team grows.</li>
+</ul>
+<h2 id="ipc--backend-communication">IPC / Backend Communication</h2>
+<p>109 <code>ipcMain.handle</code> callsites + ~60 nested aliases on the
+preload bridge. Two structural problems:</p>
+<ol type="1">
+<li><strong>Many of them shouldn't exist at all.</strong> Channels like
+<code>getDailyAnalytics</code>, <code>getWeeklyAnalytics</code>,
+<code>get-platform-usage</code>, <code>reports:getUserReports</code>,
+<code>teams:getMembers</code>, <code>goals:getGoals</code> — every one
+of these is a thin pass-through to a backend HTTP call. <strong>Have the
+renderer talk to the backend directly via <code>fetch</code> + auth
+header.</strong> The desktop's <em>only</em> reason to proxy via IPC is
+to attach tokens stored in <code>electron-store</code>, which can be
+solved by exposing a single signed
+<code>apiCall(method, path, body)</code> channel — or by minting a
+short-lived JWT into the renderer at session start.</li>
+<li><strong>What remains is genuinely native</strong> and should stay
+IPC: capture/screenshot, OCR, permissions, deep-link OAuth, auto-update,
+tray, window controls, system info, settings persistence, clipboard.
+Maybe ~20-30 channels.</li>
+</ol>
+<p><strong>Recommendation:</strong> Use <strong>tRPC over IPC</strong>
+or a thin typed <code>electron-trpc</code>-style bridge. A single
+<code>electronAPI.invoke&lt;'capture.start'&gt;(sessionId)</code>
+signature with full TS inference. Replaces preload.js (444 lines) with a
+generated client. ~3 interns × ~2 days to wire up the router.</p>
+<h2 id="capture-pipeline-unified-single-trigger-multi-consumer">Capture
+Pipeline: Unified Single-Trigger, Multi-Consumer</h2>
+<p><code>capture-service.js</code> is 1,417 lines. It does (deep
+breath): screenshots on interval + on click + on Enter + on clipboard
+copy; SHA-256 dedup; per-app time tracking; idle period tracking;
+inactivity warnings + auto-stop; window-title change counting; two
+output pipelines (<code>activity-buffer-service</code> for OCR text,
+<code>training-data-service</code> for high-res ML frames);
+platform-specific active-window detection (3 fallback paths per
+platform); uIOhook input listeners; circuit breakers for everything.</p>
+<p><strong>The current two-pipeline split is the wrong
+abstraction.</strong> It's organized by <em>what data each pipeline
+emits</em>, which led to duplicated triggers, duplicated dedup logic,
+and a 1,400-line god class. <strong>The v2 model is one capture trigger
+system feeding multiple consumers.</strong></p>
+<p>This is also a strategic requirement: <strong>training data
+collection and report generation must share one capture
+pipeline.</strong> The same screenshot serves both jobs:</p>
+<ul>
+<li>For reports → OCR locally → text + metadata → backend → AI
+interpretation → portfolio</li>
+<li>For training → full frame (consent-gated) → backend storage →
+labeling → eventual fine-tune of an OnlyWorks proprietary model
+(replaces Gemini at scale)</li>
+</ul>
+<p>What v2 architecture looks like:</p>
+<pre><code>CaptureEngine (1 file, ~400 lines)
+  ├─ triggers: interval, input, clipboard, manual
+  ├─ emits: { jpeg, meta, hash, triggerType, sessionId } via EventEmitter
+  └─ guards: dedup (SHA-256), debounce, idle/inactivity, sensitive-content filter
+
+Consumers (1 file each, ~100-150 lines, all subscribe to the same event stream)
+  ├─ OcrConsumer: macOS Vision / Windows OCR → extracted text → POST /api/pipeline/activity/stream
+  ├─ TrainingDataConsumer: full-res frame (consent-gated) → POST /api/pipeline/training/frames
+  ├─ MetricsConsumer: app/window-title tracking, per-app time buckets, session metrics
+  └─ (later) ThumbnailConsumer: small preview for &quot;what we captured today&quot; UI</code></pre>
+<p>Why this matters for the model-training bet:</p>
+<ul>
+<li><strong>One pipeline, two destinations:</strong> training data and
+report data come from the same trigger system; no duplicate captures, no
+duplicate uIOhook listeners, no duplicate dedup.</li>
+<li><strong>Consent layer:</strong> users opt into training data sharing
+separately from the core product. The <code>TrainingDataConsumer</code>
+honors the opt-in flag. Workers who decline still get a fully functional
+product; the data just doesn't flow to the training set.</li>
+<li><strong>Sample rate flexibility:</strong> OCR consumer might run on
+every frame; training consumer can sample 1-in-N or trigger only on
+significant-change frames. Independent of each other.</li>
+<li><strong>Long-term cost trajectory:</strong> Gemini calls are bounded
+($0.50/user/day vision cap) but not cheap. Training your own multimodal
+"work activity interpreter" replaces Gemini at scale — needs the data
+flowing from day one of v2.0 to be ready in 12-18 months.</li>
+<li><strong>Privacy story:</strong> sensitive content filter
+(<code>sensitive-filter.js</code> pattern from v1) is the SAME filter
+for both consumers. One privacy boundary, two output paths.</li>
+</ul>
+<p><strong>OCR on-device stays.</strong> Reasons: (a) latency/cost — OCR
+locally is &lt;100ms free vs ~1-2s + $ per multimodal call, (b)
+bandwidth — sending text to backend is ~1 KB vs ~150 KB per JPEG, (c)
+privacy story, (d) works offline. macOS Vision and Windows.Media.Ocr are
+<em>already</em> great. <strong>Drop <code>tesseract.js</code>
+entirely.</strong> If Vision/WinOcr isn't available, skip OCR.</p>
+<p><code>process-detection-service.js</code> (635 lines) and the
+<code>integration-service.js</code> (679 lines) likely still fold away —
+those are reading running processes for "what apps are open" detection.
+Just call <code>active-win</code> once per screenshot in the
+CaptureEngine.</p>
+<h2 id="ui-layer">UI Layer</h2>
+<p><strong>Move to React/TSX without ceremony.</strong> The failure
+modes of the current pattern are real and ongoing:</p>
+<ul>
+<li><code>sanitizeHTML(userName)</code> must be remembered at every
+interpolation site — one miss is an XSS.</li>
+<li><code>onclick="showSection('dashboard')"</code> requires
+<code>showSection</code> to be on <code>window</code>. Refactoring
+renames break invisibly.</li>
+<li>Tab switches blow away the DOM, so any open modal, input focus,
+scroll position, or transient state is lost —
+<code>reports/reports-history.js</code> re-fetches from network every
+time.</li>
+<li><code>IntersectionObserver</code> + <code>anime.js</code> in
+<code>app.html</code> fights with the <code>innerHTML</code> lifecycle:
+anything dynamically rendered after the initial mount never gets
+observed.</li>
+</ul>
+<p>The
+<code>owButton</code>/<code>owModal</code>/<code>owPanel</code>/<code>owStatCard</code>/<code>owEmptyState</code>/<code>owFilterBar</code>/<code>owFormField</code>/<code>owLoadingState</code>
+API maps directly to React components — same prop names, same variants.
+<strong>Port the API, drop the implementation.</strong> A
+<code>&lt;Button variant="primary" size="lg" onClick={startCapture}&gt;Start Session&lt;/Button&gt;</code>
+reads identically to
+<code>owButton('Start Session', { variant: 'primary', size: 'lg', onclick: 'startCapture()' })</code>.
+Interns who learn one learn the other.</p>
+<p>Pages become composable: <code>&lt;DashboardPage /&gt;</code>
+mounting <code>&lt;SessionPanel /&gt;</code>,
+<code>&lt;DailyBriefing /&gt;</code>,
+<code>&lt;RecentSessions /&gt;</code>,
+<code>&lt;SkillsSection /&gt;</code> — each a file under 200 lines
+instead of the current 1,500-line <code>page-*.js</code> monoliths.</p>
+<h2 id="build--dist">Build / Dist</h2>
+<p>Mostly fine — keep the bones:</p>
+<ul>
+<li><strong><code>electron-builder</code> config in
+<code>package.json</code></strong> is solid: GitHub releases publishing,
+NSIS + DMG with custom layouts, Apple notarization via
+<code>afterSign</code> hook, Mica on Windows, <code>asarUnpack</code>
+list correct for native modules. Port verbatim.</li>
+<li><strong><code>electron-updater</code> with
+<code>latest-mac.yml</code>/<code>latest.yml</code></strong> is the
+industry standard. Tauri's updater is functional but you'd be rebuilding
+this. Stay.</li>
+<li><strong>GitHub Releases as dist channel</strong> is fine for current
+scale. Once you cross ~10k installs or want analytics/staged rollouts,
+look at Update Server (self-hosted), Sparkle (mac native), or a paid
+service like Tauri Update Server / Squirrel. Not urgent.</li>
+<li><strong>Code signing complexity</strong> is unavoidable. Apple
+notarization works via <code>@electron/notarize</code> (already wired).
+Windows EV cert (currently <code>verifyUpdateCodeSignature: true</code>
+with <code>signAndEditExecutable: false</code> is unusual — verify with
+an intern day-1 that this actually signs on CI).</li>
+<li>Add <strong>CI signing</strong> (currently appears manual via
+<code>.env.local</code>) — GitHub Actions with secrets, automate the
+whole release. Great first intern task.</li>
+</ul>
+<h2 id="code-that-can-be-ported-vs-must-be-rewritten">Code That Can Be
+Ported vs Must Be Rewritten</h2>
+<p><strong>Port nearly verbatim</strong> (the hard-won,
+platform-specific stuff):</p>
+<ul>
+<li><code>src/native/ocr_helper/</code> (Swift binary source + Windows
+PowerShell) — keep as-is, wrap in TS</li>
+<li><code>src/services/ocr-service.js</code> (629 lines) — drop the
+Tesseract fallback path (~200 lines saved); port the rest. Platform
+detection, binary discovery, circuit breaker for Windows are
+correct.</li>
+<li><code>src/services/auto-updater.js</code> (640 lines) +
+<code>src/core/auto-updater-flow.js</code> — port. Startup screen +
+skip/install flow is well-thought.</li>
+<li><code>src/services/backend-auth.js</code> (561 lines) +
+<code>src/core/token-refresh.js</code> +
+<code>src/core/oauth-flow.js</code> — port. Token refresh on sleep/wake
+(<code>main.js:288</code>) is a real-world fix you don't want to
+relearn.</li>
+<li><code>src/services/windows-preflight.js</code> +
+<code>src/services/permissions.js</code> — port</li>
+<li><code>src/services/user-settings.js</code> — port
+(electron-store-backed, simple)</li>
+<li>The <code>electron-builder</code> config block — copy</li>
+</ul>
+<p><strong>Heavy rewrite but keep the algorithm</strong>:</p>
+<ul>
+<li><code>capture-service.js</code> — port the duplicate detection,
+debouncing, inactivity logic, time tracking, active-window detection
+with fallbacks. Restructure as <code>CaptureEngine</code> +
+consumers.</li>
+<li><code>session-service.js</code> (754 lines) — port the lifecycle,
+drop anything that's now a direct backend call.</li>
+</ul>
+<p><strong>Rewrite from spec, throw out the code</strong>:</p>
+<ul>
+<li>Everything under <code>src/app/</code> — all 32 module files,
+<code>app.html</code>, <code>styles.css</code>, <code>exports.js</code>,
+<code>router.js</code>, <code>tutorial.js</code>. ~7,000+ lines gone,
+~2,500 lines of React replaces it.</li>
+<li><code>preload.js</code> (replaced by typed bridge)</li>
+<li><code>src/ipc/*.handlers.js</code> (109 handlers — most fold into
+direct backend calls; remaining ~25 get rewritten in the typed
+router)</li>
+<li><code>src/services/integration-service.js</code>,
+<code>process-detection-service.js</code>, <code>todo-service.js</code>,
+<code>cleanup-service.js</code>, <code>supabase.js</code> (1,863 lines!)
+— these are the strongest "is this needed at all?" candidates. The
+<code>supabase.js</code> size suggests the desktop is doing DB work it
+should delegate to the backend.</li>
+</ul>
+<p><strong>Keep operational, even if no v2.0 UI ships against
+it</strong>:</p>
+<ul>
+<li><code>src/ipc/teams.handlers.js</code> + backend <code>teams</code>
+services + <code>team_*</code> tables — the team feature is repositioned
+for v2.2 as "internal reporting" (status reports written for you). Do
+not delete the team infrastructure. The v2.0 worker desktop just doesn't
+expose any team UI; v2.2 rebuilds the UI with consent-first
+positioning.</li>
+</ul>
+<p><strong>Note on training-data-service.js:</strong> in v2 this becomes
+a <em>consumer</em> on the unified CaptureEngine (the
+<code>TrainingDataConsumer</code> described above), not a separate
+parallel pipeline. Keep the algorithm (sample rate, app-category
+labeling), restructure as a subscriber to CaptureEngine events.</p>
+<p><strong>Already gone</strong>: the <code>Untitled-1</code> file in
+<code>src/services/</code> is editor debris — delete it.</p>
+<h2 id="risks-of-rebuild">Risks of Rebuild</h2>
+<ul>
+<li><strong>The capture pipeline has years of platform bug fixes
+embedded.</strong> macOS TCC mid-session permission grants
+(<code>_launchTrustState</code>), Windows background throttling
+switches, uIOhook crashing libuv when accessibility isn't granted,
+<code>active-win</code> vs PowerShell fallback ordering, OCR cold-start
+latency, Tesseract being unable to load through asar — every one is a
+1-2 week debugging session waiting to happen.
+<strong>Mitigation:</strong> port <code>capture-service.js</code> and
+<code>ocr-service.js</code> with minimal restructuring; do not rewrite
+from scratch.</li>
+<li><strong>Auth + auto-update are silent killers.</strong> They look
+simple, then ship a broken build and users can't update to the fix.
+<strong>Mitigation:</strong> port <code>backend-auth.js</code>,
+<code>auto-updater.js</code>, and the OAuth flow code as a single unit;
+do not refactor them in the same PR as anything else.</li>
+<li><strong>Backend coupling.</strong> Reducing IPC by moving calls to
+the renderer requires every endpoint to accept the desktop's JWT and
+exposes CORS/origin questions. <strong>Mitigation:</strong> keep IPC for
+auth-bearing calls in v2.0; migrate to direct calls in v2.1 once the
+backend has a clean public API.</li>
+<li><strong>Scope creep into a rewrite-everything-at-once trap.</strong>
+Three interns + founder rewriting in parallel = merge hell.
+<strong>Mitigation:</strong> put the new app in a sibling directory
+(<code>/Users/xerneas/onlyworks_desktop_v2</code>), ship to internal
+users only for 6-8 weeks before flipping the auto-update channel. Run
+both codebases in parallel until v2 has feature parity on the top 3 user
+flows only. Cut everything else from v2 scope.</li>
+<li><strong>Intern onboarding is the actual bottleneck.</strong> A
+modern Vite + React + TS + Tailwind + tRPC stack is <em>more</em> moving
+pieces than vanilla JS + innerHTML, even if each piece is simpler.
+<strong>Mitigation:</strong> week 1 of intern time is "build a tiny
+Electron + Vite + React + tRPC todo app from a template" before touching
+OnlyWorks. Pin every dependency.</li>
+</ul>
+<h2 id="key-files-for-v2-porting">Key Files for v2 Porting</h2>
+<ul>
+<li><code>/Users/xerneas/onlyworks_desktop/src/main.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/preload.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/app/app.html</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/app/modules/components.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/app/modules/exports.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/app/modules/page-dashboard.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/app/modules/router.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/app/styles/styles.css</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/services/capture-service.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/services/ocr-service.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/services/supabase.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/ipc/index.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/src/core/window-manager.js</code></li>
+<li><code>/Users/xerneas/onlyworks_desktop/package.json</code></li>
+</ul>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>03 · 2026</span>
+</footer>
+
+</body>
+</html>

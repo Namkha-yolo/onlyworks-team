@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OnlyWorks v2 · Internal Kickoff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ════════════════════════════════════════════════════════
+     OnlyWorks v2 Kickoff Deck — Website light palette
+     Aligned with /design-system.html v1.0
+     ════════════════════════════════════════════════════════ */
+
+  :root {
+    --bg: #fafaf9;
+    --bg-alt: #f5f5f4;
+    --card: #ffffff;
+    --text: #080503;
+    --text-secondary: #44423d;
+    --text-muted: #a3a19b;
+    --border: #dad7d0;
+
+    --accent: #8b5cf6;
+    --accent-deep: #7c3aed;
+    --accent-light: #ede9fe;
+    --accent-emphasis: #8b5cf6;
+
+    --destructive: #e40014;
+    --success: #22c55e;
+    --warning: #d97706;
+
+    --gradient-purple: linear-gradient(135deg, #c084fc 0%, #7c3aed 50%, #6366f1 100%);
+    --gradient-vibrant: linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #818cf8 100%);
+
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Instrument Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', SF Mono, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #888;
+    font-family: var(--sans);
+    color: var(--text);
+    line-height: 1.5;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 40px 20px;
+  }
+
+  .slide {
+    width: 1120px;
+    height: 700px;
+    background: var(--bg);
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+
+  .slide .footer {
+    position: absolute;
+    bottom: 24px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+  }
+  .slide .footer .brand {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .slide .footer .brand::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    margin-right: 8px;
+    transform: translateY(-1px);
+  }
+
+  .slide .content {
+    padding: 70px 80px 70px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Slide 01 — Cover ────────────────────────────────────── */
+  .cover {
+    background: var(--bg);
+    position: relative;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 70%;
+    height: 130%;
+    background: var(--gradient-vibrant);
+    opacity: 0.18;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    left: -20%;
+    width: 60%;
+    height: 120%;
+    background: var(--gradient-purple);
+    opacity: 0.12;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .cover .content { justify-content: space-between; }
+  .cover .topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    z-index: 1;
+  }
+  .cover .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .cover .title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 200px;
+    line-height: 0.84;
+    letter-spacing: -0.04em;
+    color: var(--text);
+    z-index: 1;
+    position: relative;
+  }
+  .cover .title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .cover .baseline {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 1;
+  }
+  .cover .baseline .left {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 28px;
+    line-height: 1.3;
+    color: var(--text-secondary);
+    max-width: 560px;
+  }
+  .cover .baseline .right {
+    text-align: right;
+  }
+  .cover .baseline .right .ow-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .cover .baseline .right .ow-id strong {
+    color: var(--text);
+    font-weight: 700;
+    display: block;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  /* ── Slide 02 — Where we are ────────────────────────────── */
+  .where .content { justify-content: center; gap: 36px; }
+  .where .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .where .headline {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 96px;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    color: var(--text);
+    max-width: 940px;
+  }
+  .where .headline em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .where .body {
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 720px;
+  }
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--text);
+    border-bottom: 1px solid var(--text);
+    margin-top: 16px;
+  }
+  .stat-row .cell {
+    padding: 18px 20px 18px 0;
+    border-right: 1px solid var(--border);
+  }
+  .stat-row .cell:last-child { border-right: none; padding-right: 0; }
+  .stat-row .num {
+    font-family: var(--serif);
+    font-size: 58px;
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+  .stat-row .num em { color: var(--accent); font-style: italic; }
+  .stat-row .label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* ── Slide 03 — Validation quote ─────────────────────────── */
+  .quote-slide {
+    background: var(--text);
+    color: var(--bg);
+  }
+  .quote-slide::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: -10%;
+    width: 80%;
+    height: 130%;
+    background: var(--gradient-purple);
+    opacity: 0.15;
+    filter: blur(100px);
+    pointer-events: none;
+  }
+  .quote-slide .content {
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .quote-slide .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 36px;
+    font-weight: 700;
+  }
+  .quote-slide blockquote {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 78px;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: var(--bg);
+    position: relative;
+  }
+  .quote-slide blockquote::before {
+    content: '"';
+    font-size: 240px;
+    color: var(--accent);
+    position: absolute;
+    top: -110px;
+    left: -8px;
+    font-family: var(--serif);
+    font-style: italic;
+    line-height: 1;
+    opacity: 0.35;
+  }
+  .quote-slide cite {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    margin-top: 40px;
+    display: block;
+    font-style: normal;
+  }
+  .quote-slide cite::before {
+    content: '— ';
+    color: var(--accent);
+  }
+  .quote-slide .footer { color: rgba(255,255,255,0.5); }
+  .quote-slide .footer .brand { color: var(--bg); }
+  .quote-slide .footer .brand::before { background: var(--accent); }
+
+  /* ── Slide 04 — Three ICPs ──────────────────────────────── */
+  .icp .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .icp h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 36px;
+  }
+  .icp h2 em { font-style: italic; color: var(--accent); }
+  .icp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    flex: 1;
+    border-top: 1px solid var(--text);
+  }
+  .icp-card {
+    padding: 24px 24px 24px 0;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .icp-card:nth-child(2) { padding-left: 24px; }
+  .icp-card:nth-child(3) { padding-left: 24px; border-right: none; }
+  .icp-card .pill-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid;
+    width: fit-content;
+  }
+  .icp-card.supply .pill-card {
+    background: var(--accent-light);
+    color: var(--accent-deep);
+    border-color: var(--accent);
+  }
+  .icp-card.demand .pill-card {
+    background: rgba(34, 197, 94, 0.12);
+    color: #166534;
+    border-color: #166534;
+  }
+  .icp-card h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+  .icp-card .summary {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+  .icp-card .attrs {
+    list-style: none;
+    margin-top: 4px;
+  }
+  .icp-card .attrs li {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    line-height: 1.35;
+  }
+  .icp-card .attrs li:last-child { border-bottom: none; }
+  .icp-card .attrs strong {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .icp-card .pay {
+    margin-top: auto;
+    padding-top: 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent-deep);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .icp-card .pay strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  /* ── Slide 05 — Product diagram ─────────────────────────── */
+  .product .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .product h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 28px;
+  }
+  .product h2 em { font-style: italic; color: var(--accent); }
+  .product .diagram { flex: 1; display: flex; align-items: center; justify-content: center; }
+
+  /* ── Slide 06 — In/Out scope ─────────────────────────────── */
+  .scope .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .scope h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 36px;
+  }
+  .scope h2 em { font-style: italic; color: var(--accent); }
+  .scope-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 32px;
+  }
+  .scope-grid .divider { background: var(--text); }
+  .scope-col h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  .scope-col.out h3 { color: var(--destructive); }
+  .scope-col.in h3 { color: var(--success); }
+  .scope-col ul { list-style: none; }
+  .scope-col li {
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--border);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    color: var(--text);
+    line-height: 1.35;
+  }
+  .scope-col li::before {
+    font-family: var(--mono);
+    font-size: 10px;
+    width: 18px;
+    flex-shrink: 0;
+    font-style: normal;
+    font-weight: 700;
+  }
+  .scope-col.in li::before { content: '✓'; color: var(--success); }
+  .scope-col.out li::before { content: '×'; color: var(--destructive); }
+
+  /* ── Slide 07 — Screens grid ────────────────────────────── */
+  .screens-grid .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .screens-grid h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 32px;
+  }
+  .screens-grid h2 em { font-style: italic; color: var(--accent); }
+  .mini-screens {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .mini-screen {
+    border: 1px solid var(--text);
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+  }
+  .mini-screen .mini-chrome {
+    background: #161b22;
+    border-bottom: 1px solid var(--text);
+    height: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    gap: 3px;
+  }
+  .mini-screen .mini-chrome i {
+    width: 5px; height: 5px; border-radius: 50%;
+  }
+  .mini-screen .mini-chrome i:nth-child(1) { background: #ff5f56; }
+  .mini-screen .mini-chrome i:nth-child(2) { background: #ffbd2e; }
+  .mini-screen .mini-chrome i:nth-child(3) { background: #27c93f; }
+  .mini-screen .mini-body {
+    flex: 1;
+    background: #0d1117;
+    padding: 14px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #f0f6fc;
+  }
+  .mini-screen .mini-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .mini-screen .mini-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: #f0f6fc;
+  }
+  .mini-screen .mini-desc {
+    font-size: 11px;
+    color: #c9d1d9;
+    line-height: 1.35;
+    flex: 1;
+  }
+  .mini-screen .mini-meta {
+    font-family: var(--mono);
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #8b949e;
+    border-top: 1px dashed #2a2a2a;
+    padding-top: 6px;
+  }
+
+  /* ── Slide 08 — Stack ───────────────────────────────────── */
+  .stack .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .stack h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 28px;
+  }
+  .stack h2 em { font-style: italic; color: var(--accent); }
+  .stack-table {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 220px 280px 1fr;
+    align-content: start;
+    border-top: 1px solid var(--text);
+  }
+  .stack-table > div {
+    padding: 13px 14px 13px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .stack-table .header {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--text);
+    padding-bottom: 12px;
+    font-weight: 700;
+  }
+  .stack-table .layer {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .stack-table .choice {
+    font-family: var(--serif);
+    font-size: 19px;
+    color: var(--text);
+  }
+  .stack-table .choice em { color: var(--accent); font-style: italic; }
+  .stack-table .why {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  /* ── Slide 09 — Team ────────────────────────────────────── */
+  .team .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .team h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 32px;
+  }
+  .team h2 em { font-style: italic; color: var(--accent); }
+  .team-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .team-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 12px;
+    border-right: 1px solid var(--border);
+  }
+  .team-card:last-child { border-right: none; }
+  .team-card .role-num {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .team-card .role-num strong { color: var(--accent); font-weight: 700; }
+  .team-card .name {
+    font-family: var(--serif);
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .team-card .role {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    color: var(--accent);
+  }
+  .team-card .owns {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--text-muted);
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  .team-card ul {
+    list-style: none;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .team-card ul li {
+    padding: 5px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .team-card ul li:last-child { border-bottom: none; }
+
+  /* ── Slide 10 — Timeline ────────────────────────────────── */
+  .timeline .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .timeline h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 36px;
+  }
+  .timeline h2 em { font-style: italic; color: var(--accent); }
+
+  /* ── Slide 11 — Week 1 ──────────────────────────────────── */
+  .week .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .week h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 88px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin: 12px 0 8px;
+  }
+  .week h2 em { font-style: italic; color: var(--accent); }
+  .week .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--text-secondary);
+    margin-bottom: 36px;
+  }
+  .week-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .week-card {
+    border-top: 2px solid var(--accent);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .week-card .person {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .week-card .role {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-style: italic;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .week-card .task {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-top: 4px;
+  }
+  .week-card .deliv {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .week-card .deliv strong {
+    color: var(--text);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* ── Slide 12 — Decisions ───────────────────────────────── */
+  .decisions .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .decisions h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 32px;
+  }
+  .decisions h2 em { font-style: italic; color: var(--accent); }
+  .decisions-list {
+    list-style: none;
+    counter-reset: dec;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .decisions-list li {
+    counter-increment: dec;
+    padding: 12px 0;
+    border-top: 1px dashed var(--border);
+    display: grid;
+    grid-template-columns: 56px 1fr 220px;
+    gap: 24px;
+    align-items: baseline;
+  }
+  .decisions-list li:last-child { border-bottom: 1px dashed var(--border); }
+  .decisions-list li::before {
+    content: counter(dec, decimal-leading-zero);
+    font-family: var(--serif);
+    font-size: 30px;
+    color: var(--accent);
+    font-style: italic;
+    grid-column: 1;
+    line-height: 1;
+  }
+  .decisions-list .name {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--text);
+  }
+  .decisions-list .name .desc {
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+    display: block;
+  }
+  .decisions-list .rec {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-align: right;
+    font-weight: 500;
+  }
+  .decisions-list .rec strong {
+    color: var(--accent-deep);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+
+  /* ── Slide 13 — Success ─────────────────────────────────── */
+  .success .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .success h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 12px 0 12px;
+  }
+  .success h2 em { font-style: italic; color: var(--accent); }
+  .success .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 19px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+  .metrics {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    border-top: 1px solid var(--text);
+    border-left: 1px solid var(--text);
+  }
+  .metric {
+    border-right: 1px solid var(--text);
+    border-bottom: 1px solid var(--text);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .metric .num {
+    font-family: var(--serif);
+    font-size: 64px;
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+  .metric .num em { color: var(--accent); font-style: italic; }
+  .metric .name {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.35;
+  }
+  .metric .ctx {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  /* ── Slide 14 — Closing ─────────────────────────────────── */
+  .closing {
+    background: var(--text);
+    color: var(--bg);
+    position: relative;
+  }
+  .closing::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 70%;
+    height: 130%;
+    background: var(--gradient-purple);
+    opacity: 0.22;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .closing .content {
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+  }
+  .closing .super {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 36px;
+    font-weight: 700;
+  }
+  .closing h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 128px;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: var(--bg);
+    max-width: 960px;
+  }
+  .closing h2 em { font-style: italic; color: var(--accent); }
+  .closing .questions {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 800px;
+  }
+  .closing .q {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.65);
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+  }
+  .closing .footer { color: rgba(255, 255, 255, 0.5); }
+  .closing .footer .brand { color: var(--bg); }
+  .closing .footer .brand::before { background: var(--accent); }
+
+  @media print {
+    html, body { background: white; }
+    .deck { padding: 0; gap: 0; }
+    .slide {
+      width: 100%;
+      height: 100vh;
+      box-shadow: none;
+      page-break-after: always;
+    }
+    @page {
+      size: 1120px 700px;
+      margin: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- ════════════════════ SLIDE 01 — COVER ════════════════════ -->
+  <div class="slide cover">
+    <div class="content">
+      <div class="topline">
+        <span class="label">Internal — Confidential</span>
+        <span class="label">2026-05-28 · v2 Kickoff</span>
+      </div>
+
+      <div class="title">
+        Only<em>Works</em><br>v<em>2.</em>0
+      </div>
+
+      <div class="baseline">
+        <div class="left">
+          A worker's verified portfolio. A hiring manager's trusted search. Twelve weeks from now, the rebuild ships.
+        </div>
+        <div class="right">
+          <div class="ow-id">
+            Team
+            <strong>NAMKHA + 3 INTERNS</strong>
+          </div>
+          <div class="ow-id">
+            Target
+            <strong>WEEKS 1–12</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Internal Kickoff</span>
+      <span>01 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 02 — WHERE WE ARE ════════════════════ -->
+  <div class="slide where">
+    <div class="content">
+      <div class="super">§ 01 · The starting point</div>
+      <h1 class="headline">We've built a lot.<br>We've sold <em>nothing</em>.</h1>
+      <p class="body">v1 has ~14 active users, 109 IPC channels, a 5,700-line CSS file, and a hiring marketplace with a paid tier that nobody can actually pay for. The team feature was framed as bossware. The subscription system is stubbed. The product needs to be rebuilt around a story that someone outside our network will pay for.</p>
+      <div class="stat-row">
+        <div class="cell"><div class="num">14</div><div class="label">v1 active users</div></div>
+        <div class="cell"><div class="num">109</div><div class="label">IPC channels in v1</div></div>
+        <div class="cell"><div class="num"><em>$0</em></div><div class="label">Revenue to date</div></div>
+        <div class="cell"><div class="num">12<span style="font-size:16px;color:var(--text-muted)">wk</span></div><div class="label">To v2 launch</div></div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Where we are</span>
+      <span>02 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 03 — VALIDATION QUOTE ════════════════════ -->
+  <div class="slide quote-slide">
+    <div class="content">
+      <div class="super">§ 02 · What users actually told us</div>
+      <blockquote>
+        Building resume, verifying skills, and hopes of getting hired by the managers on our platform.
+      </blockquote>
+      <cite>Outside-network testers · v1 user research · 2026</cite>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Validation</span>
+      <span>03 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 04 — THREE ICPs ════════════════════ -->
+  <div class="slide icp">
+    <div class="content">
+      <div class="super">§ 03 · Who we build for</div>
+      <h2>Three users.<br><em>One product.</em></h2>
+      <div class="icp-grid">
+        <div class="icp-card supply">
+          <span class="pill-card">◆ Primary supply</span>
+          <h3>Students &amp; early-career</h3>
+          <div class="summary">Building projects with OnlyWorks running. They need a verified portfolio that gets them their first job.</div>
+          <ul class="attrs">
+            <li><strong>Stage</strong><span>0–5 yrs</span></li>
+            <li><strong>Examples</strong><span>CS undergrad, design student, bootcamp grad, intern</span></li>
+            <li><strong>Pain</strong><span>Resume is thin — how to prove skill?</span></li>
+            <li><strong>Engagement</strong><span>High — time-rich, hire-hungry</span></li>
+          </ul>
+          <div class="pay">Pays · <strong>Free (.edu Student)</strong></div>
+        </div>
+
+        <div class="icp-card supply">
+          <span class="pill-card">◆ Primary supply</span>
+          <h3>Mid-career professionals</h3>
+          <div class="summary">Currently employed, "open to opportunities." Want a passive career history that compounds.</div>
+          <ul class="attrs">
+            <li><strong>Stage</strong><span>3–15 yrs</span></li>
+            <li><strong>Examples</strong><span>SWE, PM, designer, marketer at digital cos</span></li>
+            <li><strong>Pain</strong><span>LinkedIn is noise; promo prep is hell</span></li>
+            <li><strong>Engagement</strong><span>Passive — weekly check-ins</span></li>
+          </ul>
+          <div class="pay">Pays · <strong>Free or $9/mo Pro</strong></div>
+        </div>
+
+        <div class="icp-card demand">
+          <span class="pill-card">↑ Demand · revenue</span>
+          <h3>Hiring managers</h3>
+          <div class="summary">Searching candidates whose skills are verified by actual work, not claims. Pays for access.</div>
+          <ul class="attrs">
+            <li><strong>Tier</strong><span>SMB → mid-market</span></li>
+            <li><strong>Examples</strong><span>Recruiters, TA, hiring managers, founders</span></li>
+            <li><strong>Pain</strong><span>Resume signal is broken, esp. early-career</span></li>
+            <li><strong>Engagement</strong><span>Active — search, post, reach out</span></li>
+          </ul>
+          <div class="pay">Pays · <strong>$99 / $299 / $599</strong>/mo</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · ICPs</span>
+      <span>04 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 05 — PRODUCT DIAGRAM ════════════════════ -->
+  <div class="slide product">
+    <div class="content">
+      <div class="super">§ 04 · The architecture</div>
+      <h2>Capture once.<br>Output <em>three things.</em></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" style="width: 100%; max-width: 920px; height: auto;">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#080503"/>
+            </marker>
+            <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#8b5cf6"/>
+            </marker>
+          </defs>
+
+          <!-- Capture engine box -->
+          <g transform="translate(40, 110)">
+            <rect x="0" y="0" width="240" height="160" fill="none" stroke="#080503" stroke-width="2"/>
+            <text x="120" y="-12" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="2.5" font-weight="700" fill="#a3a19b">CAPTURE ENGINE</text>
+            <text x="120" y="36" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="22" fill="#080503">One trigger.</text>
+            <text x="120" y="62" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="22" fill="#080503">One dedup.</text>
+            <text x="120" y="88" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="22" fill="#080503">One privacy filter.</text>
+
+            <line x1="20" y1="110" x2="220" y2="110" stroke="#dad7d0" stroke-dasharray="3,3"/>
+            <text x="120" y="130" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" fill="#a3a19b">SCREENSHOTS · OCR · CONSENT</text>
+            <text x="120" y="146" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.5" fill="#a3a19b">DEDUP · IDLE · FILTER</text>
+          </g>
+
+          <!-- Output 1: Marketplace -->
+          <g transform="translate(500, 30)">
+            <rect x="0" y="0" width="340" height="90" fill="#080503" stroke="#080503"/>
+            <text x="20" y="22" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2" font-weight="700" fill="#a78bfa">▸ STREAM A · MARKETPLACE</text>
+            <text x="20" y="52" font-family="Instrument Serif, serif" font-size="22" fill="#fafaf9">Workers free · HMs pay</text>
+            <text x="20" y="75" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#a3a19b">$99–$599/mo · v2.0</text>
+          </g>
+
+          <!-- Output 2: Worker utility -->
+          <g transform="translate(500, 145)">
+            <rect x="0" y="0" width="340" height="90" fill="none" stroke="#080503" stroke-width="2"/>
+            <text x="20" y="22" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2" font-weight="700" fill="#7c3aed">▸ STREAM B · WORKER UTILITY</text>
+            <text x="20" y="52" font-family="Instrument Serif, serif" font-size="22" fill="#080503">Promo packets · summaries</text>
+            <text x="20" y="75" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#44423d">$9/mo Pro · Student free · v2.1</text>
+          </g>
+
+          <!-- Output 3: B2B Team reporting -->
+          <g transform="translate(500, 260)">
+            <rect x="0" y="0" width="340" height="90" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+            <text x="20" y="22" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2" font-weight="700" fill="#7c3aed">▸ STREAM C · B2B REPORTING</text>
+            <text x="20" y="52" font-family="Instrument Serif, serif" font-size="22" fill="#080503">Auto status reports</text>
+            <text x="20" y="75" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#7c3aed">$9–$19/seat · v2.2</text>
+          </g>
+
+          <!-- Arrows -->
+          <path d="M 280,180 Q 380,180 380,75 L 490,75" fill="none" stroke="#080503" stroke-width="1.5" marker-end="url(#arr)"/>
+          <path d="M 280,190 L 490,190" fill="none" stroke="#080503" stroke-width="1.5" marker-end="url(#arr)"/>
+          <path d="M 280,200 Q 380,200 380,305 L 490,305" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrA)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Product diagram</span>
+      <span>05 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 06 — SCOPE ════════════════════ -->
+  <div class="slide scope">
+    <div class="content">
+      <div class="super">§ 05 · v2.0 scope</div>
+      <h2>What ships.<br>What <em>doesn't.</em></h2>
+      <div class="scope-grid">
+        <div class="scope-col in">
+          <h3>✓ IN · 12-week scope</h3>
+          <ul>
+            <li>Unified capture engine (one trigger, many consumers)</li>
+            <li>Five worker screens: Status, Portfolio, Privacy, Settings, First-run</li>
+            <li>Stripe Checkout + webhook + portal — the #1 unblocker for revenue</li>
+            <li>Hiring manager dashboard (web), paid tiers gated</li>
+            <li>Public profile redesign (web)</li>
+            <li>Training data consent flow + endpoints (start collecting day 1)</li>
+            <li>Talent community nurture worker</li>
+            <li>Per-user AI cost budget across text + vision</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="scope-col out">
+          <h3>× OUT · explicitly deferred</h3>
+          <ul>
+            <li>Team / internal reporting UI — keep backend, ship UI in v2.2</li>
+            <li>Promo packet generator — v2.1</li>
+            <li>Weekly summary email — v2.1</li>
+            <li>LinkedIn / Google OAuth at signup — magic-link only</li>
+            <li>Resume upload + AI parsing — verified-by-capture is the differentiator</li>
+            <li>Billing/invoice automation (Path A) — v3 or kill</li>
+            <li>Goals page, Activity page, Sessions page</li>
+            <li>Manager / Worker view toggle on reports</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · v2.0 scope</span>
+      <span>06 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 07 — FIVE SCREENS ════════════════════ -->
+  <div class="slide screens-grid">
+    <div class="content">
+      <div class="super">§ 06 · The worker desktop</div>
+      <h2>Five screens. <em>That's it.</em></h2>
+      <div class="mini-screens">
+        <div class="mini-screen">
+          <div class="mini-chrome"><i></i><i></i><i></i></div>
+          <div class="mini-body">
+            <div class="mini-num">01</div>
+            <div class="mini-title">Status</div>
+            <div class="mini-desc">Capture is running. This week's stats. Training data toggle.</div>
+            <div class="mini-meta">Default landing</div>
+          </div>
+        </div>
+        <div class="mini-screen">
+          <div class="mini-chrome"><i></i><i></i><i></i></div>
+          <div class="mini-body">
+            <div class="mini-num">02</div>
+            <div class="mini-title">Portfolio</div>
+            <div class="mini-desc">Verified skills by category. Evidence per skill. Share link.</div>
+            <div class="mini-meta">The artifact</div>
+          </div>
+        </div>
+        <div class="mini-screen">
+          <div class="mini-chrome"><i></i><i></i><i></i></div>
+          <div class="mini-body">
+            <div class="mini-num">03</div>
+            <div class="mini-title">Privacy</div>
+            <div class="mini-desc">Training consent. Sensitive content rules. Captures reel.</div>
+            <div class="mini-meta">Trust earned</div>
+          </div>
+        </div>
+        <div class="mini-screen">
+          <div class="mini-chrome"><i></i><i></i><i></i></div>
+          <div class="mini-body">
+            <div class="mini-num">04</div>
+            <div class="mini-title">Settings</div>
+            <div class="mini-desc">Account, theme, notifications. Boring on purpose.</div>
+            <div class="mini-meta">Familiar</div>
+          </div>
+        </div>
+        <div class="mini-screen">
+          <div class="mini-chrome"><i></i><i></i><i></i></div>
+          <div class="mini-body">
+            <div class="mini-num">05</div>
+            <div class="mini-title">First-run</div>
+            <div class="mini-desc">6 sub-steps. Permissions, magic-link, career, consent.</div>
+            <div class="mini-meta">Activation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · 5 screens</span>
+      <span>07 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 08 — STACK ════════════════════ -->
+  <div class="slide stack">
+    <div class="content">
+      <div class="super">§ 07 · The technology</div>
+      <h2>Boring. <em>On purpose.</em></h2>
+      <div class="stack-table">
+        <div class="header">Layer</div>
+        <div class="header">Choice</div>
+        <div class="header">Why this, not that</div>
+
+        <div class="layer">Shell</div>
+        <div class="choice">Electron <em>33+</em></div>
+        <div class="why">Tauri sounds cool but its rough edges (uiohook, auto-updater, signing) cost interns weeks. We need the bigger ecosystem.</div>
+
+        <div class="layer">Renderer</div>
+        <div class="choice">React + TypeScript + Vite</div>
+        <div class="why">Boring, hireable, well-documented. TypeScript replaces tons of v1's defensive runtime code at compile time.</div>
+
+        <div class="layer">Styling</div>
+        <div class="choice">Tailwind v4 + shadcn/ui</div>
+        <div class="why">v1 already had utility-class CSS — Tailwind is closer than it looks. shadcn is copy-pasteable, not a black box.</div>
+
+        <div class="layer">State</div>
+        <div class="choice">TanStack Query + Zustand</div>
+        <div class="why">No Redux ever. React Query replaces v1's AppStore + manual cache invalidation entirely.</div>
+
+        <div class="layer">IPC</div>
+        <div class="choice">tRPC over IPC</div>
+        <div class="why">Replaces 444-line preload.js with a typed bridge. Full TS inference. ~3 days to wire up.</div>
+
+        <div class="layer">Build</div>
+        <div class="choice">electron-vite</div>
+        <div class="why">Hot reload in renderer = massive intern-velocity win. Keep electron-builder + electron-updater.</div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Stack</span>
+      <span>08 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 09 — TEAM ════════════════════ -->
+  <div class="slide team">
+    <div class="content">
+      <div class="super">§ 08 · Who does what</div>
+      <h2>Four people.<br><em>Twelve weeks.</em></h2>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="role-num"><strong>01</strong> · FOUNDER</div>
+          <div class="name">Namkha</div>
+          <div class="role">Backend · sales · review</div>
+          <div class="owns">Owns</div>
+          <ul>
+            <li>Stripe integration</li>
+            <li>AI cost budgeting</li>
+            <li>Web HM dashboard</li>
+            <li>First 5 paid HMs</li>
+            <li>PR review (weeks 1–4)</li>
+          </ul>
+        </div>
+        <div class="team-card">
+          <div class="role-num"><strong>02</strong> · INTERN</div>
+          <div class="name">A</div>
+          <div class="role">Stack &amp; UI</div>
+          <div class="owns">Owns</div>
+          <ul>
+            <li>Scaffold v2 repo</li>
+            <li>tRPC over IPC bridge</li>
+            <li>Status + Settings screens</li>
+            <li>Public profile (web)</li>
+          </ul>
+        </div>
+        <div class="team-card">
+          <div class="role-num"><strong>03</strong> · INTERN</div>
+          <div class="name">B</div>
+          <div class="role">Auth &amp; Capture</div>
+          <div class="owns">Owns</div>
+          <ul>
+            <li>Port auth + auto-updater</li>
+            <li>Windows OCR</li>
+            <li>Portfolio screen</li>
+            <li>HM Job Post UI</li>
+          </ul>
+        </div>
+        <div class="team-card">
+          <div class="role-num"><strong>04</strong> · INTERN</div>
+          <div class="name">C</div>
+          <div class="role">Capture Engine</div>
+          <div class="owns">Owns</div>
+          <ul>
+            <li>CaptureEngine</li>
+            <li>Sensitive content filter</li>
+            <li>Training data consumer</li>
+            <li>Privacy screen</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Team</span>
+      <span>09 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 10 — TIMELINE ════════════════════ -->
+  <div class="slide timeline">
+    <div class="content">
+      <div class="super">§ 09 · 12-week plan</div>
+      <h2>The build.<br><em>Phase by phase.</em></h2>
+      <svg viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg" style="width:100%; height: auto;">
+        <!-- Week headers -->
+        <g font-family="JetBrains Mono, monospace" font-size="10" fill="#a3a19b" text-anchor="middle" letter-spacing="1.5" font-weight="600">
+          <text x="50" y="20">W1</text>
+          <text x="130" y="20">W2</text>
+          <text x="210" y="20">W3</text>
+          <text x="290" y="20">W4</text>
+          <text x="370" y="20">W5</text>
+          <text x="450" y="20">W6</text>
+          <text x="530" y="20">W7</text>
+          <text x="610" y="20">W8</text>
+          <text x="690" y="20">W9</text>
+          <text x="770" y="20">W10</text>
+          <text x="850" y="20">W11</text>
+          <text x="930" y="20">W12</text>
+        </g>
+
+        <!-- Grid lines -->
+        <g stroke="#dad7d0" stroke-dasharray="2,3">
+          <line x1="50" y1="30" x2="50" y2="320"/>
+          <line x1="130" y1="30" x2="130" y2="320"/>
+          <line x1="210" y1="30" x2="210" y2="320"/>
+          <line x1="290" y1="30" x2="290" y2="320"/>
+          <line x1="370" y1="30" x2="370" y2="320"/>
+          <line x1="450" y1="30" x2="450" y2="320"/>
+          <line x1="530" y1="30" x2="530" y2="320"/>
+          <line x1="610" y1="30" x2="610" y2="320"/>
+          <line x1="690" y1="30" x2="690" y2="320"/>
+          <line x1="770" y1="30" x2="770" y2="320"/>
+          <line x1="850" y1="30" x2="850" y2="320"/>
+          <line x1="930" y1="30" x2="930" y2="320"/>
+        </g>
+
+        <!-- Phase bars (build = ink, ship = purple) -->
+        <rect x="50" y="40" width="240" height="32" fill="#080503"/>
+        <text x="60" y="62" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#fafaf9">FOUNDATION · stack, auth, capture skeleton, Stripe</text>
+
+        <rect x="210" y="84" width="160" height="32" fill="#080503"/>
+        <text x="220" y="106" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#fafaf9">CAPTURE PIPELINE · OCR + training consumer</text>
+
+        <rect x="370" y="128" width="160" height="32" fill="#8b5cf6"/>
+        <text x="380" y="150" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#fafaf9">WORKER UI · 5 screens, onboarding, tray</text>
+
+        <rect x="530" y="172" width="160" height="32" fill="#080503"/>
+        <text x="540" y="194" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#fafaf9">WEB · HM dashboard, public profile, Stripe gating</text>
+
+        <rect x="690" y="216" width="160" height="32" fill="#080503"/>
+        <text x="700" y="238" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#fafaf9">DOGFOOD · 8h/day internal use, fix bugs daily</text>
+
+        <rect x="850" y="260" width="120" height="32" fill="#8b5cf6"/>
+        <text x="860" y="282" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5" fill="#fafaf9">SOFT LAUNCH · campus, HM pilots</text>
+
+        <!-- Bottom labels -->
+        <g font-family="Instrument Serif, serif" font-size="13" fill="#080503" font-style="italic">
+          <text x="50" y="324">Week 2 ▸ magic-link auth + capture skeleton</text>
+          <text x="290" y="324">Week 4 ▸ pipeline complete, frames flowing</text>
+          <text x="530" y="324">Week 6 ▸ five worker screens functional</text>
+          <text x="690" y="324">Week 8 ▸ Stripe live end-to-end</text>
+          <text x="930" y="324" text-anchor="end">Week 12 ▸ public soft launch</text>
+        </g>
+
+        <!-- Legend -->
+        <g transform="translate(50, 350)">
+          <rect x="0" y="-4" width="10" height="10" fill="#080503"/>
+          <text x="16" y="4" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#a3a19b" font-weight="700">BUILD</text>
+          <rect x="90" y="-4" width="10" height="10" fill="#8b5cf6"/>
+          <text x="106" y="4" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#a3a19b" font-weight="700">SHIP</text>
+        </g>
+      </svg>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Timeline</span>
+      <span>10 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 11 — WEEK 1 ════════════════════ -->
+  <div class="slide week">
+    <div class="content">
+      <div class="super">§ 10 · Week one</div>
+      <h2>What you do <em>Monday.</em></h2>
+      <div class="subtitle">After your Week 0 template-app exercise — each of you ships one foundational thing.</div>
+      <div class="week-grid">
+        <div class="week-card">
+          <div class="person">— FOUNDER</div>
+          <div class="role">Namkha</div>
+          <div class="task">Backend Stripe Checkout endpoint. Customer creation, plan-to-product mapping, success/cancel URLs.</div>
+          <div class="deliv"><strong>Deliverable</strong>POST /api/hiring/checkout</div>
+        </div>
+        <div class="week-card">
+          <div class="person">— INTERN 02</div>
+          <div class="role">A</div>
+          <div class="task">Scaffold the v2 repo: electron-vite + React + TS + Tailwind + shadcn. Three placeholder routes.</div>
+          <div class="deliv"><strong>Deliverable</strong>onlyworks_desktop_v2/ green build</div>
+        </div>
+        <div class="week-card">
+          <div class="person">— INTERN 03</div>
+          <div class="role">B</div>
+          <div class="task">Port the v1 auto-updater from JS to TS. Minimal refactor. Just make it work in the new repo.</div>
+          <div class="deliv"><strong>Deliverable</strong>src/main/auto-updater.ts</div>
+        </div>
+        <div class="week-card">
+          <div class="person">— INTERN 04</div>
+          <div class="role">C</div>
+          <div class="task">CaptureEngine skeleton. Interval trigger + manual trigger. EventEmitter that fires 'frame' events.</div>
+          <div class="deliv"><strong>Deliverable</strong>src/main/capture-engine.ts</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Week 1</span>
+      <span>11 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 12 — DECISIONS ════════════════════ -->
+  <div class="slide decisions">
+    <div class="content">
+      <div class="super">§ 11 · Lock these today</div>
+      <h2>Seven choices.<br><em>One meeting.</em></h2>
+      <ol class="decisions-list">
+        <li>
+          <span class="name">Repo strategy<span class="desc">Where the new code lives</span></span>
+          <span class="rec"><strong>New directory</strong>onlyworks_desktop_v2/</span>
+        </li>
+        <li>
+          <span class="name">Product naming<span class="desc">Continue version line or rebrand</span></span>
+          <span class="rec"><strong>Continue</strong>"OnlyWorks 4.0"</span>
+        </li>
+        <li>
+          <span class="name">Update channel<span class="desc">How v1 users find v2</span></span>
+          <span class="rec"><strong>Opt-in beta</strong>auto-default in 4 wks</span>
+        </li>
+        <li>
+          <span class="name">HM pricing<span class="desc">Confirm tier amounts</span></span>
+          <span class="rec"><strong>$99 / $299 / $599</strong>monthly recurring</span>
+        </li>
+        <li>
+          <span class="name">Student tier<span class="desc">Free Pro for .edu emails</span></span>
+          <span class="rec"><strong>Yes</strong>verify via .edu domain</span>
+        </li>
+        <li>
+          <span class="name">Training data T&amp;C<span class="desc">Consent language + legal review</span></span>
+          <span class="rec"><strong>Draft this week</strong>review by W4</span>
+        </li>
+        <li>
+          <span class="name">Intern ramp time<span class="desc">Week 0 template-app exercise</span></span>
+          <span class="rec"><strong>One week</strong>no exceptions</span>
+        </li>
+      </ol>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Decisions</span>
+      <span>12 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 13 — SUCCESS ════════════════════ -->
+  <div class="slide success">
+    <div class="content">
+      <div class="super">§ 12 · What success looks like</div>
+      <h2>By week <em>12.</em></h2>
+      <div class="subtitle">Six numbers. Small on purpose. The point is a product that <em>can</em> be sold — not hockey-stick growth on day one.</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="ctx">Weekly active</div>
+          <div class="num">100<em>+</em></div>
+          <div class="name">workers using OnlyWorks every week (60% outside our network)</div>
+        </div>
+        <div class="metric">
+          <div class="ctx">First revenue</div>
+          <div class="num">$1.5k<em>/mo</em></div>
+          <div class="name">5 paid hiring managers, MRR target</div>
+        </div>
+        <div class="metric">
+          <div class="ctx">Consent rate</div>
+          <div class="num">80<em>%</em></div>
+          <div class="name">opt-in to training data sharing (UX signal)</div>
+        </div>
+        <div class="metric">
+          <div class="ctx">Student users</div>
+          <div class="num">30<em>+</em></div>
+          <div class="name">via 1–2 campus partnerships or a hackathon</div>
+        </div>
+        <div class="metric">
+          <div class="ctx">Training data</div>
+          <div class="num">1<em>M+</em></div>
+          <div class="name">labeled frames collected, with consent metadata</div>
+        </div>
+        <div class="metric">
+          <div class="ctx">Stability</div>
+          <div class="num">0</div>
+          <div class="name">capture-pipeline bug reports in the final 4 weeks</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Success criteria</span>
+      <span>13 / 14</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SLIDE 14 — CLOSING ════════════════════ -->
+  <div class="slide closing">
+    <div class="content">
+      <div class="super">§ 13 · Closing</div>
+      <h2>Now, the<br>questions <em>that matter.</em></h2>
+      <div class="questions">
+        <div class="q">▸ What's unclear?</div>
+        <div class="q">▸ What's missing?</div>
+        <div class="q">▸ What scares you?</div>
+        <div class="q">▸ What's exciting?</div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="brand">OnlyWorks · Kickoff complete</span>
+      <span>14 / 14</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

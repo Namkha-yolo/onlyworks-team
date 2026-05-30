@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team operating model · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>13 · 20 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 13 · How we work</div>
+      <div class="title">Team operating model</div>
+      <div class="subtitle">Linear/Stripe-style operating system for a
+4-person engineering team: ownership zones, RFC process, 1:1 format,
+decision rights matrix, no-asks list, on-call, quarterly review.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>20 min</strong></span>
+        <span>Audience<strong>Everyone</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks-team-operating-model"
+id="toc-onlyworks-team-operating-model">OnlyWorks Team Operating
+Model</a>
+<ul>
+<li><a href="#1--ownership-zones" id="toc-1--ownership-zones">1 ·
+Ownership zones</a></li>
+<li><a href="#2--rfc-process" id="toc-2--rfc-process">2 · RFC
+process</a></li>
+<li><a href="#3--weekly-11s" id="toc-3--weekly-11s">3 · Weekly
+1:1s</a></li>
+<li><a href="#4--decision-rights-matrix"
+id="toc-4--decision-rights-matrix">4 · Decision rights matrix</a></li>
+<li><a href="#5--the-no-asks-list" id="toc-5--the-no-asks-list">5 · The
+no-asks list</a></li>
+<li><a href="#6--async-updates-and-standup"
+id="toc-6--async-updates-and-standup">6 · Async updates and
+standup</a></li>
+<li><a href="#7--friday-demo--retro" id="toc-7--friday-demo--retro">7 ·
+Friday demo + retro</a></li>
+<li><a href="#8--code-review" id="toc-8--code-review">8 · Code
+review</a></li>
+<li><a href="#9--on-call-and-incidents"
+id="toc-9--on-call-and-incidents">9 · On-call and incidents</a></li>
+<li><a href="#10--quarterly-review--career-conversation"
+id="toc-10--quarterly-review--career-conversation">10 · Quarterly review
++ career conversation</a></li>
+<li><a href="#11--onboarding-first-two-weeks"
+id="toc-11--onboarding-first-two-weeks">11 · Onboarding (first two
+weeks)</a></li>
+<li><a href="#12--what-this-doc-is-not"
+id="toc-12--what-this-doc-is-not">12 · What this doc is not</a></li>
+<li><a href="#13--sign-off-and-amendments"
+id="toc-13--sign-off-and-amendments">13 · Sign-off and
+amendments</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks-team-operating-model">OnlyWorks Team Operating
+Model</h1>
+<p>The operating system for a four-person engineering team. Read this
+once; disagree in writing; we merge the changes.</p>
+<p>This doc replaces the "intern playbook" framing. OnlyWorks is built
+by colleagues — founder plus three engineers — with overlapping
+responsibilities and clear zones of ownership. Flat teams work only when
+the implicit becomes explicit. Without these patterns, every question
+routes through Namkha, Namkha becomes a bottleneck, and engineers can't
+grow into the senior shape they deserve to grow into.</p>
+<hr />
+<h2 id="1--ownership-zones">1 · Ownership zones</h2>
+<p>OnlyWorks has four zones. Each zone has one owner. The owner is the
+buck-stops-here on architecture, code quality, tests, monitoring,
+on-call response, documentation, and hiring input as the team grows.</p>
+<p>Ownership does <strong>not</strong> mean exclusive coding rights.
+Anyone can open a PR in any zone. But the owner approves architecturally
+significant changes, sets direction, and is who you ping at 2am if
+production is down.</p>
+<table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Owner</th>
+<th>Surface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Product · Design · Business</strong></td>
+<td>Namkha</td>
+<td>Product strategy, design system custody, fundraising, GTM, customer
+conversations, founder-led sales, hiring</td>
+</tr>
+<tr>
+<td><strong>Desktop (Electron + capture)</strong></td>
+<td>Engineer A</td>
+<td>Electron main + renderer, capture engine, OCR, on-device redaction,
+auto-updater, native bridges (Swift / PowerShell), platform packaging +
+signing</td>
+</tr>
+<tr>
+<td><strong>Backend + AI pipeline</strong></td>
+<td>Engineer B</td>
+<td>Express API, Supabase schema + RLS, AI orchestration (Gemini),
+guardrails service, sessions + reports services, training-data pipeline,
+billing webhooks</td>
+</tr>
+<tr>
+<td><strong>Web (marketplace + public profile)</strong></td>
+<td>Engineer C</td>
+<td>HM search, HM dashboard, job posting, public worker profile,
+marketing site, web auth, OG previews</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-ownership-includes">What ownership includes</h3>
+<ul>
+<li>Writing RFCs for non-trivial changes in your zone</li>
+<li>Approving PRs that materially touch your zone</li>
+<li>Maintaining documentation in your zone (READMEs, runbooks, decision
+logs)</li>
+<li>Setting up monitoring and alerts for your zone</li>
+<li>Being primary on-call when alerts fire in your zone</li>
+<li>Proposing your own roadmap for the next quarter</li>
+</ul>
+<h3 id="what-ownership-does-not-include">What ownership does
+<em>not</em> include</h3>
+<ul>
+<li>A monopoly on coding in your zone — others contribute freely</li>
+<li>Veto power over cross-zone decisions — those go through RFC</li>
+<li>Permission to change the schema, public API, or design tokens
+without RFC</li>
+<li>Solo authority on anything in the "we decide together" row of §
+4</li>
+</ul>
+<h3 id="cross-zone-protocols">Cross-zone protocols</h3>
+<p>Most real work touches more than one zone. Three patterns:</p>
+<ul>
+<li><strong>API contract changes</strong> (Desktop ↔︎ Backend, Web ↔︎
+Backend) → RFC required. Producer owns the change; consumer must
+approve.</li>
+<li><strong>Shared types</strong> in <code>shared/types.ts</code> → PR
+with both producer and consumer owners as required reviewers.</li>
+<li><strong>Schema changes</strong> in Supabase → RFC always, no
+exceptions. Migrations land via PR with backend owner as required
+reviewer.</li>
+</ul>
+<h3 id="zone-refresh">Zone refresh</h3>
+<p>Zones get re-balanced at the end of each quarter, or whenever someone
+wants to swap. Lock-in is a smell — we should not require an engineer to
+own the same zone for two years if they want to grow elsewhere.</p>
+<hr />
+<h2 id="2--rfc-process">2 · RFC process</h2>
+<p>The single most important document type in our codebase is not the
+README. It's the <strong>RFC</strong> — a one-to-three-page written
+proposal for a non-trivial change.</p>
+<h3 id="when-to-write-one">When to write one</h3>
+<p>Write an RFC if your change is <em>any</em> of these:</p>
+<ul>
+<li>Touches more than one zone</li>
+<li>Changes a public API, schema, or design token</li>
+<li>Introduces a new dependency or vendor that sees user data</li>
+<li>Changes architecture (where state lives, what process talks to
+what)</li>
+<li>Costs &gt;$50/month in infra at current scale</li>
+<li>Removes or deprecates a user-facing feature</li>
+<li>Changes security or privacy posture (captures, PII, auth,
+consent)</li>
+</ul>
+<p>Skip the RFC for: bug fixes inside one zone, no-behavior-change
+refactors, doc updates, test additions, dependency bumps to patch
+versions, UI polish that doesn't change information architecture.</p>
+<p>When in doubt, write one. The cost of a 1-page RFC is one hour. The
+cost of <em>not</em> writing one and finding out you misaligned with two
+other engineers is one sprint.</p>
+<h3 id="rfc-template">RFC template</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># RFC-NNN: &lt;Title&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>**Author:** <span class="dt">&lt;</span><span class="kw">name</span><span class="dt">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>**Status:** Draft | Review | Accepted | Rejected | Superseded</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>**Date opened:** YYYY-MM-DD</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>**Decision deadline:** YYYY-MM-DD (default: 3 working days from posting)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>**Required reviewers:** <span class="dt">&lt;</span><span class="kw">names</span><span class="dt">&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Context</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>Today&#39;s situation. What changed that prompted this?</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">## Problem</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>The specific problem we&#39;re solving. Who feels it? How do we know?</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">## Proposal</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>What we&#39;ll do. Concrete. Include code sketches, schema, API shapes.</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">## Alternatives considered</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>At least two. For each: what was good, why we didn&#39;t pick it.</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tradeoffs</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>What we give up by choosing this.</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Migration / rollout</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>How we get from today&#39;s state to the proposed state without breaking things.</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">## Open questions</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>Anything unresolved. Mark blockers vs nice-to-knows.</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="fu">## Decision</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>(Filled in when accepted or rejected.)</span></code></pre></div>
+<h3 id="process">Process</h3>
+<ul>
+<li>RFCs live in <code>docs/rfcs/RFC-NNN-slug.md</code> in the repo</li>
+<li>Posting an RFC = opening a PR with that file. Reviewers comment
+inline.</li>
+<li>Default review window is <strong>3 working days</strong>. Author can
+extend if reviewers need more time; can shorten if everyone has signed
+off early.</li>
+<li>An RFC is <strong>accepted</strong> when the author + all required
+reviewers + Namkha approve. Non-required reviewers can comment but don't
+block.</li>
+<li>An RFC is <strong>rejected</strong> explicitly by the deadline —
+silence ≠ rejection.</li>
+<li>After acceptance, the implementation PR links back to the RFC.</li>
+<li>Superseded RFCs are not deleted — they stay, with status updated and
+a link to what replaced them. Decision history is institutional
+memory.</li>
+</ul>
+<h3 id="what-makes-an-rfc-good">What makes an RFC good</h3>
+<ul>
+<li>Specific, not vague (numbers, code, schema — not "we'll improve
+performance")</li>
+<li>Names alternatives honestly (not strawmen)</li>
+<li>Names tradeoffs (every decision has a cost)</li>
+<li>Estimates effort and risk</li>
+<li>Says "open questions" out loud instead of hiding ambiguity</li>
+</ul>
+<h3 id="what-makes-an-rfc-bad">What makes an RFC bad</h3>
+<ul>
+<li>Pre-decided ("I already started building this; please approve")</li>
+<li>Over-engineered ("here's a 12-month plan to refactor
+everything")</li>
+<li>Underspecified ("we should use X" with no <em>how</em>)</li>
+<li>Asks for permission instead of presenting an analysis</li>
+</ul>
+<hr />
+<h2 id="3--weekly-11s">3 · Weekly 1:1s</h2>
+<p>Each engineer has a recurring 1:1 with Namkha. 30–45 minutes, same
+day, same time, weekly.</p>
+<h3 id="the-principle">The principle</h3>
+<p>The 1:1 is <strong>yours, not Namkha's</strong>. You set the agenda.
+Namkha listens more than they talk. <strong>The 1:1 is not a status
+meeting</strong> — status happens async (see § 6).</p>
+<h3 id="the-shared-doc">The shared doc</h3>
+<p>Each engineer maintains a shared Google Doc with Namkha titled
+<code>1:1 — &lt;name&gt;</code>. Append-only by convention. Three
+sections:</p>
+<ol type="1">
+<li><strong>This week's agenda</strong> — bullets you want to
+discuss</li>
+<li><strong>Open items</strong> — running list of things either of you
+owes the other</li>
+<li><strong>Past notes</strong> — history of previous 1:1s</li>
+</ol>
+<p>You add agenda items as they come up during the week. By the time the
+1:1 starts, the doc is ready.</p>
+<h3 id="11-template-per-week">1:1 template (per week)</h3>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## YYYY-MM-DD</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### Agenda (from engineer)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">### Notes</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">### Action items</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> (owner) — by <span class="dt">&lt;</span><span class="kw">date</span><span class="dt">&gt;</span></span></code></pre></div>
+<h3 id="what-11s-are-for">What 1:1s are for</h3>
+<ul>
+<li>Blockers that aren't visible in standups</li>
+<li>Feedback for Namkha (running the company, the team, the docs)</li>
+<li>Career: where are you growing, what do you want next</li>
+<li>Decisions that need a conversation and aren't worth an RFC</li>
+<li>The state of your zone — risks, fires, what's worrying you</li>
+<li>Things you don't want to write in a public channel</li>
+</ul>
+<h3 id="what-11s-are-not-for">What 1:1s are <em>not</em> for</h3>
+<ul>
+<li>Status updates ("here's what I shipped this week") — that's Friday
+demo + async update</li>
+<li>Architectural debates that need other engineers — write an RFC</li>
+<li>Things you should be telling the whole team — share in
+<code>#engineering</code></li>
+</ul>
+<h3 id="cancelling">Cancelling</h3>
+<p>Either party can cancel a 1:1 if there's nothing to discuss. Don't
+burn 30 minutes on "all good!" Async updates absorb the load.</p>
+<hr />
+<h2 id="4--decision-rights-matrix">4 · Decision rights matrix</h2>
+<p>The single biggest source of friction in a flat team is unclear
+decision rights. This table is the resolution.</p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Who decides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code style within a file</td>
+<td>Engineer alone</td>
+</tr>
+<tr>
+<td>Choice of internal helper / library <em>inside one zone</em></td>
+<td>Engineer alone</td>
+</tr>
+<tr>
+<td>Adding a dependency ≤1 MB, well-maintained, MIT/Apache license</td>
+<td>Engineer alone (note in PR description)</td>
+</tr>
+<tr>
+<td>Adding a dependency &gt;1 MB or with a non-permissive license</td>
+<td>RFC required</td>
+</tr>
+<tr>
+<td>Database schema change</td>
+<td>Backend owner + RFC</td>
+</tr>
+<tr>
+<td>Public API contract change</td>
+<td>Producer owner + RFC; consumer must approve</td>
+</tr>
+<tr>
+<td>Choice of cloud provider, hosting, CI vendor</td>
+<td>RFC + Namkha</td>
+</tr>
+<tr>
+<td>Adding any vendor that sees user data</td>
+<td>RFC + Namkha (security review)</td>
+</tr>
+<tr>
+<td>Hiring, compensation, equity</td>
+<td>Namkha (with engineer input)</td>
+</tr>
+<tr>
+<td>Product roadmap and priorities</td>
+<td>Namkha (with engineer input via RFC)</td>
+</tr>
+<tr>
+<td>Architecture decisions spanning zones</td>
+<td>RFC + all zone owners + Namkha</td>
+</tr>
+<tr>
+<td>Security and privacy posture</td>
+<td>RFC + Namkha (no exceptions)</td>
+</tr>
+<tr>
+<td>Branding, design tokens, marketing copy</td>
+<td>Namkha</td>
+</tr>
+<tr>
+<td>Naming a new module / file / API endpoint</td>
+<td>Engineer alone — but be readable</td>
+</tr>
+<tr>
+<td>Deleting v1 code in your zone</td>
+<td>Engineer alone if dead; RFC if anyone depends on it</td>
+</tr>
+<tr>
+<td>Refactoring inside your zone (no behavior change)</td>
+<td>Engineer alone</td>
+</tr>
+<tr>
+<td>Refactoring across zones</td>
+<td>RFC</td>
+</tr>
+<tr>
+<td>When to cut a release</td>
+<td>Backend owner (for backend) + Desktop owner (for desktop) +
+Namkha</td>
+</tr>
+<tr>
+<td>Public-facing announcement of unreleased features</td>
+<td>Namkha</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-default">The default</h3>
+<p>When in doubt, the default is <strong>"you decide, you tell the team
+afterward."</strong> We optimize for speed, not committee.</p>
+<h3 id="reversibility">Reversibility</h3>
+<p>Bezos's framing applies: irreversible decisions get RFCs; reversible
+decisions get tried. Ask "could we undo this in a week?" If yes, do it.
+If no, write it down first.</p>
+<h3 id="what-to-do-when-you-disagree-with-a-decision">What to do when
+you disagree with a decision</h3>
+<ul>
+<li>Say so. We don't punish disagreement; we punish silence followed by
+surprise.</li>
+<li>DM the relevant person, not the whole channel.</li>
+<li>Bring an alternative + tradeoff analysis, not just "I don't like
+X."</li>
+<li>Once a decision is made, commit to it. Don't relitigate in PR
+review.</li>
+</ul>
+<hr />
+<h2 id="5--the-no-asks-list">5 · The no-asks list</h2>
+<p>Things you do <strong>not</strong> need to ask permission for. Just
+do them.</p>
+<ul>
+<li>Open a PR — any time, any size</li>
+<li>Refactor inside your zone (no behavior change)</li>
+<li>Add a dep ≤1 MB with a permissive license — note it in the PR</li>
+<li>Pick library X over Y when both are reasonable and the choice is
+reversible</li>
+<li>Take Friday afternoon off if you shipped what you said you'd
+ship</li>
+<li>Block 4 hours on your calendar as deep work; skip non-essential
+meetings</li>
+<li>Decline a meeting that doesn't have an agenda</li>
+<li>Skip standup on a heads-down day (post your update async in
+<code>#engineering</code>)</li>
+<li>Write a blog post about your work (run drafts past Namkha for
+spoilers / IP)</li>
+<li>Speak at a meetup or conference about your work (let us know)</li>
+<li>Contribute to an open source project, including ones we depend
+on</li>
+<li>Try a new IDE, terminal setup, AI tool, prompt — your machine, your
+call</li>
+<li>Spend up to $200/month on tools that make you better at your job
+(Cursor, Linear, Figma, etc.) — submit the receipt</li>
+<li>Push a hotfix to production for a sev-1 bug, then write the
+postmortem (§ 9)</li>
+<li>Pair with another engineer for an hour without scheduling</li>
+</ul>
+<h3 id="things-you-do-need-to-ask-about">Things you <em>do</em> need to
+ask about</h3>
+<ul>
+<li>Adding a new vendor that sees user data (PII, captures,
+billing)</li>
+<li>Changes to the schema, the consent UX, or the privacy policy</li>
+<li>Major architectural changes (RFC)</li>
+<li>Anything legal, HR, or financial</li>
+<li>Spending company money over $200/month</li>
+<li>Speaking publicly about unreleased plans or financials</li>
+<li>Replying to press, analysts, or investors on the company's
+behalf</li>
+</ul>
+<p>The principle: the no-asks list is generous because we hire people we
+trust. If you abuse it, we'll talk about it in your 1:1, not in
+public.</p>
+<hr />
+<h2 id="6--async-updates-and-standup">6 · Async updates and standup</h2>
+<p>We don't do daily synchronous standup. We do async updates.</p>
+<h3 id="format">Format</h3>
+<p>Every weekday by <strong>11:00 local time</strong>, post in
+<code>#engineering</code>:</p>
+<pre><code>Yesterday: &lt;what shipped, links to PRs, blockers cleared&gt;
+Today: &lt;one or two things, links to RFCs or issues&gt;
+Blocked: &lt;anything in your way; tag people&gt;</code></pre>
+<p>That's it. No "please review" pings (open the PR; reviewers see it).
+No status theater.</p>
+<h3 id="why-async">Why async</h3>
+<ul>
+<li>Different focus windows don't collide</li>
+<li>Writing forces clarity</li>
+<li>Reading takes 60 seconds vs 30 minutes of standup</li>
+<li>Builds a searchable history of who did what</li>
+</ul>
+<h3 id="synchronous-weekly-kickoff">Synchronous weekly kickoff</h3>
+<p>Once a week, a 30-minute video on Monday morning. Goal: align on
+what's shipping this week, surface cross-zone dependencies, flag risks.
+Not a status round-robin. If there's nothing to align on, we cut it
+short.</p>
+<h3 id="no-meeting-wednesdays">No-meeting Wednesdays</h3>
+<p>No standups, no demos, no calls on Wednesdays. Deep work only. If you
+need to interrupt someone, ask first.</p>
+<hr />
+<h2 id="7--friday-demo--retro">7 · Friday demo + retro</h2>
+<p>End of the week, 60 minutes, video or in-person.</p>
+<h3 id="demo-30-min">Demo (30 min)</h3>
+<p>Each engineer shows what shipped that week. Working software, not
+slides. Includes bugs found, hard moments, surprising results. No prep
+beyond opening the app. Tone: casual.</p>
+<p>If you shipped nothing visible (you spent the week on infra,
+refactors, or research), demo the <em>artifact</em> — a graph, a diff, a
+doc, the new lock-free schema. The point is shared knowledge, not
+theater.</p>
+<h3 id="retro-30-min">Retro (30 min)</h3>
+<p>Three columns on a whiteboard or Miro:</p>
+<ul>
+<li><strong>What worked</strong> — keep doing</li>
+<li><strong>What didn't</strong> — fix it</li>
+<li><strong>What to try</strong> — experiments for next week</li>
+</ul>
+<p>Each person adds 1–3 items per column. We discuss the top 3
+most-voted items and pick action items with owners. The retro doc gets
+committed to <code>docs/retros/YYYY-MM-DD.md</code>.</p>
+<h3 id="why">Why</h3>
+<p>Demo makes work feel real and gives the team a shared sense of
+progress. Retro prevents friction from compounding into resentment.
+<strong>Skipping either is a bad smell</strong> — if there's nothing to
+demo, why? If there's no retro fuel, the team isn't stretching.</p>
+<hr />
+<h2 id="8--code-review">8 · Code review</h2>
+<h3 id="defaults">Defaults</h3>
+<ul>
+<li>Every PR gets at least one reviewer</li>
+<li>Default reviewer is a peer in or near the affected zone —
+<strong>not Namkha by default</strong></li>
+<li>Namkha reviews: architectural changes, anything labeled
+<code>needs-decision</code>, anything in the design system, anything
+touching consent / capture / security</li>
+<li><strong>Reviewers respond within 24 working hours of being
+requested</strong></li>
+<li>If you can't review in 24 hours, comment "can't get to this today,
+will tomorrow" — silent backlog is worse than late review</li>
+</ul>
+<h3 id="reviewer-etiquette">Reviewer etiquette</h3>
+<ul>
+<li>Be specific. "This is unclear" → "I expected <code>X</code> here
+based on the function name; can you rename or add a one-line
+comment?"</li>
+<li>Be kind. Code review is feedback on code, not on the engineer.</li>
+<li>Focus on this change. Don't ask for unrelated refactors — open a
+follow-up issue.</li>
+<li>Approve when you'd ship it, not when it's perfect.</li>
+<li>Use <code>nit:</code> prefix for non-blocking comments.</li>
+</ul>
+<h3 id="author-etiquette">Author etiquette</h3>
+<ul>
+<li>Address every comment before re-requesting review</li>
+<li>If you disagree, reply with reasoning — don't silently close</li>
+<li>Squash before merging</li>
+<li>The PR title becomes the commit message; make it readable</li>
+</ul>
+<h3 id="what-we-dont-do">What we don't do</h3>
+<ul>
+<li>We don't gate-keep PRs to make ourselves feel important</li>
+<li>We don't ask for major restructuring in review — that should have
+been an RFC</li>
+<li>We don't merge our own PRs without approval</li>
+<li>We don't <code>--no-verify</code> past failing hooks</li>
+</ul>
+<hr />
+<h2 id="9--on-call-and-incidents">9 · On-call and incidents</h2>
+<p>We don't have a formal rotation yet — too small. Instead:</p>
+<ul>
+<li><strong>Zone owner is primary on-call for their zone.</strong>
+Alerts route to them.</li>
+<li><strong>Sev-1</strong> (users can't use the product): all hands.
+Drop what you're doing.</li>
+<li><strong>Sev-2</strong> (degraded but functional): zone owner fixes
+within 1 working day.</li>
+<li><strong>Sev-3</strong> (specific edge case): add to backlog with
+<code>incident</code> label, fix this sprint or next.</li>
+</ul>
+<h3 id="postmortems">Postmortems</h3>
+<p>Every sev-1 and sev-2 gets a written postmortem within 5 working
+days. Template in <code>docs/postmortems/</code>.
+<strong>Blameless</strong> — we focus on the system that allowed the
+bug, not the person who shipped it.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Postmortem: &lt;one-line summary&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>**Date of incident:** YYYY-MM-DD</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>**Severity:** sev-1 | sev-2</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>**Duration:** <span class="dt">&lt;</span><span class="kw">minutes</span><span class="dt">&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>**Author:** <span class="dt">&lt;</span><span class="kw">name</span><span class="dt">&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">## What happened</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>Timeline of events. No blame.</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">## Impact</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>Who was affected, how many, for how long.</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">## Root cause</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>The system-level reason this was possible.</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## What worked</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>Detection, communication, fix — what went well.</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">## What didn&#39;t</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>Where we lost time or made the problem worse.</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="fu">## Action items</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> (owner) — what we&#39;re changing so this can&#39;t happen the same way</span></code></pre></div>
+<hr />
+<h2 id="10--quarterly-review--career-conversation">10 · Quarterly review
++ career conversation</h2>
+<p>Twice a year (every 13 weeks), each engineer has a structured review
+with Namkha. ~90 minutes.</p>
+<h3 id="format-1">Format</h3>
+<ol type="1">
+<li><strong>Engineer writes a self-eval</strong> the week before:
+<ul>
+<li>What I shipped (top 5)</li>
+<li>What I learned</li>
+<li>Where I want to grow</li>
+<li>Feedback for Namkha and the team</li>
+</ul></li>
+<li><strong>Peers write a paragraph each</strong> (anonymized): what
+this person is great at, what they should work on</li>
+<li><strong>Namkha synthesizes</strong> into a written review (~1
+page)</li>
+<li><strong>Conversation:</strong> walk through, no surprises, agree on
+next-quarter goals</li>
+<li><strong>Compensation discussion</strong> (if applicable) happens
+here, not in the moment</li>
+</ol>
+<h3 id="career-conversation-separate-45-min-mid-quarter">Career
+conversation (separate, ~45 min, mid-quarter)</h3>
+<ul>
+<li>Where do you want to be in two years?</li>
+<li>What skills do you want to build in the next quarter?</li>
+<li>What support do you need from me / the team?</li>
+<li>Are you growing? Are you bored?</li>
+</ul>
+<p><strong>Distinct from performance review on purpose.</strong> Career
+talk gets dwarfed if you yoke it to compensation.</p>
+<hr />
+<h2 id="11--onboarding-first-two-weeks">11 · Onboarding (first two
+weeks)</h2>
+<h3 id="week-1--orientation">Week 1 — Orientation</h3>
+<ul>
+<li>Day 1: laptop setup, accounts, read
+<code>08-plain-english-plan</code> and
+<code>04-pmf-and-v2-direction</code></li>
+<li>Days 2–4: Week 0 todo app exercise
+(<code>12-week0-todo-app-guide</code>)</li>
+<li>Day 5: code review with Namkha (20-min screen share)</li>
+</ul>
+<h3 id="week-2--first-contact-with-real-code">Week 2 — First contact
+with real code</h3>
+<ul>
+<li>Day 1: pair with Namkha on a tour of your zone in v2</li>
+<li>Day 2: write a 1-page RFC for your first significant piece of
+work</li>
+<li>Days 3–5: ship a small first PR — something visible enough to feel
+real, contained enough to ship in two days</li>
+</ul>
+<p>By end of Week 2 you should have: a green-building dev environment,
+an accepted RFC for your first real piece of work, one merged PR in the
+v2 repo, and a 1:1 doc with Namkha.</p>
+<hr />
+<h2 id="12--what-this-doc-is-not">12 · What this doc is not</h2>
+<ul>
+<li><strong>Not HR policy</strong> — PTO, benefits, leave: ask Namkha.
+We'll formalize when we hire person #5.</li>
+<li><strong>Not legal employment terms</strong> — those live in your
+offer letter and the IP assignment agreement.</li>
+<li><strong>Not a job description</strong> — your zone is a starting
+point, not a cage.</li>
+<li><strong>Not finished</strong> — this is a living doc. Open a PR
+against it whenever something breaks down or could be better.</li>
+</ul>
+<hr />
+<h2 id="13--sign-off-and-amendments">13 · Sign-off and amendments</h2>
+<p>This doc is reviewed quarterly. Changes happen via PR with at least
+one engineer + Namkha approving. If a section is silently being ignored,
+that's a signal — either the doc is wrong or the team is. We figure out
+which.</p>
+<p>Sections that get the most edits over time are usually the
+decision-rights matrix (§ 4) and the no-asks list (§ 5). That's
+expected; those are the lived boundaries.</p>
+<hr />
+<p><strong>Last updated:</strong> 2026-05-29 <strong>Owner:</strong>
+Namkha <strong>Next review:</strong> end of quarter</p>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>13 · 2026</span>
+</footer>
+
+</body>
+</html>

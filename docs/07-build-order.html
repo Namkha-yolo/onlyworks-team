@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build order · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>07 · 15 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 07 · Week-by-week</div>
+      <div class="title">Build order</div>
+      <div class="subtitle">Per-person task list across the 12 weeks.
+Dependencies. Definition-of-done per phase. What you do Monday
+morning.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>15 min</strong></span>
+        <span>Audience<strong>Builders</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-05-28</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#onlyworks-v20--build-order"
+id="toc-onlyworks-v20--build-order">OnlyWorks v2.0 — Build Order</a>
+<ul>
+<li><a href="#dependency-graph-high-level"
+id="toc-dependency-graph-high-level">Dependency Graph (high
+level)</a></li>
+<li><a href="#week-0-pre-week-1-3-4-days"
+id="toc-week-0-pre-week-1-3-4-days">Week 0 (Pre-week-1, ~3-4
+days)</a></li>
+<li><a href="#week-1--foundation-a" id="toc-week-1--foundation-a">Week 1
+— Foundation A</a></li>
+<li><a href="#week-2--foundation-b" id="toc-week-2--foundation-b">Week 2
+— Foundation B</a></li>
+<li><a href="#week-3--capture-consumers"
+id="toc-week-3--capture-consumers">Week 3 — Capture Consumers</a></li>
+<li><a href="#week-4--pipeline-complete"
+id="toc-week-4--pipeline-complete">Week 4 — Pipeline Complete</a></li>
+<li><a href="#week-5--worker-ui-core"
+id="toc-week-5--worker-ui-core">Week 5 — Worker UI Core</a></li>
+<li><a href="#week-6--worker-ui-finish"
+id="toc-week-6--worker-ui-finish">Week 6 — Worker UI Finish</a></li>
+<li><a href="#week-7--web--integration"
+id="toc-week-7--web--integration">Week 7 — Web + Integration</a></li>
+<li><a href="#week-8--pre-dogfood-hardening"
+id="toc-week-8--pre-dogfood-hardening">Week 8 — Pre-Dogfood
+Hardening</a></li>
+<li><a href="#week-9--dogfood-week-1"
+id="toc-week-9--dogfood-week-1">Week 9 — Dogfood Week 1</a></li>
+<li><a href="#week-10--dogfood-week-2--fixes"
+id="toc-week-10--dogfood-week-2--fixes">Week 10 — Dogfood Week 2 +
+Fixes</a></li>
+<li><a href="#week-11--soft-launch" id="toc-week-11--soft-launch">Week
+11 — Soft Launch</a></li>
+<li><a href="#week-12--iterate--launch"
+id="toc-week-12--iterate--launch">Week 12 — Iterate + Launch</a></li>
+<li><a href="#risks-by-phase" id="toc-risks-by-phase">Risks by
+Phase</a></li>
+<li><a href="#definition-of-done-per-phase"
+id="toc-definition-of-done-per-phase">Definition of Done (per
+phase)</a></li>
+<li><a href="#per-person-loadings-sanity-check"
+id="toc-per-person-loadings-sanity-check">Per-Person Loadings (sanity
+check)</a></li>
+<li><a href="#communication-cadence"
+id="toc-communication-cadence">Communication Cadence</a></li>
+<li><a href="#tools" id="toc-tools">Tools</a></li>
+<li><a href="#when-something-goes-wrong"
+id="toc-when-something-goes-wrong">When something goes wrong</a></li>
+</ul></li>
+</ul>
+
+<h1 id="onlyworks-v20--build-order">OnlyWorks v2.0 — Build Order</h1>
+<p>Week-by-week task list. 4 people: Namkha (founder) + Intern A (Stack
+&amp; UI) + Intern B (Auth &amp; Capture) + Intern C (Capture
+Engine).</p>
+<p>Each row in the per-week tables: who owns it + what gets shipped +
+dependencies. Tasks are sized to ~1 day unless noted; if a task is
+longer, it's split.</p>
+<h2 id="dependency-graph-high-level">Dependency Graph (high level)</h2>
+<pre><code>Week 1-2: Foundation
+   Stack scaffold ──┐
+   tRPC bridge      ├─→ All UI work (W5+)
+   Auth port        │
+                    │
+   CaptureEngine ───┴─→ Consumers (W3-4) ──→ Frame data to backend
+                                                      │
+   Stripe backend ──────────────────────────→ HM paid tier (W7-8)
+
+Week 3-4: Capture pipeline complete
+Week 5-6: Worker desktop UI
+Week 7-8: Web (HM dashboard + public profile)
+Week 9-10: Dogfood + bug fix
+Week 11-12: Soft launch</code></pre>
+<h2 id="week-0-pre-week-1-3-4-days">Week 0 (Pre-week-1, ~3-4 days)</h2>
+<p>Each intern, individually:</p>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Done when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Each intern</td>
+<td>Build tiny Electron + Vite + React + TS + tRPC todo app from
+template</td>
+<td>One tRPC procedure works end-to-end, builds + runs locally</td>
+</tr>
+<tr>
+<td>Each intern</td>
+<td>Read planning docs 02 and 04</td>
+<td>Can explain ICP + 3 revenue streams to Namkha in 5 min</td>
+</tr>
+<tr>
+<td>Each intern</td>
+<td>Get accounts: GitHub access, Apple Developer (macOS interns),
+Windows VM (Mac interns)</td>
+<td>Can build + sign locally</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Lock decisions 1-7 from <code>06-v2-kickoff-deck.md</code></td>
+<td>Decision doc written</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Set up <code>onlyworks_desktop_v2/</code> repo skeleton, GitHub
+Actions, CI signing</td>
+<td>First green build</td>
+</tr>
+</tbody>
+</table>
+<h2 id="week-1--foundation-a">Week 1 — Foundation A</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes / files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intern A</td>
+<td>Scaffold <code>onlyworks_desktop_v2/</code> with electron-vite +
+React 18 + TS + Tailwind v4 + shadcn/ui</td>
+<td>Use <code>electron-vite</code> create template; pin all deps</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Set up TanStack Router + TanStack Query + Zustand boilerplate</td>
+<td>Three routes: <code>/</code>, <code>/portfolio</code>,
+<code>/settings</code></td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Port <code>src/services/auto-updater.js</code> →
+<code>src/main/auto-updater.ts</code></td>
+<td>Don't refactor; convert JS → TS minimally</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Port <code>src/core/auto-updater-flow.js</code> →
+<code>src/main/auto-updater-flow.ts</code></td>
+<td>Wire to electron-updater</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Read v1 <code>src/services/capture-service.js</code> end to end.
+Write spec doc for <code>CaptureEngine</code></td>
+<td>1-page design doc — what events, what guards, what API</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Implement <code>CaptureEngine</code> skeleton: interval trigger +
+manual trigger + EventEmitter</td>
+<td>No consumers yet; just emit <code>frame</code> events</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: <code>POST /api/hiring/checkout</code> — create Stripe
+Checkout Session</td>
+<td>Stripe SDK install, env keys, basic flow</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Code-review every PR by EOD daily</td>
+<td>Set the bar</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 1 checkpoint:</strong> electron-vite app opens,
+shows "hello", builds + signs on macOS. Auto-updater wired (no UI yet).
+CaptureEngine fires <code>frame</code> events every 10s.</p>
+<h2 id="week-2--foundation-b">Week 2 — Foundation B</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intern A</td>
+<td>Implement tRPC over IPC bridge — <code>electron-trpc</code> or
+hand-rolled</td>
+<td>One end-to-end procedure: <code>capture.start()</code></td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Set up shadcn/ui base components: Button, Input, Card, Dialog,
+Tabs</td>
+<td>Copy from shadcn docs; no customization yet</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Port <code>src/services/backend-auth.js</code> →
+<code>src/main/backend-auth.ts</code></td>
+<td>Encrypted token store via electron-store</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Port <code>src/core/oauth-flow.js</code> +
+<code>src/core/token-refresh.js</code></td>
+<td>Sleep/wake handling intact</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Implement magic-link UI flow (renderer side): email input → wait
+state → success</td>
+<td>Backend endpoint already exists</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>CaptureEngine: add <code>click</code> + <code>Enter</code> +
+<code>clipboard-copy</code> triggers via uiohook-napi</td>
+<td>Port v1's trigger logic</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>CaptureEngine: add SHA-256 dedup + idle detection + auto-stop</td>
+<td>Port v1's guards</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: Stripe webhook handler —
+<code>customer.subscription.{created,updated,deleted}</code></td>
+<td>Idempotent, logs all events</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: <code>POST /api/hiring/portal</code> — create billing
+portal session</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 2 checkpoint:</strong> Magic-link signin works
+end-to-end (email → click link → app authed). CaptureEngine fires on
+interval + clicks + Enter. Stripe Checkout creates a customer; webhook
+flips <code>subscription_status='active'</code>.</p>
+<h2 id="week-3--capture-consumers">Week 3 — Capture Consumers</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intern A</td>
+<td>Implement OcrConsumer (macOS Vision path) — port
+<code>src/services/ocr-service.js</code> macOS branch</td>
+<td>Drop Tesseract entirely; just Vision binary</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Wire OcrConsumer to CaptureEngine event stream</td>
+<td>OCR text emitted alongside frame metadata</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Implement OcrConsumer (Windows OCR path) — port
+<code>windows-ocr.ps1</code> wrapper</td>
+<td>3-failure circuit breaker → skip OCR</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Wire OcrConsumer to backend: batch + send to
+<code>/api/pipeline/activity/stream</code> every 30s</td>
+<td>Port <code>activity-buffer-service.js</code> algorithm</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Implement TrainingDataConsumer skeleton</td>
+<td>Subscribes to frame events, gated on consent flag</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Implement consent storage (electron-store namespace) + consent
+token</td>
+<td>Token = hash of consent version + user ID + timestamp</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: per-user AI cost budget (text + vision combined)</td>
+<td>New <code>ai_usage_per_user_per_day</code> table</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: clean up dead code — delete <code>AIAnalysisService</code>
+mocks, <code>/api/backtest/*</code>, unused
+<code>@pinecone-database/pinecone</code> dep</td>
+<td>~0.5 days</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 3 checkpoint:</strong> Frames go through OCR on
+both platforms. Backend receives activity stream. TrainingDataConsumer
+exists but gated off (no consent UI yet).</p>
+<h2 id="week-4--pipeline-complete">Week 4 — Pipeline Complete</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intern A</td>
+<td>First-run onboarding flow scaffold (6 sub-screens)</td>
+<td>TanStack Router nested routes; no logic yet</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>First-run: welcome screen + permission grant screen (macOS)</td>
+<td>Port permission polling from <code>welcome.js</code></td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>First-run: permission grant screen (Windows) + magic-link signin
+step</td>
+<td>Re-use auth UI from week 2</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>macOS TCC permission relaunch logic — port
+<code>_launchTrustState</code> from <code>main.js</code></td>
+<td>Critical, do not skip</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>TrainingDataConsumer: full implementation — frame upload to
+<code>/api/pipeline/training/frames</code></td>
+<td>Include consent token in payload</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Port sensitive content filter — apply at CaptureEngine level (both
+consumers benefit)</td>
+<td><code>sensitive-filter.js</code> pattern from v1</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: talent community nurture worker (day-3 / day-14 / day-30
+emails via Resend)</td>
+<td><code>setInterval</code> in <code>src/app.js</code>, ~1 day</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: training data endpoints — accept frame + consent token,
+store with consent metadata</td>
+<td>New <code>training_frames</code> table</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 4 checkpoint:</strong> A new user can install,
+grant permissions, sign in via magic link, see "capture is running", and
+frames flow through OCR → backend + training (if consented) → backend.
+Sensitive content is filtered.</p>
+<h2 id="week-5--worker-ui-core">Week 5 — Worker UI Core</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intern A</td>
+<td>Status screen — capture state pill, session controls, this-week
+stats, quick toggles</td>
+<td>See <code>05-v2.0-scope.md</code> for layout</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Tray icon + state sync (running / paused / not granted)</td>
+<td>Port <code>src/core/tray-manager.js</code> patterns</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Portfolio screen — profile header, skill cards by category, evidence
+drawer</td>
+<td>Use <code>/api/me/portfolio</code> endpoint</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Portfolio: "Copy public link" → <code>/ow/{shareToken}</code></td>
+<td>Existing backend endpoint</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Privacy screen — training consent toggle, sensitive content rules,
+recent captures reel</td>
+<td>Recent captures are last 24h thumbnails or text</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Privacy: "Delete all captured data" with confirmation modal</td>
+<td>Wires to backend <code>DELETE /api/me/captures</code> (new
+endpoint)</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Backend: <code>DELETE /api/me/captures</code> — wipe user's training
+frames + activity log</td>
+<td>GDPR-aligned</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Public profile (web) — design polish, mobile-responsive</td>
+<td>Web team task if separate; Namkha owns otherwise</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 5 checkpoint:</strong> Worker can sign in, see
+capture status, view portfolio with their actual skills, view + adjust
+privacy settings.</p>
+<h2 id="week-6--worker-ui-finish">Week 6 — Worker UI Finish</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intern A</td>
+<td>Settings screen — account, appearance, notifications, sign-out</td>
+<td>Wire all to backend endpoints</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Global shortcut: <code>CmdOrCtrl+Shift+S</code> to toggle
+capture</td>
+<td>Port from v1's <code>registerGlobalShortcuts</code></td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>First-run: career-stage step (student / early-career / mid-career /
+just-tracking)</td>
+<td>Branches: student → .edu verification</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>First-run: "what you want to be hired for" step (job titles,
+locations, internship/FT)</td>
+<td>Save to backend <code>/api/me/preferences</code></td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>First-run: training data consent step (clear language, default
+ON)</td>
+<td>Critical UX — review with Namkha</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>First-run: "start your first session" final step</td>
+<td>Big CTA, capture starts, tray flips</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>HM dashboard scaffold (web) — search UI, job posts list, candidate
+detail</td>
+<td>Reuse existing <code>/api/hiring/*</code> endpoints</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Job Post Creation UI (web) — wire to existing
+<code>POST /api/hiring/jobs</code></td>
+<td>Per v2 roadmap P1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 6 checkpoint:</strong> Full onboarding flow works
+(install → 4-min setup → capturing). All 5 worker screens functional. HM
+dashboard exists on web.</p>
+<h2 id="week-7--web--integration">Week 7 — Web + Integration</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intern A</td>
+<td>Public profile page redesign (web)</td>
+<td>Use existing <code>/api/profiles/:owId</code></td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Public profile: "Open to opportunities" badge + Express Interest CTA
+(for HMs)</td>
+<td>Hides when viewing own profile</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>HM job post creation flow (web) — multi-step form: title,
+required/nice skills, exp level, location</td>
+<td>Validation via Zod</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>HM Express Interest flow (web) — modal from candidate profile, send
+via Resend</td>
+<td>Existing endpoint</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Worker desktop: notification system for Express Interest
+received</td>
+<td>OS-level via Electron Notification API</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Worker desktop: bug fixes from internal testing</td>
+<td>Whatever has surfaced</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Stripe paywall integration — gate <code>/api/hiring/jobs</code> POST
++ Express Interest by <code>subscription_status</code></td>
+<td>Wire Checkout to existing routes</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Express Interest email template — Resend HTML email</td>
+<td>"Hi [name], an HM viewed your verified portfolio and wants to
+talk."</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 7 checkpoint:</strong> HM can sign up → Stripe
+Checkout → become paid → post a job → search candidates → Express
+Interest → email goes out → candidate sees notification.</p>
+<h2 id="week-8--pre-dogfood-hardening">Week 8 — Pre-Dogfood
+Hardening</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All hands</td>
+<td>Internal integration test — full flow: install → onboard → capture
+for 4 hours → view portfolio → share profile → HM searches → Express
+Interest → reply</td>
+<td>Document every bug</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Performance: measure renderer memory + CPU after 8h capture</td>
+<td>Should be &lt;300MB RAM, &lt;5% CPU sustained</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Auto-updater test — deploy v2.0.0 → v2.0.1 → verify update flow on
+macOS + Windows</td>
+<td>Use opt-in beta channel</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Training data validation — query backend, confirm frames + consent
+metadata stored correctly</td>
+<td>SQL check on training_frames table</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Apple notarization end-to-end on CI (GitHub Actions)</td>
+<td>Was manual in v1; automate now</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Windows signing on CI</td>
+<td>EV cert in GitHub secrets</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>First soft-launch recipient list — email draft to ~14 v1 users</td>
+<td>Beta invite with opt-in</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 8 checkpoint:</strong> All flows work for an
+external user (not just internal). Builds are signed + notarized via CI.
+Bug list is empty or marked v2.0.1 candidates.</p>
+<h2 id="week-9--dogfood-week-1">Week 9 — Dogfood Week 1</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All hands</td>
+<td>Use v2.0 as primary capture tool. 8 hours/day each.</td>
+<td>Find bugs nobody else would</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Track UX papercuts — keep a shared doc</td>
+<td>Fix in week 10</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Track capture pipeline issues — frames missed, OCR errors, dedup
+failures</td>
+<td></td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Track training data flow — confirm captures, consent, deletion all
+work</td>
+<td></td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Track backend costs daily — Gemini spend, Stripe events, AI budget
+cap hits</td>
+<td>First real cost data</td>
+</tr>
+<tr>
+<td>All hands</td>
+<td>Daily 15-min retro: what broke today</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 9 checkpoint:</strong> Internal bug list is
+comprehensive. Backend cost projections are real numbers, not
+estimates.</p>
+<h2 id="week-10--dogfood-week-2--fixes">Week 10 — Dogfood Week 2 +
+Fixes</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All hands</td>
+<td>Fix all P0/P1 bugs from week 9</td>
+<td>Ship daily</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>UI polish — animations, loading states, error messages</td>
+<td>Make it feel finished</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Capture pipeline tuning — interval rate, idle threshold, sensitive
+filter rules</td>
+<td>Defaults that work for 80%+</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Consent UX refinement — A/B test 2 versions of training data toggle
+copy</td>
+<td>Pick winner before launch</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Soft-launch comms drafts — email to v1 users, content for
+r/cscareerquestions, hackathon partner pitch</td>
+<td></td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>First 3 HM warm intros — paid pilot offer ($99/mo free for 60
+days)</td>
+<td>Personal outreach</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 10 checkpoint:</strong> Bug list down to ~0
+P0/P1. Marketing assets ready. First 3 HM conversations scheduled.</p>
+<h2 id="week-11--soft-launch">Week 11 — Soft Launch</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Namkha</td>
+<td>Push v2.0.0 to opt-in beta channel</td>
+<td>Existing v1 users opt-in</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Email ~14 v1 users with invite + changelog</td>
+<td>"We rebuilt. Try it."</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>Outreach to 5-10 strangers who tested v1</td>
+<td>Personal email each</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>First HM pilot signups</td>
+<td>5 paid pilots target</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Hackathon partner pitch — 1-2 university hackathons</td>
+<td>Each intern uses their network</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Bootcamp partner pitch — 1 bootcamp partnership</td>
+<td>App Academy, GA, Lambda, Le Wagon, etc.</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>r/cscareerquestions soft post — "we built this thing for
+early-career devs to verify their skills"</td>
+<td>Read sub rules first; not spammy</td>
+</tr>
+<tr>
+<td>All hands</td>
+<td>Daily feedback channel monitoring — Slack/Discord/email</td>
+<td>Triage as it comes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 11 checkpoint:</strong> 50+ workers signed up. 3+
+HM pilots active. At least 1 hackathon or bootcamp partnership
+confirmed.</p>
+<h2 id="week-12--iterate--launch">Week 12 — Iterate + Launch</h2>
+<table>
+<thead>
+<tr>
+<th>Owner</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All hands</td>
+<td>Ship hotfixes daily based on feedback</td>
+<td>P0/P1 only; P2/P3 → v2.0.x</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>First public Product Hunt / Hacker News post — "Show HN: OnlyWorks
+v2 — verified work portfolios captured from your screen"</td>
+<td>Time for max visibility</td>
+</tr>
+<tr>
+<td>Namkha</td>
+<td>First marketing content — "How we built this" blog post + "How
+verified-by-capture differs from LinkedIn"</td>
+<td>Drives organic</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Public profile mobile QA — ensure responsive on phone</td>
+<td>HMs share these via mobile</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Capture engine hardening — edge cases from real users (long
+sessions, sleep/wake, multi-monitor)</td>
+<td></td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>Training data analytics dashboard (internal) — how much data
+flowing, opt-in rate, by user segment</td>
+<td>For our own decisions</td>
+</tr>
+<tr>
+<td>All hands</td>
+<td>Weekly retro — what worked, what didn't, v2.1 priorities</td>
+<td>Inform v2.1 sprint planning</td>
+</tr>
+</tbody>
+</table>
+<p><strong>End of week 12 checkpoint:</strong></p>
+<ul>
+<li>100+ weekly active workers</li>
+<li>5 paid HMs (<span class="math inline">500−</span>1,500 MRR)</li>
+<li>80% training opt-in</li>
+<li>30+ students</li>
+<li>1M+ training frames</li>
+<li>v2.1 scope confirmed</li>
+</ul>
+<h2 id="risks-by-phase">Risks by Phase</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Top risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W1-2 Foundation</td>
+<td>Stack choice bites us</td>
+<td>Build the tiny todo app first; if it hurts here, switch before week
+2</td>
+</tr>
+<tr>
+<td>W3-4 Capture</td>
+<td>macOS TCC / Windows uiohook regressions</td>
+<td>Port intact, don't refactor; lean on v1 fallback paths</td>
+</tr>
+<tr>
+<td>W5-6 UI</td>
+<td>Scope creep</td>
+<td>Strict "5 screens, no more" enforced in code review</td>
+</tr>
+<tr>
+<td>W7-8 Integration</td>
+<td>Stripe webhook misses</td>
+<td>Idempotent design + reconciliation job</td>
+</tr>
+<tr>
+<td>W9-10 Dogfood</td>
+<td>Backend cost surprise</td>
+<td>Daily cost dashboard from week 9</td>
+</tr>
+<tr>
+<td>W11-12 Launch</td>
+<td>Chicken-and-egg (no HMs → no Express Interests → no worker
+excitement)</td>
+<td>Namkha personally lands first 3 HMs in week 10</td>
+</tr>
+</tbody>
+</table>
+<h2 id="definition-of-done-per-phase">Definition of Done (per
+phase)</h2>
+<p>A phase is done when:</p>
+<ul>
+<li>All listed tasks merged to <code>main</code></li>
+<li>CI builds green (signed + notarized on both platforms)</li>
+<li>End-of-week checkpoint demo works for a fresh-install user</li>
+<li>No P0/P1 bugs open</li>
+</ul>
+<p>If a phase can't be marked done, <strong>stop and fix before starting
+the next phase.</strong> Don't pile work on a broken foundation.</p>
+<h2 id="per-person-loadings-sanity-check">Per-Person Loadings (sanity
+check)</h2>
+<table>
+<thead>
+<tr>
+<th>Person</th>
+<th>Major files / surfaces owned</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Namkha</td>
+<td>Backend Stripe + AI budget + nurture worker; web HM dashboard + Job
+Post UI; soft launch + first 5 HMs; code review weeks 1-4</td>
+</tr>
+<tr>
+<td>Intern A</td>
+<td>Stack scaffold + tRPC bridge + Status screen + Settings screen +
+Public profile redesign</td>
+</tr>
+<tr>
+<td>Intern B</td>
+<td>Auth + auto-updater port + OcrConsumer (Windows) + Portfolio screen
++ HM job post UI + Permissions flow</td>
+</tr>
+<tr>
+<td>Intern C</td>
+<td>CaptureEngine + sensitive filter + TrainingDataConsumer + Privacy
+screen + consent UX</td>
+</tr>
+</tbody>
+</table>
+<p>Each intern owns roughly 12-15 substantive tasks across 12 weeks.
+Roughly 1 task per business day after the week-1 ramp.</p>
+<h2 id="communication-cadence">Communication Cadence</h2>
+<ul>
+<li><strong>Daily standup</strong> (async on Slack, 5 min): yesterday /
+today / blockers</li>
+<li><strong>Weekly demo Friday</strong>: 30 min, each person shows what
+shipped</li>
+<li><strong>Friday retro</strong> (30 min): what worked, what didn't,
+adjust week+1 plan</li>
+<li><strong>Pair programming sessions</strong>: Namkha + each intern,
+2x/week for weeks 1-4</li>
+<li><strong>No-meeting Wednesdays</strong>: deep work only</li>
+</ul>
+<h2 id="tools">Tools</h2>
+<ul>
+<li><strong>Code:</strong> GitHub (existing repo, new directory)</li>
+<li><strong>CI:</strong> GitHub Actions</li>
+<li><strong>Issue tracking:</strong> GitHub Issues + labels
+(<code>week-1</code>, <code>intern-a</code>, <code>priority-p0</code>,
+etc.)</li>
+<li><strong>Communication:</strong> Slack (or Discord) — one channel for
+the team</li>
+<li><strong>Design:</strong> Figma for any mockups (free tier)</li>
+<li><strong>Docs:</strong> This <code>CLAUDE/planning/</code> directory
+— keep current</li>
+</ul>
+<h2 id="when-something-goes-wrong">When something goes wrong</h2>
+<p>Hierarchy of fallbacks:</p>
+<ol type="1">
+<li><strong>Ask the team in Slack</strong> — likely someone has hit
+it</li>
+<li><strong>Read v1 code</strong> — most platform-specific issues have
+an answer there</li>
+<li><strong>Check <code>01-component-inventory.md</code> and
+<code>03-architecture-review.md</code></strong> — they document the
+gotchas</li>
+<li><strong>Ping Namkha</strong> — for stuff that needs decisions or
+really doesn't have an answer</li>
+<li><strong>Open a GitHub Issue with
+<code>needs-decision</code></strong> — if it'll block multiple
+people</li>
+</ol>
+<p><strong>Do not silently pivot the design.</strong> If a screen needs
+a structure change, propose in Slack, get a thumbs-up, then change.</p>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>07 · 2026</span>
+</footer>
+
+</body>
+</html>
