@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OnlyWorks v2 · Intern Stack Docs</title>
+  <meta name="description" content="Everything an intern needs to read and watch before writing v2 code. React, TypeScript, Electron, Supabase, plus the AI training stack.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="../index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">v2 Stack Docs</span>
+  </a>
+  <div class="nav-meta">
+    <a href="../index.html">Planning index</a>
+    <a href="#tracks">Tracks</a>
+    <a href="prerequisites.html">Start here →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">Intern docs · v2 stack</div>
+      <h1>Learn the <em>v2 stack.</em></h1>
+      <p class="lede">Everything you need to read and watch before you write a line of production code on OnlyWorks v2. Pick a track, follow the order, build the mini-projects.</p>
+    </header>
+
+    <section>
+      <h2>How to use these docs</h2>
+      <p>Each page covers <strong>one piece of the v2 stack</strong>: why we use it, what to learn, the best official docs and YouTube videos to start with, deeper resources for when you want to go further, and a hands-on mini-project to prove to yourself that you actually understood it.</p>
+      <p>You will <strong>not</strong> learn everything at once. The goal is to read enough that you can open a v2 PR, follow what's going on, and ask better questions. Treat this as a reference you come back to, not a one-time slog.</p>
+      <div class="callout">
+        <div class="label-tag">Before you start any track</div>
+        <p>Work through <a href="prerequisites.html">Prerequisites</a>. It covers Git, the command line, modern JavaScript, Node, and the few HTTP / browser concepts the rest of the docs assume.</p>
+      </div>
+    </section>
+
+    <section id="tracks">
+      <h2>Pick your track</h2>
+      <p>New interns rotate through tracks. You'll likely focus on one for your first 4&ndash;6 weeks and then read the others as you collaborate across the team.</p>
+
+      <div class="track-grid">
+        <div class="track-card">
+          <h3>Desktop app</h3>
+          <p>The Electron client. Capture, OCR, IPC, native modules, auto-update.</p>
+          <ol>
+            <li><a href="typescript.html">TypeScript</a></li>
+            <li><a href="react.html">React 18</a></li>
+            <li><a href="vite.html">Vite</a></li>
+            <li><a href="tailwind.html">Tailwind</a> + <a href="shadcn-ui.html">shadcn/ui</a></li>
+            <li><a href="tanstack-query.html">TanStack Query</a> + <a href="tanstack-router.html">Router</a></li>
+            <li><a href="zustand.html">Zustand</a> + <a href="react-hook-form-zod.html">RHF + Zod</a></li>
+            <li><a href="electron.html">Electron</a> + <a href="electron-vite.html">electron-vite</a></li>
+            <li><a href="trpc.html">tRPC (over IPC)</a></li>
+            <li><a href="native-modules.html">Native modules</a> + <a href="macos-vision-ocr.html">macOS OCR</a> + <a href="windows-ocr.html">Win OCR</a></li>
+            <li><a href="electron-builder.html">electron-builder</a> for release</li>
+          </ol>
+          <div class="duration-est">4&ndash;6 weeks</div>
+        </div>
+
+        <div class="track-card">
+          <h3>Backend</h3>
+          <p>The Express server, Supabase Postgres, JWT auth, AI pipeline endpoints.</p>
+          <ol>
+            <li><a href="typescript.html">TypeScript</a></li>
+            <li><a href="nodejs-express.html">Node.js + Express</a></li>
+            <li><a href="supabase.html">Supabase</a> (Postgres, RLS, auth)</li>
+            <li><a href="vitest.html">Vitest</a> for backend tests</li>
+            <li><a href="huggingface-transformers.html">Hugging Face</a> (AI pipeline)</li>
+            <li><a href="vision-language-models.html">Vision-Language Models</a></li>
+          </ol>
+          <div class="duration-est">3&ndash;4 weeks</div>
+        </div>
+
+        <div class="track-card">
+          <h3>Website</h3>
+          <p>The Next.js marketing site, public profiles, hiring search, Talent Community.</p>
+          <ol>
+            <li><a href="typescript.html">TypeScript</a></li>
+            <li><a href="react.html">React 18</a></li>
+            <li><a href="tailwind.html">Tailwind</a> + <a href="shadcn-ui.html">shadcn/ui</a></li>
+            <li><a href="nextjs.html">Next.js 14 App Router</a></li>
+            <li><a href="supabase.html">Supabase</a> auth helpers</li>
+            <li><a href="playwright.html">Playwright</a> for E2E</li>
+          </ol>
+          <div class="duration-est">3 weeks</div>
+        </div>
+
+        <div class="track-card">
+          <h3>AI / model training</h3>
+          <p>Train the OnlyWorks proprietary multimodal model that will replace Gemini at scale.</p>
+          <ol>
+            <li><a href="python-pytorch.html">Python + PyTorch</a></li>
+            <li><a href="huggingface-transformers.html">Hugging Face Transformers</a></li>
+            <li><a href="vision-language-models.html">Vision-Language Models</a></li>
+            <li><a href="dataset-prep.html">Dataset preparation</a></li>
+            <li><a href="fine-tuning-lora.html">Fine-tuning (LoRA / QLoRA)</a></li>
+            <li><a href="training-infrastructure.html">Training infrastructure</a></li>
+            <li><a href="wandb-mlops.html">Weights &amp; Biases + MLOps</a></li>
+          </ol>
+          <div class="duration-est">6&ndash;8 weeks before serious fine-tuning</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>What you'll be doing in v2</h2>
+      <p>OnlyWorks v2 is a rebuild of the Electron desktop app. Read <code>docs/03-architecture-review.html</code> for the strategic rationale. The short version:</p>
+      <ul>
+        <li><strong>Throw away the renderer.</strong> 37 <code>&lt;script&gt;</code> tags, 5,700 lines of CSS, <code>innerHTML</code> string templating, manually-mirrored <code>window.*</code> exports. Replace with React + TypeScript + Vite + Tailwind + shadcn/ui.</li>
+        <li><strong>Keep the native plumbing.</strong> Capture loop, OCR helpers (Swift binary on macOS, PowerShell wrapper on Windows), auto-updater, OAuth + token refresh. Years of platform bug fixes embedded; we port, we don't rewrite.</li>
+        <li><strong>Restructure the capture pipeline.</strong> One unified CaptureEngine emitting screenshot events to multiple consumers (OCR, training data, metrics) instead of two parallel 1,400-line god classes.</li>
+        <li><strong>Replace the 169-channel IPC bridge</strong> with tRPC over IPC so renderer↔main is typed end-to-end. The handlers that are just HTTP pass-throughs fold into direct <code>fetch</code> calls from the renderer.</li>
+        <li><strong>Train our own multimodal model</strong> on the screenshot + activity data flowing through the training pipeline. Goal: replace Gemini at scale once we have enough labeled frames.</li>
+      </ul>
+    </section>
+
+    <section id="all-docs">
+      <h2>All documentation</h2>
+
+      <div class="doc-list-section">
+        <h3>0 · Foundations</h3>
+        <ul class="doc-list">
+          <li><a href="prerequisites.html"><span class="doc-num">00</span><span class="doc-title">Prerequisites</span><span class="doc-desc">Git, CLI, JS, Node, HTTP — what every track assumes</span></a></li>
+        </ul>
+      </div>
+
+      <div class="doc-list-section">
+        <h3>Frontend foundations</h3>
+        <ul class="doc-list">
+          <li><a href="typescript.html"><span class="doc-num">01</span><span class="doc-title">TypeScript</span><span class="doc-desc">Types replace most of the defensive runtime code</span></a></li>
+          <li><a href="react.html"><span class="doc-num">02</span><span class="doc-title">React 18</span><span class="doc-desc">Components, hooks, suspense — the modern React API</span></a></li>
+          <li><a href="vite.html"><span class="doc-num">03</span><span class="doc-title">Vite</span><span class="doc-desc">The dev server and bundler. Hot reload, plugins, build</span></a></li>
+          <li><a href="tailwind.html"><span class="doc-num">04</span><span class="doc-title">Tailwind CSS</span><span class="doc-desc">Utility classes, design tokens, dark mode</span></a></li>
+          <li><a href="shadcn-ui.html"><span class="doc-num">05</span><span class="doc-title">shadcn/ui</span><span class="doc-desc">Copy-paste components built on Radix + Tailwind</span></a></li>
+        </ul>
+      </div>
+
+      <div class="doc-list-section">
+        <h3>State, data, forms</h3>
+        <ul class="doc-list">
+          <li><a href="tanstack-query.html"><span class="doc-num">06</span><span class="doc-title">TanStack Query</span><span class="doc-desc">Server state, caching, mutations, stale-while-revalidate</span></a></li>
+          <li><a href="tanstack-router.html"><span class="doc-num">07</span><span class="doc-title">TanStack Router</span><span class="doc-desc">Type-safe routing for the desktop app</span></a></li>
+          <li><a href="zustand.html"><span class="doc-num">08</span><span class="doc-title">Zustand</span><span class="doc-desc">UI state without the Redux ceremony</span></a></li>
+          <li><a href="react-hook-form-zod.html"><span class="doc-num">09</span><span class="doc-title">React Hook Form + Zod</span><span class="doc-desc">Forms with schema validation, no boilerplate</span></a></li>
+        </ul>
+      </div>
+
+      <div class="doc-list-section">
+        <h3>Desktop shell</h3>
+        <ul class="doc-list">
+          <li><a href="electron.html"><span class="doc-num">10</span><span class="doc-title">Electron</span><span class="doc-desc">Main process, renderer, preload, security model</span></a></li>
+          <li><a href="electron-vite.html"><span class="doc-num">11</span><span class="doc-title">electron-vite</span><span class="doc-desc">Dev server + builder for Electron + React</span></a></li>
+          <li><a href="electron-builder.html"><span class="doc-num">12</span><span class="doc-title">electron-builder + updater</span><span class="doc-desc">DMG, NSIS, signing, notarization, auto-update</span></a></li>
+          <li><a href="trpc.html"><span class="doc-num">13</span><span class="doc-title">tRPC (over IPC)</span><span class="doc-desc">End-to-end typed APIs and IPC channels</span></a></li>
+        </ul>
+      </div>
+
+      <div class="doc-list-section">
+        <h3>Native plumbing</h3>
+        <ul class="doc-list">
+          <li><a href="native-modules.html"><span class="doc-num">14</span><span class="doc-title">Native modules</span><span class="doc-desc">uIOhook, active-win, sharp, asarUnpack</span></a></li>
+          <li><a href="macos-vision-ocr.html"><span class="doc-num">15</span><span class="doc-title">macOS Vision OCR</span><span class="doc-desc">Swift binary calling the Vision framework</span></a></li>
+          <li><a href="windows-ocr.html"><span class="doc-num">16</span><span class="doc-title">Windows OCR</span><span class="doc-desc">PowerShell wrapper around Windows.Media.Ocr</span></a></li>
+        </ul>
+      </div>
+
+      <div class="doc-list-section">
+        <h3>Backend &amp; website</h3>
+        <ul class="doc-list">
+          <li><a href="nodejs-express.html"><span class="doc-num">17</span><span class="doc-title">Node.js + Express</span><span class="doc-desc">Server, middleware, routing, error handling</span></a></li>
+          <li><a href="supabase.html"><span class="doc-num">18</span><span class="doc-title">Supabase</span><span class="doc-desc">Postgres, RLS, auth, storage, edge functions</span></a></li>
+          <li><a href="nextjs.html"><span class="doc-num">19</span><span class="doc-title">Next.js 14</span><span class="doc-desc">App Router, server components, SSR for the website</span></a></li>
+        </ul>
+      </div>
+
+      <div class="doc-list-section">
+        <h3>Testing</h3>
+        <ul class="doc-list">
+          <li><a href="vitest.html"><span class="doc-num">20</span><span class="doc-title">Vitest</span><span class="doc-desc">Unit + integration tests, mocks, snapshots</span></a></li>
+          <li><a href="playwright.html"><span class="doc-num">21</span><span class="doc-title">Playwright</span><span class="doc-desc">End-to-end browser + Electron testing</span></a></li>
+        </ul>
+      </div>
+
+      <div class="doc-list-section">
+        <h3>AI / model training</h3>
+        <ul class="doc-list">
+          <li><a href="python-pytorch.html"><span class="doc-num">22</span><span class="doc-title">Python + PyTorch</span><span class="doc-desc">Tensors, autograd, training loops, the basics</span></a></li>
+          <li><a href="huggingface-transformers.html"><span class="doc-num">23</span><span class="doc-title">Hugging Face Transformers</span><span class="doc-desc">Models, tokenizers, datasets, the Hub</span></a></li>
+          <li><a href="vision-language-models.html"><span class="doc-num">24</span><span class="doc-title">Vision-Language Models</span><span class="doc-desc">CLIP, LLaVA, Qwen-VL — what we're building toward</span></a></li>
+          <li><a href="fine-tuning-lora.html"><span class="doc-num">25</span><span class="doc-title">Fine-tuning with LoRA</span><span class="doc-desc">LoRA, QLoRA, PEFT — affordable model adaptation</span></a></li>
+          <li><a href="dataset-prep.html"><span class="doc-num">26</span><span class="doc-title">Dataset preparation</span><span class="doc-desc">Cleaning, labeling, augmentation, splits</span></a></li>
+          <li><a href="training-infrastructure.html"><span class="doc-num">27</span><span class="doc-title">Training infrastructure</span><span class="doc-desc">GPU rentals (Modal, RunPod, Lambda)</span></a></li>
+          <li><a href="wandb-mlops.html"><span class="doc-num">28</span><span class="doc-title">W&amp;B + MLOps</span><span class="doc-desc">Experiment tracking, model registry, eval pipelines</span></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>House rules</h2>
+      <ul>
+        <li><strong>Default to the official docs.</strong> Tutorials and YouTube are best for getting the shape of a concept; the docs are where you go to be correct.</li>
+        <li><strong>One thing at a time.</strong> Don't try to learn TypeScript + React + Vite + Tailwind in the same week. Pick one, build something tiny, ship it, then pick the next.</li>
+        <li><strong>Build the mini-project on every page.</strong> If you skip it, you didn't learn the thing &mdash; you just watched videos.</li>
+        <li><strong>Ask before you spend.</strong> GPU rentals, paid Hugging Face plans, W&amp;B teams &mdash; ping the founders before you charge anything.</li>
+        <li><strong>Privacy is load-bearing.</strong> The desktop captures screen content. Every line of code that touches a screenshot is governed by our sensitive-content filter and the user's consent settings. When in doubt, ask.</li>
+      </ul>
+    </section>
+
+    <div class="next-prev">
+      <span></span>
+      <a class="next" href="prerequisites.html">
+        <span class="label-small">Start here</span>
+        Prerequisites →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

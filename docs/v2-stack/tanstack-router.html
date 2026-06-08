@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TanStack Router · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="tanstack-query.html">← TanStack Query</a>
+    <a href="zustand.html">Next: Zustand →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">07 · State &amp; data</div>
+      <h1>Tan<em>Stack Router</em></h1>
+      <p class="lede">Type-safe routing. Replaces v1's <code>showSection()</code> switch statement with real routes, real history, real type-checked link params.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The v1 renderer "routes" by clobbering <code>#main-content.innerHTML</code> via a switch statement in <code>router.js</code>. There's no URL state, no back button, no shareable state. If you want to navigate to a specific report, you call <code>viewReportDetails(reportId)</code> and pray that function exists on <code>window</code>.</p>
+      <p>TanStack Router gives us:</p>
+      <ul>
+        <li><strong>Type-safe links and params.</strong> If you typo <code>/reports/$reprotId</code>, the compiler errors.</li>
+        <li><strong>URL state.</strong> The user can refresh and end up on the same page. Deep links work.</li>
+        <li><strong>Route-level data loaders.</strong> Each route declares its data dependencies; Suspense + TanStack Query orchestrates loading.</li>
+        <li><strong>Code splitting for free.</strong> Each route is a dynamic import.</li>
+        <li><strong>Browser-history-aware back button.</strong> Even in Electron, where the user's instinct to "go back" works correctly.</li>
+      </ul>
+      <p>The alternative is React Router. We pick TanStack Router for the type safety: it's the only React router where route paths and search params are typed end-to-end.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>The mental model</strong> &mdash; file-based vs code-based route definitions (we use code-based for the desktop)</li>
+        <li><strong><code>createRouter</code></strong>, <code>createRoute</code>, route trees, <code>RouterProvider</code></li>
+        <li><strong>Path params</strong> &mdash; <code>$reportId</code> typed via the route definition</li>
+        <li><strong>Search params</strong> &mdash; typed and validated via Zod schemas</li>
+        <li><strong><code>&lt;Link&gt;</code></strong> &mdash; type-checked <code>to</code>, params, search</li>
+        <li><strong><code>useNavigate</code></strong>, programmatic navigation</li>
+        <li><strong>Route loaders</strong> &mdash; running before the route mounts, returning data via Suspense</li>
+        <li><strong>Route context</strong> &mdash; sharing auth, theme, query client into routes</li>
+        <li><strong>Layouts</strong> &mdash; parent routes that wrap children (e.g. an app shell with sidebar)</li>
+        <li><strong>Pending / error UI</strong> &mdash; <code>pendingComponent</code>, <code>errorComponent</code></li>
+        <li><strong>Code splitting</strong> via <code>lazyRouteComponent</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://tanstack.com/router/latest" target="_blank">tanstack.com/router</a> &mdash; main site.</li>
+        <li><a href="https://tanstack.com/router/latest/docs/framework/react/overview" target="_blank">React overview</a></li>
+        <li><a href="https://tanstack.com/router/latest/docs/framework/react/quick-start" target="_blank">Quick Start</a></li>
+        <li><a href="https://tanstack.com/router/latest/docs/framework/react/guide/data-loading" target="_blank">Data Loading guide</a> (this is where it shines)</li>
+        <li><a href="https://tanstack.com/router/latest/docs/framework/react/guide/search-params" target="_blank">Search Params guide</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — TanStack Router tutorials</a></div>
+          <p class="desc">Search "Jack Herrington TanStack Router". The clearest type-safety-first walkthroughs.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — Why TanStack Router</a></div>
+          <p class="desc">Theo's strong-take on TanStack Router vs React Router. Good for the "why this and not that" question.</p>
+        </div>
+        <span class="duration">20m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Tanner Linsley · Conference talks</div>
+          <div class="title"><a href="https://www.youtube.com/results?search_query=tanner+linsley+tanstack+router" target="_blank">Tanner's own talks on TanStack Router</a></div>
+          <p class="desc">The author's conference talks (React Summit, Reactathon). Best for the design rationale.</p>
+        </div>
+        <span class="duration">30m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Cody</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevCody" target="_blank">Web Dev Cody — TanStack Router practical videos</a></div>
+          <p class="desc">Real-world patterns, not just docs walkthroughs.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Defining routes</h4>
+<pre><code>// src/routes/__root.tsx
+import { createRootRoute, Outlet } from '@tanstack/react-router';
+
+export const rootRoute = createRootRoute({
+  component: () =&gt; (
+    &lt;div className="flex h-screen"&gt;
+      &lt;Sidebar /&gt;
+      &lt;main className="flex-1 overflow-auto"&gt;
+        &lt;Outlet /&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  ),
+});
+
+// src/routes/reports/$reportId.tsx
+import { createRoute } from '@tanstack/react-router';
+
+export const reportRoute = createRoute({
+  getParentRoute: () =&gt; rootRoute,
+  path: '/reports/$reportId',
+  loader: ({ params }) =&gt; queryClient.ensureQueryData({
+    queryKey: ['report', params.reportId],
+    queryFn: () =&gt; trpc.reports.get.query({ id: params.reportId }),
+  }),
+  component: ReportDetail,
+});
+
+function ReportDetail() {
+  const { reportId } = reportRoute.useParams();
+  const { data } = useSuspenseQuery({
+    queryKey: ['report', reportId],
+    queryFn: () =&gt; trpc.reports.get.query({ id: reportId }),
+  });
+  return &lt;ReportView report={data} /&gt;;
+}</code></pre>
+
+      <h4>Typed Links</h4>
+<pre><code>&lt;Link to="/reports/$reportId" params={{ reportId: r.id }}&gt;
+  Open
+&lt;/Link&gt;
+
+// Typo &lt;Link to="/repor/$reportId" /&gt; — compile error.
+// Missing params — compile error.</code></pre>
+
+      <h4>Search params with Zod validation</h4>
+<pre><code>const searchSchema = z.object({
+  filter: z.enum(['all', 'active', 'completed']).default('all'),
+  page: z.number().int().min(1).default(1),
+});
+
+export const sessionsRoute = createRoute({
+  getParentRoute: () =&gt; rootRoute,
+  path: '/sessions',
+  validateSearch: searchSchema,
+  component: SessionsList,
+});
+
+function SessionsList() {
+  const { filter, page } = sessionsRoute.useSearch();
+  // filter and page are typed exactly as the schema says.
+}</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a small typed-routing app on top of your GitHub browser:</p>
+        <ol>
+          <li>Install <code>@tanstack/react-router</code> and the devtools.</li>
+          <li>Three routes: <code>/</code> (search form), <code>/u/$username</code> (user's repos), <code>/u/$username/r/$repoName</code> (one repo's detail).</li>
+          <li>Use <code>validateSearch</code> on the user route to accept a typed <code>?sort=stars|updated</code>.</li>
+          <li>Use <code>Link</code> with typed params throughout. Deliberately typo a path and watch the compile error.</li>
+          <li>Add a route loader that pre-fetches the data via TanStack Query before mounting.</li>
+          <li>Add a parent layout route that renders a back button + breadcrumbs.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The desktop has ~12 top-level routes: dashboard, sessions, activity, reports, report detail, session detail, settings, OW profile, manager, etc. v2 represents each one as a real route. Sidebar nav becomes typed <code>&lt;Link&gt;</code>s. The <code>viewReportDetails(id)</code> pattern becomes <code>navigate({ to: '/reports/$reportId', params: { reportId: id } })</code>.</p>
+      <p>For deep linking (opening the app at a specific report), the Electron <code>onlyworks://</code> protocol handler just turns the URL into a router navigation. No more "if route is /report, load it via window.viewReportDetails" hacks.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="tanstack-query.html">
+        <span class="label-small">Previous</span>
+        TanStack Query
+      </a>
+      <a class="next" href="zustand.html">
+        <span class="label-small">Next</span>
+        Zustand →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

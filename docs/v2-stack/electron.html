@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electron · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="react-hook-form-zod.html">← Forms</a>
+    <a href="electron-vite.html">Next: electron-vite →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">10 · Desktop shell</div>
+      <h1><em>Electron</em></h1>
+      <p class="lede">The shell. Chromium + Node.js, glued together. Capture, OCR, tray, deep links, auto-update — all the things a browser can't do.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>OnlyWorks needs to: capture the screen, monitor keyboard and mouse, persist tokens encrypted on disk, run native OCR binaries, sit in the system tray, handle <code>onlyworks://</code> deep links, auto-update itself silently, and survive sleep/wake without losing the user's session. None of those are possible from a browser tab.</p>
+      <p>Electron gives us a Node.js process (the <strong>main</strong> process) that can do all of that, plus a Chromium window (the <strong>renderer</strong>) that shows the UI. They talk via IPC, which we'll wrap with <a href="trpc.html">tRPC</a>.</p>
+      <p>Tauri (Rust + native webview) is more elegant for some of this, but the rough edges that matter to OnlyWorks &mdash; <code>desktopCapturer</code>, screen-recording permission flow on macOS, the Mica backdrop on Windows, <code>active-win</code> binding, code-signing, auto-updates &mdash; are first-class in Electron and DIY in Tauri. We stay on Electron until the maintenance gap closes.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>Architecture</h3>
+      <ul>
+        <li><strong>Main process</strong> &mdash; one per app. Has full Node.js APIs, can spawn windows, do IPC, touch the filesystem, etc.</li>
+        <li><strong>Renderer process</strong> &mdash; one per <code>BrowserWindow</code>. Sandboxed Chromium. Has DOM APIs, can't <code>require('fs')</code>.</li>
+        <li><strong>Preload script</strong> &mdash; runs in the renderer's context with limited Node access. The <strong>only</strong> safe bridge between the two.</li>
+        <li><strong>contextIsolation: true</strong> &mdash; mandatory. Exposes APIs to renderer via <code>contextBridge.exposeInMainWorld</code>.</li>
+        <li><strong>nodeIntegration: false</strong> &mdash; mandatory. Renderer should never have raw Node access.</li>
+      </ul>
+
+      <h3>Core APIs</h3>
+      <ul>
+        <li><strong><code>app</code></strong> &mdash; lifecycle: <code>whenReady</code>, <code>quit</code>, <code>relaunch</code>, single instance lock</li>
+        <li><strong><code>BrowserWindow</code></strong> &mdash; create &amp; manage windows, web preferences, title bar style</li>
+        <li><strong><code>ipcMain.handle</code> / <code>ipcRenderer.invoke</code></strong> &mdash; async IPC. Use this; we'll wrap it in tRPC later.</li>
+        <li><strong><code>contextBridge</code></strong> &mdash; expose typed APIs to <code>window.electronAPI</code></li>
+        <li><strong><code>shell</code></strong> &mdash; <code>openExternal</code>, <code>openPath</code></li>
+        <li><strong><code>Tray</code></strong> &mdash; menu bar / system tray icons</li>
+        <li><strong><code>Menu</code></strong> &mdash; application menus, context menus</li>
+        <li><strong><code>globalShortcut</code></strong> &mdash; system-wide hotkeys (we use one for toggle-session)</li>
+        <li><strong><code>desktopCapturer</code></strong> &mdash; screenshots of any screen / window</li>
+        <li><strong><code>systemPreferences</code></strong> &mdash; macOS TCC (Accessibility, Screen Recording) trust checks</li>
+        <li><strong><code>powerMonitor</code></strong> &mdash; sleep/wake/lock events</li>
+        <li><strong><code>Notification</code></strong> &mdash; native OS notifications</li>
+        <li><strong><code>protocol</code></strong> &mdash; custom URL schemes (<code>onlyworks://</code>)</li>
+      </ul>
+
+      <h3>Security</h3>
+      <ul>
+        <li><strong>contextIsolation + sandboxing</strong> &mdash; always on</li>
+        <li><strong>Content Security Policy</strong> &mdash; restrict what the renderer can load</li>
+        <li><strong>Validate IPC inputs</strong> &mdash; the renderer is untrusted. Use Zod.</li>
+        <li><strong>Don't <code>require</code> in the renderer</strong> &mdash; ever</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://www.electronjs.org/docs/latest" target="_blank">electronjs.org/docs</a> &mdash; main docs.</li>
+        <li><a href="https://www.electronjs.org/docs/latest/tutorial/quick-start" target="_blank">Quick Start tutorial</a></li>
+        <li><a href="https://www.electronjs.org/docs/latest/tutorial/process-model" target="_blank">Process Model</a> &mdash; the one thing you must understand cold.</li>
+        <li><a href="https://www.electronjs.org/docs/latest/tutorial/security" target="_blank">Security checklist</a> &mdash; read every line.</li>
+        <li><a href="https://www.electronjs.org/docs/latest/tutorial/ipc" target="_blank">IPC patterns</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Fireship</div>
+          <div class="title"><a href="https://www.youtube.com/watch?v=NSk6T_KFCrM" target="_blank">Electron in 100 seconds + full tutorials</a></div>
+          <p class="desc">Quick vibes check, then watch his longer Electron tutorial.</p>
+        </div>
+        <span class="duration">2m + 1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">The Net Ninja</div>
+          <div class="title"><a href="https://www.youtube.com/@NetNinja" target="_blank">Electron tutorial playlist</a></div>
+          <p class="desc">Older but solid intro to main/renderer/preload split. Good for the mental model. Search "Net Ninja Electron".</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Niall Maher · Codu</div>
+          <div class="title"><a href="https://www.youtube.com/@NiallMaher" target="_blank">Niall — Build a desktop app with Electron + React</a></div>
+          <p class="desc">Modern Electron + React + Vite setup, closer to what we use in v2.</p>
+        </div>
+        <span class="duration">1h+</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Traversy Media</div>
+          <div class="title"><a href="https://www.youtube.com/@TraversyMedia" target="_blank">Traversy — Electron crash courses</a></div>
+          <p class="desc">Practical walkthrough with tray icons, menus, IPC, packaging. Good after the Net Ninja intro.</p>
+        </div>
+        <span class="duration">1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Electron team · ElectronConf</div>
+          <div class="title"><a href="https://www.youtube.com/@ElectronJS" target="_blank">ElectronJS official channel</a></div>
+          <p class="desc">Conference talks on security, performance, native modules. Especially valuable for understanding sandboxing.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Books &amp; long-form</h2>
+      <ul>
+        <li><a href="https://www.electronjs.org/docs/latest/tutorial/security" target="_blank">Electron Security Checklist</a> &mdash; not optional. Read it, then read it again before you ship.</li>
+        <li><a href="https://github.com/sindresorhus/awesome-electron" target="_blank">awesome-electron</a> &mdash; the curated list of plugins, packagers, and example apps.</li>
+        <li>The v1 OnlyWorks repo at <code>src/main.js</code>, <code>src/preload.js</code>, <code>src/core/window-manager.js</code> &mdash; read these. v2 ports most of them with minimal restructuring.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>The main process entry</h4>
+<pre><code>// src/main/main.ts
+import { app, BrowserWindow } from 'electron';
+
+app.whenReady().then(async () =&gt; {
+  const win = new BrowserWindow({
+    width: 1200, height: 800,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false, // we use preload to bridge, sandbox=true is even safer if achievable
+      preload: path.join(__dirname, 'preload.js'),
+    },
+  });
+  await win.loadURL('http://localhost:5173'); // Vite dev server
+});</code></pre>
+
+      <h4>The preload (typed bridge)</h4>
+<pre><code>// src/main/preload.ts
+import { contextBridge, ipcRenderer } from 'electron';
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  capture: {
+    start: (sessionId: string) =&gt; ipcRenderer.invoke('capture:start', sessionId),
+    stop:  () =&gt; ipcRenderer.invoke('capture:stop'),
+  },
+  // ...
+});</code></pre>
+      <p>In v2 we replace this hand-rolled API with a tRPC client. See <a href="trpc.html">tRPC over IPC</a>.</p>
+
+      <h4>A handler in main</h4>
+<pre><code>// src/main/ipc/capture.ts
+import { ipcMain } from 'electron';
+import { z } from 'zod';
+
+ipcMain.handle('capture:start', async (_event, sessionIdRaw) =&gt; {
+  const sessionId = z.string().uuid().parse(sessionIdRaw); // validate
+  await captureService.start(sessionId);
+  return { ok: true };
+});</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a tiny Electron + React + TS + Vite app:</p>
+        <ol>
+          <li>Use <a href="electron-vite.html">electron-vite</a>'s template (next chapter has the setup).</li>
+          <li>One window. The renderer shows a "Hello, OnlyWorks" page.</li>
+          <li>Add an IPC channel <code>system:get-info</code> that returns <code>{ platform, version, uptime }</code> from the main process.</li>
+          <li>Display that info on the page. Make sure the renderer never <code>require()</code>s anything.</li>
+          <li>Add a tray icon with a context menu: "Show window" and "Quit".</li>
+          <li>Add a global shortcut <code>Cmd+Shift+H</code> that toggles window visibility.</li>
+          <li>Try removing <code>contextIsolation</code> from the BrowserWindow config and watch the security warning. Put it back.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The v2 main process inherits most of v1's structure: <code>OnlyWorksApp</code> class, the <code>core/</code> lifecycle split (window-manager, tray-manager, menu-manager, auto-updater, OAuth flow, token refresh, error handlers, pipeline init), the macOS TCC trust-state snapshot, the Windows background-throttling switches, the sleep/wake token refresh.</p>
+      <p>What changes:</p>
+      <ul>
+        <li>The 169-channel hand-mirrored preload disappears &mdash; replaced by a tRPC bridge (next docs).</li>
+        <li>The capture service goes from 1,417 lines to a unified CaptureEngine + several Consumer files (~400 + 4×150 lines).</li>
+        <li>Backend HTTP calls that were proxied through IPC become direct <code>fetch</code> calls from the renderer using a stored JWT.</li>
+      </ul>
+      <p>Read <code>src/main.js</code> in the v1 repo (~400 lines) before you write a single line of v2 main code &mdash; that file's lifecycle wiring is what you're porting.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="react-hook-form-zod.html">
+        <span class="label-small">Previous</span>
+        Forms
+      </a>
+      <a class="next" href="electron-vite.html">
+        <span class="label-small">Next</span>
+        electron-vite →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

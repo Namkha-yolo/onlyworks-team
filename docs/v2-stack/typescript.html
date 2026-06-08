@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeScript · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="prerequisites.html">← Prerequisites</a>
+    <a href="react.html">Next: React →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">01 · Frontend foundations</div>
+      <h1><em>TypeScript</em></h1>
+      <p class="lede">Non-negotiable for v2. Most of the bugs the current desktop has come from missing or wrong runtime checks that types would have caught at compile time.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Open <code>src/app/modules/page-dashboard.js</code> in the current desktop repo. Count the defensive <code>?.</code> chains and <code>if (result &amp;&amp; result.data &amp;&amp; result.data.user)</code> blocks. Now count the times <code>sanitizeHTML()</code> is called next to a template literal because the author wasn't sure whether the value would be a string or an object.</p>
+      <p>That's the gap TypeScript fills. With a typed IPC bridge (tRPC) and typed React props, roughly 80% of the runtime defensiveness in the current codebase becomes a compile-time guarantee.</p>
+      <p>On a team of 3+ interns shipping in parallel, TS is also the cheapest form of documentation: function signatures double as inline contracts, and refactoring is safe because the compiler flags every caller.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Primitive types</strong>: <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>, literal types</li>
+        <li><strong>Object &amp; array types</strong>, optional / readonly properties, index signatures</li>
+        <li><strong>Function types</strong>: parameter types, return types, optional &amp; default params, rest params</li>
+        <li><strong>Type aliases vs interfaces</strong> &mdash; interfaces for objects/extends, types for unions/utilities</li>
+        <li><strong>Union</strong> (<code>A | B</code>) and <strong>intersection</strong> (<code>A &amp; B</code>) types</li>
+        <li><strong>Narrowing</strong>: <code>typeof</code>, <code>instanceof</code>, <code>in</code>, discriminated unions, type guards (<code>x is Foo</code>)</li>
+        <li><strong>Generics</strong> &mdash; how to read them, when to write them. Don't write fancy generics in your first month; do read them in library code.</li>
+        <li><strong>Utility types</strong>: <code>Partial</code>, <code>Pick</code>, <code>Omit</code>, <code>Record</code>, <code>ReturnType</code>, <code>Parameters</code>, <code>Awaited</code></li>
+        <li><strong>Modules</strong>: <code>import type</code> vs <code>import</code>, default vs named exports</li>
+        <li><strong><code>unknown</code> vs <code>any</code></strong> &mdash; <code>any</code> turns off the type checker, <code>unknown</code> keeps it on. Default to <code>unknown</code> at boundaries.</li>
+        <li><strong>tsconfig basics</strong>: <code>strict</code>, <code>target</code>, <code>module</code>, <code>moduleResolution</code>, <code>jsx</code>, <code>paths</code></li>
+      </ul>
+      <div class="callout">
+        <div class="label-tag">Rule</div>
+        <p>Set <code>"strict": true</code> in every tsconfig you touch. Half the value of TS comes from strictness; don't turn it off because something errored.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://www.typescriptlang.org/docs/handbook/intro.html" target="_blank">The TypeScript Handbook</a> &mdash; the official primer. Start here. The "Everyday Types" and "Narrowing" chapters are essential.</li>
+        <li><a href="https://www.typescriptlang.org/play" target="_blank">TypeScript Playground</a> &mdash; in-browser. Use it when you want to try something without setting up a project.</li>
+        <li><a href="https://www.typescriptlang.org/docs/handbook/utility-types.html" target="_blank">Utility Types reference</a></li>
+        <li><a href="https://www.typescriptlang.org/tsconfig" target="_blank">tsconfig.json reference</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Matt Pocock · Total TypeScript</div>
+          <div class="title"><a href="https://www.youtube.com/@mattpocockuk" target="_blank">Matt Pocock — TypeScript channel</a></div>
+          <p class="desc">The single best TypeScript teacher on the internet. Start with his "TypeScript Tutorial for Beginners" and his short tip videos. Subscribe; you'll come back here.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Total TypeScript</div>
+          <div class="title"><a href="https://www.totaltypescript.com/tutorials" target="_blank">Total TypeScript — Free tutorials</a></div>
+          <p class="desc">Matt's interactive tutorials. The "Beginner's TypeScript" is paid but excellent; the free tutorials cover narrowing, generics, and React types well.</p>
+        </div>
+        <span class="duration">~10h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">Learn TypeScript in 50 minutes</a></div>
+          <p class="desc">A solid one-sitting overview. Watch it first to get the shape of the language, then go to Matt Pocock for depth.</p>
+        </div>
+        <span class="duration">50m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Fireship</div>
+          <div class="title"><a href="https://www.youtube.com/watch?v=zQnBQ4tB3ZA" target="_blank">TypeScript in 100 seconds + advanced tips</a></div>
+          <p class="desc">Short overview + tip videos. Useful for vibes; not enough on its own.</p>
+        </div>
+        <span class="duration">~10m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">ByteGrad</div>
+          <div class="title"><a href="https://www.youtube.com/@ByteGrad" target="_blank">ByteGrad — TypeScript videos</a></div>
+          <p class="desc">Excellent for TS-with-React-and-Next.js patterns once you have the basics down.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Books &amp; long-form</h2>
+      <ul>
+        <li><a href="https://effectivetypescript.com/" target="_blank">Effective TypeScript</a> by Dan Vanderkam &mdash; 62 specific recommendations. Worth reading cover to cover when you have a month under your belt.</li>
+        <li><a href="https://typescript-exercises.github.io/" target="_blank">Type Challenges (Easy)</a> &mdash; small in-browser exercises. Good for solidifying narrowing and generics.</li>
+        <li><a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" target="_blank">Handbook — Everyday Types</a> &mdash; the chapter you'll quote in code review.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Discriminated unions for results</h4>
+<pre><code>type Result&lt;T, E = string&gt; =
+  | { ok: true; data: T }
+  | { ok: false; error: E };
+
+async function getUser(id: string): Promise&lt;Result&lt;User&gt;&gt; {
+  const res = await fetch(`/api/users/${id}`);
+  if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
+  return { ok: true, data: await res.json() };
+}
+
+const r = await getUser('123');
+if (r.ok) {
+  console.log(r.data.email); // typed as User
+} else {
+  console.error(r.error); // typed as string
+}</code></pre>
+
+      <h4>Branded types for IDs</h4>
+<pre><code>type SessionId = string &amp; { readonly __brand: 'SessionId' };
+type UserId = string &amp; { readonly __brand: 'UserId' };
+
+function getSession(id: SessionId) { /* ... */ }
+
+const userId = '123' as UserId;
+// getSession(userId); // ERROR: not a SessionId</code></pre>
+
+      <h4>Zod for runtime parsing of API responses</h4>
+      <p>At the boundary &mdash; backend responses, IPC payloads &mdash; types alone aren't enough. We use <a href="https://zod.dev" target="_blank">Zod</a> to parse and validate at runtime so the types are actually true. See the <a href="react-hook-form-zod.html">forms doc</a>.</p>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Convert your prerequisites-page CLI tool to TypeScript:</p>
+        <ol>
+          <li>Create a fresh repo, run <code>pnpm init</code>, install <code>typescript</code> and <code>@types/node</code>.</li>
+          <li>Set up a <code>tsconfig.json</code> with <code>strict: true</code>, <code>target: "ES2022"</code>, <code>module: "ESNext"</code>, <code>moduleResolution: "Bundler"</code>.</li>
+          <li>Define a <code>Repo</code> interface for the fields you read off the GitHub API.</li>
+          <li>Write a typed <code>fetchUserRepos(username: string): Promise&lt;Repo[]&gt;</code> that uses Zod to <em>parse</em> the API response (don't just cast it &mdash; parse it).</li>
+          <li>Print the top 5 repos by stars, with a nicely-typed sort.</li>
+          <li>Use <code>tsx</code> or <code>node --import=tsx</code> to run it. Add a <code>"start"</code> script.</li>
+          <li>Open a PR adding strict type-checking to CI (<code>tsc --noEmit</code>).</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>Every file you write in v2 is <code>.ts</code> or <code>.tsx</code>. The tRPC router uses types to give the renderer end-to-end autocompletion of every IPC call. The React components use typed props. Backend handlers parse request bodies with Zod and return typed responses.</p>
+      <p>If a function in the v2 codebase takes <code>any</code>, that's a code smell &mdash; surface it in PR review. The whole point of the rewrite is that the renderer doesn't have to defensively check whether <code>result.data.user.email</code> exists every time.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="prerequisites.html">
+        <span class="label-small">Previous</span>
+        Prerequisites
+      </a>
+      <a class="next" href="react.html">
+        <span class="label-small">Next</span>
+        React 18 →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

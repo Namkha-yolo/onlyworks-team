@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>electron-vite · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="electron.html">← Electron</a>
+    <a href="electron-builder.html">Next: electron-builder →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">11 · Desktop shell</div>
+      <h1>electron-<em>vite</em></h1>
+      <p class="lede">Vite, configured for Electron's three contexts (main, preload, renderer) with hot reload across all of them. The day-to-day dev experience.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Electron has three TypeScript contexts: the main process (Node), the preload (a sandboxed Node-lite), and the renderer (browser). Each needs different bundle targets, different externals, different injected globals. Setting Vite up for all three by hand is a weekend; <code>electron-vite</code> is a thin wrapper that does it for you.</p>
+      <p>The win: edit <code>src/renderer/...</code> and the React app hot-reloads in the open Electron window in &lt;100ms. Edit <code>src/main/...</code> and the main process restarts cleanly, keeping the renderer up. No more "kill the app, restart, log back in, navigate to the page" loop.</p>
+      <p>The alternatives (<code>electron-forge</code>, hand-rolled <code>vite-plugin-electron</code> setups) are fine but electron-vite is the lowest-friction modern choice.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Project structure</strong> &mdash; <code>src/main/</code>, <code>src/preload/</code>, <code>src/renderer/</code></li>
+        <li><strong>One <code>electron.vite.config.ts</code></strong> &mdash; with separate <code>main</code>, <code>preload</code>, <code>renderer</code> Vite configs</li>
+        <li><strong>HMR</strong> &mdash; renderer gets standard Vite HMR; main/preload get fast restart</li>
+        <li><strong>External Node modules</strong> &mdash; how to mark <code>uiohook-napi</code>, <code>sharp</code>, etc. as externals so they're loaded from <code>node_modules</code> at runtime</li>
+        <li><strong>Env vars</strong> &mdash; <code>MAIN_VITE_</code>, <code>PRELOAD_VITE_</code>, <code>RENDERER_VITE_</code> prefixes for each context</li>
+        <li><strong>Building</strong> &mdash; <code>electron-vite build</code> outputs to <code>out/{main,preload,renderer}</code>; then <code>electron-builder</code> packages it</li>
+        <li><strong>The boilerplate template</strong> &mdash; <code>npm create @quick-start/electron</code> gives a clean starting point</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://electron-vite.org/" target="_blank">electron-vite.org</a> &mdash; the docs. Start with "Guide → Introduction".</li>
+        <li><a href="https://electron-vite.org/guide/dev" target="_blank">Dev mode</a></li>
+        <li><a href="https://electron-vite.org/guide/build" target="_blank">Build mode</a></li>
+        <li><a href="https://github.com/alex8088/quick-start" target="_blank">Quick-start templates</a> &mdash; <code>electron + react + ts</code> is what we use.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Niall Maher · Codu</div>
+          <div class="title"><a href="https://www.youtube.com/@NiallMaher" target="_blank">Build a desktop app with Electron, Vite, React, TypeScript</a></div>
+          <p class="desc">Modern setup walkthrough. Closest match to what v2 uses.</p>
+        </div>
+        <span class="duration">1h+</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Cody</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevCody" target="_blank">Electron + Vite + React project starter</a></div>
+          <p class="desc">Practical scaffolding video. Good after the official quick-start template.</p>
+        </div>
+        <span class="duration">30m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Alex Wei (electron-vite author)</div>
+          <div class="title"><a href="https://github.com/alex8088/electron-vite" target="_blank">electron-vite GitHub + linked talks</a></div>
+          <p class="desc">No dedicated channel, but search "electron-vite" on YouTube for community walkthroughs.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Bootstrap a new project</h4>
+<pre><code>npm create @quick-start/electron@latest onlyworks-v2 \
+  -- --template react-ts
+
+cd onlyworks-v2
+pnpm install
+pnpm dev   # opens an Electron window with HMR</code></pre>
+
+      <h4>Project structure</h4>
+<pre><code>onlyworks-v2/
+├── electron.vite.config.ts
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── main/
+│   │   ├── main.ts            # app lifecycle, window creation
+│   │   ├── ipc/               # tRPC router lives here
+│   │   ├── services/          # capture, OCR, auth, etc.
+│   │   └── core/              # window-manager, tray, etc.
+│   ├── preload/
+│   │   └── preload.ts         # contextBridge tRPC adapter
+│   ├── renderer/
+│   │   ├── index.html
+│   │   ├── main.tsx           # React entry
+│   │   └── src/
+│   │       ├── App.tsx
+│   │       ├── routes/        # TanStack Router routes
+│   │       ├── components/
+│   │       └── hooks/
+│   └── shared/                # types &amp; Zod schemas shared by all three
+└── resources/                 # icons, native binaries</code></pre>
+
+      <h4>electron.vite.config.ts (typical)</h4>
+<pre><code>import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
+import react from '@vitejs/plugin-react';
+import path from 'node:path';
+
+export default defineConfig({
+  main: {
+    plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: { '@shared': path.resolve('src/shared') },
+    },
+  },
+  preload: {
+    plugins: [externalizeDepsPlugin()],
+  },
+  renderer: {
+    plugins: [react()],
+    resolve: {
+      alias: {
+        '@': path.resolve('src/renderer/src'),
+        '@shared': path.resolve('src/shared'),
+      },
+    },
+  },
+});</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Scaffold a v2-shaped Electron + Vite + React + TS project from scratch:</p>
+        <ol>
+          <li>Run <code>npm create @quick-start/electron@latest electron-lab -- --template react-ts</code>.</li>
+          <li>Run <code>pnpm install</code> and <code>pnpm dev</code>. Confirm HMR works on the renderer.</li>
+          <li>Add a path alias <code>@shared</code> pointing to <code>src/shared</code>. Put a Zod schema there. Import it in both main and renderer; confirm both compile.</li>
+          <li>Add a native module dependency (e.g. <code>sharp</code>). Mark it as an external and confirm it loads at runtime.</li>
+          <li>Add a renderer env var <code>RENDERER_VITE_BACKEND_URL</code>. Read it via <code>import.meta.env</code>. Confirm it's not visible in main.</li>
+          <li>Run <code>pnpm build</code>. Inspect the <code>out/</code> directory. Run <code>electron .</code> on it directly and confirm the bundled app starts.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>This is the dev loop you'll live in. Every time you edit a React component, you'll see it update in the running Electron window. Every time you edit a main-process service, the process restarts and the renderer reconnects. Every time you edit a Zod schema in <code>src/shared</code>, both sides recompile.</p>
+      <p>Once we ship, this same toolchain feeds the production build &mdash; <code>electron-vite build</code> produces the <code>out/</code> bundles that <a href="electron-builder.html">electron-builder</a> turns into DMG and NSIS installers.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="electron.html">
+        <span class="label-small">Previous</span>
+        Electron
+      </a>
+      <a class="next" href="electron-builder.html">
+        <span class="label-small">Next</span>
+        electron-builder →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

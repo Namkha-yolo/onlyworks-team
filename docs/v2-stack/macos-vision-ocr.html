@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>macOS Vision OCR · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="native-modules.html">← Native modules</a>
+    <a href="windows-ocr.html">Next: Windows OCR →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">15 · Native plumbing</div>
+      <h1>macOS Vision <em>OCR</em></h1>
+      <p class="lede">A compiled Swift binary that calls Apple's Vision framework. ~50ms per screenshot, free, offline, accurate. Replaces tesseract.js on the platform where it matters most.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>tesseract.js (the WASM port of Tesseract) works everywhere but is slow (200&ndash;800ms per screenshot) and accuracy is mediocre on screen content with mixed fonts. Apple's Vision framework, built into every macOS, runs ~5x faster and produces noticeably better text on UI screenshots.</p>
+      <p>We ship a tiny compiled Swift binary alongside the app. The Node main process spawns it with a screenshot path, reads the extracted text from stdout. No JS bindings, no FFI, no rebuild matrix.</p>
+      <p>The OCR text feeds Pipeline 2 (activity analysis): every 3 seconds we extract on-screen text, batch it with app/window-title metadata, and send to Gemini Flash for activity interpretation. Quality of OCR directly affects quality of reports.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Apple's Vision framework</strong> &mdash; <code>VNRecognizeTextRequest</code>, recognition levels (fast vs accurate), language settings</li>
+        <li><strong>Swift basics</strong> &mdash; enough to read <code>src/native/ocr_helper</code> and modify it</li>
+        <li><strong>Compiling a Swift binary</strong> &mdash; <code>swiftc</code> from Command Line Tools, no Xcode project needed</li>
+        <li><strong>The build script</strong> &mdash; <code>src/native/build-ocr-helper.sh</code> in v1 &mdash; runs at <code>prebuild:mac</code> time</li>
+        <li><strong>Bundling the binary</strong> &mdash; via <code>build.mac.extraResources</code> in package.json, the binary lands in <code>process.resourcesPath/ocr_helper</code></li>
+        <li><strong>Calling from Node</strong> &mdash; <code>child_process.exec</code> with the binary path, timeout, max buffer</li>
+        <li><strong>Fallback chain</strong> &mdash; compiled binary → Swift interpreter (CLT installed?) → tesseract.js</li>
+        <li><strong>Universal binary</strong> &mdash; compile for x86_64 + arm64 with <code>lipo</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://developer.apple.com/documentation/vision/recognizing_text_in_images" target="_blank">Apple — Recognizing Text in Images</a></li>
+        <li><a href="https://developer.apple.com/documentation/vision/vnrecognizetextrequest" target="_blank">VNRecognizeTextRequest reference</a></li>
+        <li><a href="https://www.swift.org/documentation/" target="_blank">Swift documentation hub</a></li>
+        <li><a href="https://developer.apple.com/videos/play/wwdc2019/234" target="_blank">WWDC 2019 — "Text Recognition in Vision Framework"</a> &mdash; the foundational talk.</li>
+        <li><a href="https://developer.apple.com/videos/play/wwdc2021/10041" target="_blank">WWDC 2021 — "Extract document data using Vision"</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Sean Allen</div>
+          <div class="title"><a href="https://www.youtube.com/@seanallen" target="_blank">Sean Allen — Swift basics for non-iOS devs</a></div>
+          <p class="desc">If you've never written Swift, his Swift fundamentals + concurrency videos give you enough to read the OCR helper.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Paul Hudson · Hacking with Swift</div>
+          <div class="title"><a href="https://www.youtube.com/@twostraws" target="_blank">Hacking with Swift — Vision &amp; Core ML tutorials</a></div>
+          <p class="desc">Search "Hacking with Swift Vision". Paul covers Vision framework features in short, focused videos.</p>
+        </div>
+        <span class="duration">~30m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Apple WWDC official</div>
+          <div class="title"><a href="https://developer.apple.com/videos/all-videos/?q=vision" target="_blank">developer.apple.com/videos — Vision sessions</a></div>
+          <p class="desc">WWDC sessions tagged "Vision". Worth at least one watch for the recognition-level tradeoffs.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Read this code in v1</h2>
+      <ul>
+        <li><code>src/native/ocr_helper.swift</code> (or whatever the source file is named) &mdash; the actual Swift code we ship</li>
+        <li><code>src/native/build-ocr-helper.sh</code> &mdash; the compile script</li>
+        <li><code>src/services/ocr-service.js</code> &mdash; the Node side. The <code>extractTextMacOS</code> and <code>extractTextCompiled</code> functions plus the fallback chain.</li>
+      </ul>
+      <p>v2 ports all of this with minimal changes.</p>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>The Swift helper (skeleton)</h4>
+<pre><code>// ocr_helper.swift
+import Foundation
+import Vision
+import AppKit
+
+guard CommandLine.arguments.count &gt; 1 else {
+  print("ERROR: No image path provided")
+  exit(1)
+}
+
+let imagePath = CommandLine.arguments[1]
+guard let image = NSImage(contentsOfFile: imagePath),
+      let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+  print("ERROR: Could not load image")
+  exit(1)
+}
+
+let request = VNRecognizeTextRequest { request, error in
+  guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
+  for obs in observations {
+    if let top = obs.topCandidates(1).first {
+      print(top.string)
+    }
+  }
+}
+request.recognitionLevel = .fast
+request.usesLanguageCorrection = false
+
+let handler = VNImageRequestHandler(cgImage: cgImage)
+try handler.perform([request])</code></pre>
+
+      <h4>The build script</h4>
+<pre><code># src/native/build-ocr-helper.sh
+#!/bin/bash
+set -e
+swiftc -O \
+  -target arm64-apple-macos11.0 \
+  src/native/ocr_helper.swift \
+  -o src/native/ocr_helper_arm64
+
+swiftc -O \
+  -target x86_64-apple-macos11.0 \
+  src/native/ocr_helper.swift \
+  -o src/native/ocr_helper_x86_64
+
+lipo -create -output src/native/ocr_helper \
+  src/native/ocr_helper_arm64 \
+  src/native/ocr_helper_x86_64</code></pre>
+
+      <h4>Calling from Node</h4>
+<pre><code>// src/main/services/ocr/macos.ts
+import { exec } from 'node:child_process';
+import path from 'node:path';
+
+export async function extractTextMacOS(imagePath: string): Promise&lt;string&gt; {
+  const binary = app.isPackaged
+    ? path.join(process.resourcesPath, 'ocr_helper')
+    : path.join(__dirname, '..', '..', 'native', 'ocr_helper');
+
+  return new Promise((resolve, reject) =&gt; {
+    exec(`"${binary}" "${imagePath}"`,
+      { timeout: 10_000, maxBuffer: 1024 * 1024 },
+      (err, stdout, stderr) =&gt; {
+        if (err) return reject(new Error(stderr || err.message));
+        const out = stdout.trim();
+        if (out.startsWith('ERROR:')) return reject(new Error(out));
+        resolve(out);
+      });
+  });
+}</code></pre>
+
+      <h4>Bundling the binary</h4>
+<pre><code>// package.json
+{
+  "scripts": {
+    "prebuild:mac": "bash src/native/build-ocr-helper.sh"
+  },
+  "build": {
+    "mac": {
+      "extraResources": [
+        { "from": "src/native/ocr_helper", "to": "ocr_helper" }
+      ]
+    }
+  }
+}</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Compile and ship the v1 OCR helper standalone:</p>
+        <ol>
+          <li>Copy v1's <code>src/native/ocr_helper.swift</code> + build script to your Electron lab project.</li>
+          <li>Run <code>bash build-ocr-helper.sh</code>. Confirm you get a universal binary at <code>./ocr_helper</code>.</li>
+          <li>From the command line: <code>./ocr_helper /path/to/screenshot.png</code> &mdash; confirm you see extracted text.</li>
+          <li>Wire it into the main process behind a tRPC procedure <code>ocr.extract(imagePath: string)</code>.</li>
+          <li>Add a renderer button that takes a screenshot via <code>desktopCapturer</code>, writes to a temp file, and shows the extracted text.</li>
+          <li>Add <code>extraResources</code> + <code>asarUnpack</code> entries. Run <code>pnpm dist:mac</code>. Confirm OCR still works in the packaged app.</li>
+          <li>Edit the Swift file: change <code>recognitionLevel</code> from <code>.fast</code> to <code>.accurate</code>. Time the difference.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The macOS path in v2's OcrConsumer is: <strong>compiled binary first, Swift interpreter second, tesseract.js third</strong>. Compiled binary should hit on every shipped app (we always ship it bundled). Swift interpreter only triggers on dev machines where the bundled binary is missing. Tesseract is the global fallback when neither macOS path works.</p>
+      <p>Cost in time and bytes: the universal binary is ~3 MB, takes seconds to compile, runs ~50ms per screenshot, free per call. Compared to Gemini Vision at ~$0.0005 per call and 1-2s latency, this is a >100x cost reduction on the activity-pipeline OCR step.</p>
+      <div class="callout">
+        <div class="label-tag">Privacy note</div>
+        <p>OCR runs locally; the screenshot never leaves the user's machine. Only the extracted text (after the sensitive-content filter passes) gets sent to the backend. This is load-bearing for the privacy story &mdash; don't change it.</p>
+      </div>
+    </section>
+
+    <div class="next-prev">
+      <a href="native-modules.html">
+        <span class="label-small">Previous</span>
+        Native modules
+      </a>
+      <a class="next" href="windows-ocr.html">
+        <span class="label-small">Next</span>
+        Windows OCR →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

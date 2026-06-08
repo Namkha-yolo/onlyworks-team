@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React 18 · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="typescript.html">← TypeScript</a>
+    <a href="vite.html">Next: Vite →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">02 · Frontend foundations</div>
+      <h1><em>React 18</em></h1>
+      <p class="lede">The UI framework for the desktop renderer and the website. Boring, default, hireable — and a complete replacement for the <code>innerHTML</code> + <code>window.*</code> + tab-rebuilding pattern in v1.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The current desktop renderer rebuilds <code>#main-content</code> from a string of HTML every time you switch tabs. Any modal that was open, any text the user was typing, any scroll position &mdash; all gone. Every <code>onclick="…"</code> handler has to be re-attached to <code>window.*</code>. Every interpolated value has to be sanitized by hand or it's an XSS.</p>
+      <p>React replaces all of this. Components are composable. State persists across re-renders. Event handlers are real function references, not strings. <code>onClick={fn}</code> doesn't need <code>window.fn</code> to exist. JSX escapes by default, so you can't accidentally inject HTML.</p>
+      <p>We pick React over Solid / Svelte because <strong>interns will have written more React</strong>. The hireability and Stack Overflow surface area are unmatched.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>Core concepts</h3>
+      <ul>
+        <li><strong>JSX</strong> &mdash; what it compiles to, why expressions go in <code>{}</code>, why <code>className</code> not <code>class</code></li>
+        <li><strong>Components</strong> &mdash; function components only; class components are legacy</li>
+        <li><strong>Props</strong> &mdash; passing data down, typed with TS interfaces</li>
+        <li><strong>Children</strong> &mdash; <code>children: React.ReactNode</code> as the standard typed pattern</li>
+        <li><strong>Conditional rendering</strong> &mdash; <code>{cond &amp;&amp; &lt;X /&gt;}</code>, ternaries, early returns</li>
+        <li><strong>Lists &amp; keys</strong> &mdash; and why "use the index as key" is usually wrong</li>
+        <li><strong>Controlled vs uncontrolled inputs</strong></li>
+      </ul>
+
+      <h3>Hooks</h3>
+      <ul>
+        <li><code>useState</code> &mdash; local state, the lazy initializer form</li>
+        <li><code>useEffect</code> &mdash; when to use it (almost never for data fetching &mdash; use TanStack Query), cleanup functions, dependency arrays, the StrictMode double-call</li>
+        <li><code>useRef</code> &mdash; DOM refs, mutable values that don't trigger renders</li>
+        <li><code>useMemo</code> / <code>useCallback</code> &mdash; when they help, when they're noise</li>
+        <li><code>useContext</code> &mdash; and why context is for theme/auth/locale, not for state management</li>
+        <li><code>useReducer</code> &mdash; when state transitions get complex</li>
+        <li><strong>Custom hooks</strong> &mdash; extracting reusable logic, naming convention</li>
+      </ul>
+
+      <h3>Patterns &amp; mental model</h3>
+      <ul>
+        <li>Lifting state up vs. pushing it down</li>
+        <li>Composition over inheritance; render props vs. children-as-function</li>
+        <li>How React knows what to re-render (reconciliation, keys, memo)</li>
+        <li>Error boundaries</li>
+        <li>The new Concurrent / Suspense model: <code>&lt;Suspense&gt;</code>, <code>useTransition</code>, <code>useDeferredValue</code></li>
+        <li>What server components are (mainly for Next.js; the desktop is all client components)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://react.dev/learn" target="_blank">react.dev — Learn React</a> &mdash; the new docs, finally great. <strong>Start here.</strong> The "Quick Start" and "Tutorial: Tic-Tac-Toe" are the right entry points.</li>
+        <li><a href="https://react.dev/reference/react" target="_blank">react.dev — API Reference</a></li>
+        <li><a href="https://react.dev/reference/react-dom/components" target="_blank">react.dev — DOM components reference</a></li>
+      </ul>
+      <div class="callout warning">
+        <div class="label-tag">Heads up</div>
+        <p>Don't read old React docs. If a tutorial uses <code>componentDidMount</code> or <code>this.state</code>, close it. The 2023+ docs at <code>react.dev</code> are a complete rewrite around hooks.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">Learn React in 30 minutes + React Hooks playlist</a></div>
+          <p class="desc">Kyle's intros are the cleanest fast-path for someone who already knows JavaScript. Watch the 30-min intro, then his hooks playlist, in order.</p>
+        </div>
+        <span class="duration">~5h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington · Blue Collar Coder</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington</a></div>
+          <p class="desc">The most consistently-good React channel for intermediate-to-advanced topics. Watch his videos on the new Suspense model, server components, and React 19 features.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — t3.gg</a></div>
+          <p class="desc">Opinionated. Strong on TypeScript + React + tRPC patterns (which is exactly our v2 stack). His "you should never use useEffect" framing is worth watching even if you disagree.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Cosden Solutions</div>
+          <div class="title"><a href="https://www.youtube.com/@cosdensolutions" target="_blank">Cosden Solutions — React tutorials</a></div>
+          <p class="desc">Solid intermediate-level walkthroughs of real-world React patterns. Good after Kyle, before Jack.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Lee Robinson · Vercel</div>
+          <div class="title"><a href="https://www.youtube.com/@leerob" target="_blank">Lee Robinson</a></div>
+          <p class="desc">Lee's videos on React fundamentals and Next.js server components are the cleanest tour of the new model.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Code with Antonio</div>
+          <div class="title"><a href="https://www.youtube.com/@codewithantonio" target="_blank">Code with Antonio — full-stack projects</a></div>
+          <p class="desc">Long-form full-stack project builds (10+ hours). Great if you learn best by building real apps end-to-end.</p>
+        </div>
+        <span class="duration">10h+</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Books &amp; long-form</h2>
+      <ul>
+        <li><a href="https://react.dev/learn/thinking-in-react" target="_blank">react.dev — Thinking in React</a> &mdash; the single most important chapter</li>
+        <li><a href="https://overreacted.io/" target="_blank">overreacted.io</a> (Dan Abramov's blog). "A Complete Guide to useEffect" is essential reading once you've used effects for a week.</li>
+        <li><a href="https://kentcdodds.com/blog" target="_blank">Kent C. Dodds blog</a> &mdash; patterns, testing, common mistakes</li>
+        <li><a href="https://www.patterns.dev/" target="_blank">patterns.dev</a> &mdash; broader frontend patterns, React-aware</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Typed props</h4>
+<pre><code>interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md' | 'lg';
+  onClick?: () =&gt; void;
+  children: React.ReactNode;
+  disabled?: boolean;
+}
+
+export function Button({
+  variant = 'primary', size = 'md', onClick, children, disabled,
+}: ButtonProps) {
+  return (
+    &lt;button
+      className={cn('ow-btn', `ow-btn-${variant}`, `ow-btn-${size}`)}
+      onClick={onClick}
+      disabled={disabled}
+    &gt;
+      {children}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+      <h4>Custom hook for the session</h4>
+<pre><code>function useSession() {
+  return useQuery({
+    queryKey: ['session', 'current'],
+    queryFn: () =&gt; trpc.session.current.query(),
+  });
+}
+
+// in a component:
+function SessionPanel() {
+  const { data: session, isLoading } = useSession();
+  if (isLoading) return &lt;Spinner /&gt;;
+  if (!session) return &lt;StartButton /&gt;;
+  return &lt;ActiveSession session={session} /&gt;;
+}</code></pre>
+
+      <h4>Don't use useEffect for data</h4>
+      <p>90% of <code>useEffect</code> uses in tutorials are for fetching data. In v2 we use TanStack Query for that &mdash; it handles caching, refetching, retry, and stale-while-revalidate out of the box. Reach for <code>useEffect</code> only when you're synchronizing with something outside React (a DOM API, a timer, an event listener).</p>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a tiny GitHub repo browser as a Vite + React + TypeScript app:</p>
+        <ol>
+          <li><code>pnpm create vite@latest gh-browser -- --template react-ts</code></li>
+          <li>One screen, two states: input a username, see their top 10 repos.</li>
+          <li>Use <code>useState</code> for the input, <code>useEffect</code> for the fetch (it's OK here &mdash; TanStack Query is in the next chapter).</li>
+          <li>Render the repo list with proper keys.</li>
+          <li>Add a loading state, an error state, and an empty state.</li>
+          <li>Each repo card is its own component with typed props.</li>
+          <li>No CSS framework yet &mdash; write plain CSS modules. Tailwind comes next.</li>
+        </ol>
+        <p>Goal: never reach for the docs to remember what <code>useState</code> returns. After this, re-do it using <code>useReducer</code> instead of multiple <code>useState</code> calls and see how the code shape changes.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The v2 renderer is one React tree mounted into <code>&lt;div id="root"&gt;</code> in <code>index.html</code>. Pages are real route components managed by TanStack Router. Components like <code>&lt;Button&gt;</code>, <code>&lt;Modal&gt;</code>, <code>&lt;StatCard&gt;</code> port the v1 <code>owButton</code>/<code>owModal</code>/<code>owStatCard</code> factory API with the same prop names &mdash; only the implementation changes from HTML strings to JSX.</p>
+      <p>Read the "Code That Can Be Ported vs Must Be Rewritten" section of <code>03-architecture-review.html</code> to see exactly which page modules are getting React equivalents.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="typescript.html">
+        <span class="label-small">Previous</span>
+        TypeScript
+      </a>
+      <a class="next" href="vite.html">
+        <span class="label-small">Next</span>
+        Vite →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

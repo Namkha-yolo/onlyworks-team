@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prerequisites · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="typescript.html">Next: TypeScript →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">00 · Foundations</div>
+      <h1><em>Prerequisites</em></h1>
+      <p class="lede">What every track assumes you already know. If any of this is unfamiliar, spend a few days here before moving on. Each item is short — none of it should take more than a weekend.</p>
+    </header>
+
+    <section>
+      <h2>Why this page exists</h2>
+      <p>The rest of these docs jump straight into TypeScript, React, Electron, AI. They assume you can clone a repo, run a Node script, read MDN when something is unfamiliar, and not get lost when someone says "make a PR against <code>main</code>." If any of that is fuzzy, this page is the cheapest way to fix it.</p>
+    </section>
+
+    <section>
+      <h2>What you need</h2>
+      <ul>
+        <li><strong>A working dev machine</strong> — macOS, Windows, or Linux. macOS is easiest for the desktop track because of the Vision OCR work; Windows is required for the Windows port.</li>
+        <li><strong>Git</strong> installed, a GitHub account, SSH key configured.</li>
+        <li><strong>Node.js 20+</strong> via <a href="https://github.com/nvm-sh/nvm" target="_blank">nvm</a> &mdash; don't install Node from the website, you'll regret it.</li>
+        <li><strong>pnpm</strong> globally installed (<code>npm install -g pnpm</code>). v2 uses pnpm.</li>
+        <li><strong>An editor</strong> &mdash; <a href="https://cursor.com" target="_blank">Cursor</a> or VS Code. The team uses both.</li>
+        <li><strong>A terminal you're comfortable with</strong> &mdash; iTerm2 on macOS, Windows Terminal on Windows.</li>
+      </ul>
+      <div class="callout">
+        <div class="label-tag">Spend the first hour</div>
+        <p>Getting your dev environment right. A messy environment will leak into everything you do for the rest of the internship. Ask for help if you get stuck for more than 30 minutes — this is the one task where asking early is correct.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Topics to cover</h2>
+
+      <h3>Modern JavaScript (ES2020+)</h3>
+      <p>Most of the desktop and web codebases are JavaScript / TypeScript. You need to be fluent in:</p>
+      <ul>
+        <li><code>let</code> / <code>const</code>, arrow functions, destructuring, spread/rest</li>
+        <li>Promises, <code>async</code> / <code>await</code>, error handling with try/catch</li>
+        <li>Modules: <code>import</code> / <code>export</code> (ESM), and how CommonJS (<code>require</code>) differs</li>
+        <li>Array methods: <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>find</code>, <code>some</code>, <code>every</code></li>
+        <li>Object shorthand, computed keys, optional chaining (<code>?.</code>), nullish coalescing (<code>??</code>)</li>
+        <li>Template literals, tagged templates</li>
+      </ul>
+
+      <h3>Git &amp; GitHub flow</h3>
+      <ul>
+        <li><code>clone</code>, <code>branch</code>, <code>checkout</code>, <code>add</code>, <code>commit</code>, <code>push</code>, <code>pull</code>, <code>merge</code>, <code>rebase</code></li>
+        <li>How to resolve a merge conflict without panicking</li>
+        <li>How to write a good commit message (one-line summary + body explaining <em>why</em>)</li>
+        <li>Pull request flow: branch → push → open PR → request review → address comments → merge</li>
+        <li><code>git log</code>, <code>git blame</code>, <code>git diff</code> &mdash; read history, never just rewrite it</li>
+      </ul>
+
+      <h3>The command line</h3>
+      <ul>
+        <li>Navigate: <code>cd</code>, <code>ls</code>, <code>pwd</code>, <code>mkdir</code>, <code>rm</code>, <code>cp</code>, <code>mv</code></li>
+        <li>Pipes &amp; redirects: <code>|</code>, <code>&gt;</code>, <code>&gt;&gt;</code>, <code>&lt;</code></li>
+        <li>Background &amp; foreground jobs (<code>&amp;</code>, <code>Ctrl+Z</code>, <code>jobs</code>, <code>fg</code>)</li>
+        <li>Process management: <code>ps</code>, <code>kill</code>, <code>lsof</code></li>
+        <li>Reading man pages</li>
+      </ul>
+
+      <h3>Node.js basics</h3>
+      <ul>
+        <li><code>package.json</code>: <code>dependencies</code>, <code>devDependencies</code>, <code>scripts</code></li>
+        <li><code>node_modules</code>, lockfiles (<code>pnpm-lock.yaml</code>) and why you commit them</li>
+        <li>CommonJS vs ESM &mdash; you'll meet both</li>
+        <li>Running scripts via <code>pnpm run &lt;script&gt;</code></li>
+      </ul>
+
+      <h3>HTTP &amp; the browser</h3>
+      <ul>
+        <li>HTTP methods, status codes, headers, query strings, request body</li>
+        <li><code>fetch</code> API, JSON serialization, CORS at a high level</li>
+        <li>Browser dev tools: Network, Console, Elements, Sources, Application (cookies/localStorage)</li>
+        <li>What a JWT looks like and why we never put one in localStorage when we can avoid it</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs to bookmark</h2>
+      <ul>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank">MDN — JavaScript Guide</a> — the canonical JS reference</li>
+        <li><a href="https://docs.github.com/en/get-started/quickstart/hello-world" target="_blank">GitHub Docs — Quickstart</a></li>
+        <li><a href="https://git-scm.com/book/en/v2" target="_blank">Pro Git book</a> — free, comprehensive</li>
+        <li><a href="https://nodejs.org/en/learn/getting-started/introduction-to-nodejs" target="_blank">Node.js — Getting Started</a></li>
+        <li><a href="https://pnpm.io/motivation" target="_blank">pnpm docs</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <h4>Modern JavaScript</h4>
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">freeCodeCamp · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/c/Freecodecamp" target="_blank">JavaScript Course for Beginners</a></div>
+          <p class="desc">Search "freeCodeCamp JavaScript". Their 3+ hour beginner course is the standard recommendation. If you already know JS, skim the table of contents for gaps.</p>
+        </div>
+        <span class="duration">3&ndash;12h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Fireship · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@Fireship" target="_blank">JavaScript Pro Tips — Code This, NOT That</a></div>
+          <p class="desc">Short, dense, opinionated. Great for filling gaps in idiom and modern syntax once you know the basics.</p>
+        </div>
+        <span class="duration">10m</span>
+      </div>
+
+      <h4>Git</h4>
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">freeCodeCamp · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/watch?v=RGOj5yH7evk" target="_blank">Git and GitHub for Beginners — Crash Course</a></div>
+          <p class="desc">~1 hour. Covers everything you need for the first 6 months of work.</p>
+        </div>
+        <span class="duration">1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">The Net Ninja · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/playlist?list=PL4cUxeGkcC9goXbgTDQ0n_4TBzOO0ocPR" target="_blank">Git &amp; GitHub Tutorial for Beginners playlist</a></div>
+          <p class="desc">Short videos, broken up by topic. Easier to come back to than one giant crash course.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <h4>The command line</h4>
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Traversy Media · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@TraversyMedia" target="_blank">Command Line Crash Course</a></div>
+          <p class="desc">Search "Traversy command line crash course". Practical, no frills.</p>
+        </div>
+        <span class="duration">45m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Books &amp; long-form</h2>
+      <ul>
+        <li><a href="https://eloquentjavascript.net/" target="_blank">Eloquent JavaScript</a> by Marijn Haverbeke (free online). Best modern intro to JS, suitable for both beginners and refreshers.</li>
+        <li><a href="https://exploringjs.com/impatient-js/" target="_blank">JavaScript for impatient programmers</a> by Axel Rauschmayer. Best if you already program in another language.</li>
+        <li><a href="https://git-scm.com/book/en/v2" target="_blank">Pro Git</a> by Scott Chacon (free). The chapters on rebasing, branching, and history rewriting are worth real time.</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Before you move on to TypeScript, build and ship a tiny CLI tool. It should:</p>
+        <ol>
+          <li>Live in its own GitHub repo under your account.</li>
+          <li>Be a Node.js script &mdash; no framework, no bundler, just <code>node index.js</code>.</li>
+          <li>Take a GitHub username as a command-line argument.</li>
+          <li>Use <code>fetch</code> to call <code>https://api.github.com/users/&lt;username&gt;/repos</code>.</li>
+          <li>Print out the user's top 5 repos by stars, formatted nicely.</li>
+          <li>Have a real <code>README.md</code> that explains what it does and how to run it.</li>
+          <li>Be installed cleanly: <code>package.json</code> with a <code>"start"</code> script, <code>node_modules</code> in <code>.gitignore</code>.</li>
+        </ol>
+        <p>Open a PR against your own repo from a feature branch and merge it. Then share the link. If you can do this without Googling more than 3 things, you're ready for TypeScript.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks</h2>
+      <p>Everything in v2 builds on these basics. The desktop app is a Node process (main) + a browser process (renderer); the backend is a Node + Express server; the website is a Node + Next.js server. The model training stack is the only one in Python &mdash; and even there, the data pipeline that produces the training set runs in Node.</p>
+      <p>You will read git history daily. You will write at least one PR per day. You will live in the terminal. If you can't move comfortably between those three, the rest of the stack will feel twice as hard.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="index.html">
+        <span class="label-small">Back</span>
+        Index
+      </a>
+      <a class="next" href="typescript.html">
+        <span class="label-small">Next</span>
+        TypeScript →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

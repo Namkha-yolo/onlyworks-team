@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weights &amp; Biases + MLOps · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="training-infrastructure.html">← Training infra</a>
+    <a href="index.html">Back to index →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">28 · AI / model training</div>
+      <h1>Weights &amp; Biases <em>+ MLOps</em></h1>
+      <p class="lede">Experiment tracking, model registry, eval pipelines. The discipline layer that makes "we did 47 training runs last quarter" useful instead of a mess.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>If you do 50 training runs and don't track them, you have 50 unlabeled checkpoints and no way to remember which one was best. Weights &amp; Biases (W&amp;B) records every metric, hyperparameter, system stat, dataset version, and code revision per run, then lets you compare them side-by-side in a web UI.</p>
+      <p>It's not the only choice (MLflow, Neptune, Aim, ClearML), but it's the most polished and has the best free tier for small teams. <code>wandb.init()</code> at the top of a training script and a <code>wandb.log()</code> in the loop is the minimum viable setup.</p>
+      <p>Beyond W&amp;B, "MLOps" covers: model registry (where do checkpoints live), eval pipelines (how do we measure quality), deployment + monitoring (how do we know production is healthy). For OnlyWorks's scale, we keep this minimal but consistent.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>W&amp;B basics</h3>
+      <ul>
+        <li><strong><code>wandb.init</code></strong> &mdash; project, run name, config, tags</li>
+        <li><strong><code>wandb.log</code></strong> &mdash; metrics, step counter, images, tables, histograms</li>
+        <li><strong>Config</strong> &mdash; <code>wandb.config</code> for hyperparams; sweeps for hp search</li>
+        <li><strong>Artifacts</strong> &mdash; versioned datasets + models + reports</li>
+        <li><strong>Reports</strong> &mdash; shareable write-ups with embedded run charts</li>
+        <li><strong>Sweeps</strong> &mdash; grid / random / Bayesian hyperparam search</li>
+        <li><strong>Integration with HF Trainer</strong> &mdash; <code>report_to='wandb'</code> in TrainingArguments</li>
+      </ul>
+
+      <h3>Beyond W&amp;B (full MLOps loop)</h3>
+      <ul>
+        <li><strong>Model registry</strong> &mdash; Hugging Face Hub private repo is enough for us</li>
+        <li><strong>Eval suite</strong> &mdash; a script that loads a model + a held-out dataset and returns a fixed set of metrics</li>
+        <li><strong>Eval comparison harness</strong> &mdash; "is v0.2 better than v0.1 on the same data?"</li>
+        <li><strong>A/B testing in production</strong> &mdash; flag a fraction of users to call the new model. Compare outcomes.</li>
+        <li><strong>Drift detection</strong> &mdash; does production data look different from training data over time?</li>
+        <li><strong>Inference monitoring</strong> &mdash; latency, error rates, output length, refusal rates</li>
+        <li><strong>Reproducibility</strong> &mdash; pin model + dataset + code commit per run, so you can rebuild any historical experiment</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://docs.wandb.ai/" target="_blank">W&amp;B docs</a></li>
+        <li><a href="https://docs.wandb.ai/quickstart" target="_blank">W&amp;B Quickstart</a></li>
+        <li><a href="https://docs.wandb.ai/guides/sweeps" target="_blank">Sweeps</a></li>
+        <li><a href="https://docs.wandb.ai/guides/artifacts" target="_blank">Artifacts</a></li>
+        <li><a href="https://huggingface.co/docs/transformers/main_classes/callback#transformers.integrations.WandbCallback" target="_blank">HF Trainer + W&amp;B integration</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Weights &amp; Biases · YouTube (official)</div>
+          <div class="title"><a href="https://www.youtube.com/@WeightsBiases" target="_blank">W&amp;B official channel</a></div>
+          <p class="desc">Excellent tutorials direct from the team. "Intro to W&amp;B" + their fine-tuning case studies are the right entry points.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Daniel Bourke</div>
+          <div class="title"><a href="https://www.youtube.com/@mrdbourke" target="_blank">Daniel Bourke — PyTorch + W&amp;B videos</a></div>
+          <p class="desc">His "experiment tracking" videos cover W&amp;B in the context of real PyTorch projects.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Madewithml.com · Goku Mohandas</div>
+          <div class="title"><a href="https://madewithml.com/" target="_blank">Made With ML — MLOps lessons</a></div>
+          <p class="desc">Free, comprehensive MLOps curriculum. The "experiment tracking" and "model registry" lessons are essential reading.</p>
+        </div>
+        <span class="duration">~5h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Full Stack Deep Learning</div>
+          <div class="title"><a href="https://fullstackdeeplearning.com/" target="_blank">Full Stack Deep Learning</a></div>
+          <p class="desc">Free university-level course on shipping ML. Their lectures on infrastructure, monitoring, and continuous learning are best-in-class.</p>
+        </div>
+        <span class="duration">~20h</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Minimal W&amp;B in a training script</h4>
+<pre><code>import wandb
+
+wandb.init(
+    project='onlyworks-vlm',
+    name='qwen2_5-vl-7b-lora-v0_1',
+    config={
+        'base_model': 'Qwen/Qwen2.5-VL-7B-Instruct',
+        'dataset_version': 'ow-activity-v0.1',
+        'lora_rank': 16,
+        'learning_rate': 2e-4,
+        'batch_size': 4,
+        'gradient_accumulation_steps': 8,
+    },
+    tags=['vlm', 'lora', 'qwen'],
+)
+
+# ... training loop ...
+for step, batch in enumerate(loader):
+    loss = train_step(batch)
+    wandb.log({'train/loss': loss.item(), 'train/lr': optimizer.param_groups[0]['lr']}, step=step)</code></pre>
+
+      <h4>HF Trainer integration (one line)</h4>
+<pre><code>args = TrainingArguments(
+    output_dir='./ckpts',
+    learning_rate=2e-4,
+    per_device_train_batch_size=4,
+    num_train_epochs=3,
+    report_to='wandb',          # &lt;-- this
+    run_name='qwen2_5-vl-7b-lora-v0_1',
+    logging_steps=10,
+    eval_steps=200,
+    save_steps=500,
+)</code></pre>
+
+      <h4>Logging a sample prediction</h4>
+<pre><code># at eval time, log a table of (input image, target, prediction) for spot-checking
+table = wandb.Table(columns=['image', 'target', 'prediction'])
+for example in val_samples[:20]:
+    pred = generate_summary(model, example['image'])
+    table.add_data(wandb.Image(example['image']), example['target'], pred)
+wandb.log({'eval/samples': table})</code></pre>
+
+      <h4>Artifacts for datasets &amp; models</h4>
+<pre><code># log the dataset version as an artifact
+artifact = wandb.Artifact('ow-activity-v0_1', type='dataset')
+artifact.add_dir('./datasets/ow-activity-v0.1')
+wandb.log_artifact(artifact)
+
+# later, fetch it
+artifact = wandb.use_artifact('ow-activity-v0_1:latest')
+artifact.download('./datasets/ow-activity-v0.1')</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Track your MNIST experiment from the PyTorch chapter on W&amp;B:</p>
+        <ol>
+          <li>Sign up for a free W&amp;B account. <code>pip install wandb</code>; <code>wandb login</code>.</li>
+          <li>Add <code>wandb.init(project='ow-warmup', name='mnist-cnn-baseline')</code> at the top of your MNIST script.</li>
+          <li>Log train loss + test accuracy per epoch with <code>wandb.log</code>.</li>
+          <li>Open the run in the web UI. Confirm the metrics show up.</li>
+          <li>Run the script 5 times with different learning rates (1e-3, 1e-4, 1e-5, 3e-4, 5e-4). Tag the runs <code>lr-sweep</code>.</li>
+          <li>In the W&amp;B UI, group by <code>lr</code>, compare the runs side-by-side. Determine which LR is best.</li>
+          <li>Bonus: define a Sweep (random search across LR + dropout) and run 20 trials. Look at the parallel-coordinates plot.</li>
+          <li>Write a W&amp;B Report with the findings. Share the URL.</li>
+        </ol>
+        <p>Goal: feel why "track every run" pays back. After this, you'll never train without it.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>House rules for experiments</h2>
+      <ul>
+        <li><strong>Every training run gets a W&amp;B entry.</strong> If you forgot to <code>wandb.init</code>, the run effectively didn't happen.</li>
+        <li><strong>Run names follow a convention</strong> &mdash; <code>&lt;base&gt;-&lt;variant&gt;-&lt;date&gt;</code>. e.g. <code>qwen2_5vl-7b-lora-2026-06-08</code>.</li>
+        <li><strong>Tag liberally</strong> &mdash; experiment type, dataset version, infrastructure provider. Lets you slice runs later.</li>
+        <li><strong>Log the full config</strong> &mdash; including dataset hash + git commit. Reproducibility starts here.</li>
+        <li><strong>Push the resulting checkpoint to the HF Hub</strong> &mdash; private repo, linked in the W&amp;B run's notes.</li>
+        <li><strong>One eval suite, run on every model</strong> &mdash; the same script, same data. Cross-run comparison only works if eval is fixed.</li>
+        <li><strong>If a run is a flop, write down why</strong> &mdash; one sentence in the run's notes. You'll thank past-you in 6 months.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>W&amp;B is the journal of the model-training program. Every experiment we run, every eval, every dataset version &mdash; all in one project. By the time we have to choose "should we ship v0.3 to production?", the answer is one chart away: v0.3 vs v0.2 on the eval set, plotted across run dates.</p>
+      <p>Long-term, the MLOps loop closes with:</p>
+      <ul>
+        <li><strong>Eval pipeline</strong> &mdash; a script run after every training that scores the model on a fixed test set. The numbers go to W&amp;B.</li>
+        <li><strong>Deployment</strong> &mdash; the chosen checkpoint is pushed to a vLLM / TGI endpoint behind the existing <code>/api/pipeline/activity/stream</code> route.</li>
+        <li><strong>Production monitoring</strong> &mdash; per-call latency, output length, refusal rate, and (eventually) a small sample of human-reviewed outputs. Drift in any of those triggers a re-eval.</li>
+        <li><strong>Continuous learning</strong> &mdash; quarterly retrain with the latest 3 months of consented data, full re-eval, A/B test, ship if better.</li>
+      </ul>
+      <p>This is the full loop the v2-roadmap deferred ("only after approaches 1&ndash;3 are exhausted"). When the team is ready to make the proprietary model real &mdash; this is the infrastructure layer that makes it manageable instead of chaos.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="training-infrastructure.html">
+        <span class="label-small">Previous</span>
+        Training infrastructure
+      </a>
+      <a class="next" href="index.html">
+        <span class="label-small">Back to</span>
+        Index →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation · <em>fin</em></footer>
+
+</body>
+</html>

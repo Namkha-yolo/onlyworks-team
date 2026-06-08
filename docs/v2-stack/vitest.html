@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vitest · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="nextjs.html">← Next.js</a>
+    <a href="playwright.html">Next: Playwright →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">20 · Testing</div>
+      <h1><em>Vitest</em></h1>
+      <p class="lede">Unit + integration tests. Jest-compatible API, Vite-native, fast. Already in v1's <code>package.json</code> and the backend.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Vitest is what you reach for when you want a test runner that works with Vite without configuration. The API is Jest-compatible (<code>describe</code>, <code>it</code>, <code>expect</code>), it understands ESM, TS, and JSX out of the box, and it's noticeably faster than Jest on real projects.</p>
+      <p>For v2: unit tests on every service in the desktop main process, every Express controller, every Zod schema validator. Integration tests on the tRPC router. Component tests on React components that have non-trivial logic. We don't aim for 100% coverage; we aim for "the critical paths are tested and the test suite runs in &lt;30s on CI."</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong><code>describe</code>, <code>it</code>, <code>test</code>, <code>expect</code></strong> &mdash; the basics</li>
+        <li><strong>Matchers</strong> &mdash; <code>toBe</code>, <code>toEqual</code>, <code>toMatchObject</code>, <code>toThrow</code>, <code>resolves/rejects</code></li>
+        <li><strong>Setup / teardown</strong> &mdash; <code>beforeAll</code>, <code>beforeEach</code>, <code>afterEach</code>, <code>afterAll</code></li>
+        <li><strong>Mocking</strong> &mdash; <code>vi.fn()</code>, <code>vi.mock()</code>, <code>vi.spyOn()</code>, automatic vs manual</li>
+        <li><strong>Timers</strong> &mdash; <code>vi.useFakeTimers()</code>, <code>vi.advanceTimersByTime()</code> &mdash; useful for testing the activity buffer's timers</li>
+        <li><strong>Async tests</strong> &mdash; just <code>async</code> functions, plus <code>resolves</code>/<code>rejects</code></li>
+        <li><strong>Snapshot tests</strong> &mdash; <code>toMatchSnapshot()</code>, inline snapshots</li>
+        <li><strong>Component testing with Testing Library</strong> &mdash; <code>render</code>, <code>screen</code>, <code>userEvent</code></li>
+        <li><strong>Coverage</strong> &mdash; <code>--coverage</code>, V8 or istanbul</li>
+        <li><strong>Watch mode</strong> &mdash; <code>vitest</code> (no args) → re-runs on file change</li>
+        <li><strong>UI mode</strong> &mdash; <code>vitest --ui</code> opens a browser dashboard</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://vitest.dev/" target="_blank">vitest.dev</a> &mdash; the docs.</li>
+        <li><a href="https://vitest.dev/guide/" target="_blank">Guide</a></li>
+        <li><a href="https://vitest.dev/api/" target="_blank">API reference</a></li>
+        <li><a href="https://testing-library.com/docs/react-testing-library/intro/" target="_blank">React Testing Library</a> &mdash; for component tests, pair with Vitest.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — Vitest tutorials</a></div>
+          <p class="desc">Walks through setup + practical patterns including mocking, async, and component tests.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">Web Dev Simplified — Testing Library + Vitest</a></div>
+          <p class="desc">Search "Web Dev Simplified Vitest". Good for the testing-library + Vitest combo.</p>
+        </div>
+        <span class="duration">45m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Codevolution</div>
+          <div class="title"><a href="https://www.youtube.com/@Codevolution" target="_blank">Codevolution — Vitest playlist</a></div>
+          <p class="desc">Short focused videos by topic. Easier to come back to.</p>
+        </div>
+        <span class="duration">2h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Kent C. Dodds</div>
+          <div class="title"><a href="https://www.youtube.com/@KentCDodds-vids" target="_blank">Kent C. Dodds — testing philosophy</a></div>
+          <p class="desc">Kent runs Epic Web Dev. His talks on "the testing pyramid", what to test, and trust-but-verify are essential context.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>A service unit test</h4>
+<pre><code>// src/main/services/ocr/ocr-service.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { OcrService } from './ocr-service';
+
+describe('OcrService', () =&gt; {
+  it('caches results by image hash', async () =&gt; {
+    const service = new OcrService();
+    const fakeBuffer = Buffer.from('test');
+
+    const extract = vi.spyOn(service as any, 'extractTextNative')
+      .mockResolvedValue('hello world');
+
+    const first = await service.extractText(fakeBuffer);
+    const second = await service.extractText(fakeBuffer);
+
+    expect(first).toBe('hello world');
+    expect(second).toBe('hello world');
+    expect(extract).toHaveBeenCalledTimes(1); // second was a cache hit
+  });
+});</code></pre>
+
+      <h4>Testing time-based logic with fake timers</h4>
+<pre><code>it('flushes the activity buffer every 30 seconds', async () =&gt; {
+  vi.useFakeTimers();
+  const send = vi.fn();
+  const buf = new ActivityBuffer({ sendCallback: send, sendIntervalMs: 30_000 });
+
+  buf.start('session-1', 'user-1');
+  buf.addFrame(makeFrame());
+  buf.addFrame(makeFrame());
+
+  await vi.advanceTimersByTimeAsync(30_000);
+  expect(send).toHaveBeenCalledOnce();
+  expect(send.mock.calls[0][0].frames).toHaveLength(2);
+
+  vi.useRealTimers();
+});</code></pre>
+
+      <h4>Component test with Testing Library</h4>
+<pre><code>import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Button } from './Button';
+
+it('fires onClick when clicked', async () =&gt; {
+  const onClick = vi.fn();
+  render(&lt;Button onClick={onClick}&gt;Save&lt;/Button&gt;);
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  expect(onClick).toHaveBeenCalledOnce();
+});</code></pre>
+
+      <h4>Integration test for an Express route</h4>
+<pre><code>import request from 'supertest';
+import { app } from './app';
+
+it('rejects login with bad password', async () =&gt; {
+  const res = await request(app)
+    .post('/api/auth/login')
+    .send({ email: 'a@b.com', password: 'wrong' });
+  expect(res.status).toBe(401);
+});</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Add Vitest to your Express auth lab:</p>
+        <ol>
+          <li>Install <code>vitest</code> + <code>supertest</code> + their type packages.</li>
+          <li>Write 5 tests: register (happy path), register (duplicate email), login (success), login (wrong password, rate-limited), <code>GET /me</code> with valid + invalid token.</li>
+          <li>Mock the in-memory user store using <code>vi.mock</code>.</li>
+          <li>Add fake timers for the rate-limiter window test.</li>
+          <li>Configure <code>--coverage</code> and aim for &gt;80% on the auth slice.</li>
+          <li>Wire it into a GitHub Action: on every PR, run <code>pnpm test</code> + <code>pnpm tsc --noEmit</code>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>v2 has Vitest in three places:</p>
+      <ul>
+        <li><strong>Backend</strong> &mdash; tests every service and controller path</li>
+        <li><strong>Desktop main process</strong> &mdash; tests services in isolation (mock the Electron APIs, mock native modules)</li>
+        <li><strong>Desktop renderer</strong> &mdash; component tests via Testing Library; not every component, but the ones with non-trivial logic</li>
+      </ul>
+      <p>CI runs the whole suite on every PR. We don't merge with failing tests. End-to-end / UX tests live in <a href="playwright.html">Playwright</a> &mdash; next chapter.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="nextjs.html">
+        <span class="label-small">Previous</span>
+        Next.js
+      </a>
+      <a class="next" href="playwright.html">
+        <span class="label-small">Next</span>
+        Playwright →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

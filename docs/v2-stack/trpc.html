@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tRPC over IPC · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="electron-builder.html">← electron-builder</a>
+    <a href="native-modules.html">Next: Native modules →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">13 · Desktop shell</div>
+      <h1>tRPC <em>over IPC</em></h1>
+      <p class="lede">End-to-end typed APIs and IPC channels. Replaces the 169-channel hand-mirrored bridge in v1 with one typed client and one router.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>v1 has a 444-line <code>preload.js</code> that hand-mirrors every IPC channel. Every new method requires touching preload AND the matching ipcMain handler AND the call site. The renderer can't autocomplete the API. If you typo a channel name, the call silently returns <code>undefined</code> &mdash; or worse, hangs.</p>
+      <p>tRPC solves this by making the IPC router a <strong>TypeScript type</strong>. You define procedures in main, the router's type is exported, the renderer imports it as a type-only import, and gets full autocomplete:</p>
+<pre><code>// main exports the type
+type AppRouter = typeof appRouter;
+
+// renderer imports it
+const result = await trpc.session.start.mutate({ name: 'morning focus' });
+// result is typed. Typos at the call site fail to compile.</code></pre>
+      <p>tRPC was built for HTTP, but the transport is pluggable. <code>electron-trpc</code> swaps in IPC. Same API, same types, same client library.</p>
+      <p>On the backend (Express) we also use tRPC for the same reason &mdash; the website and the desktop can both share types with the server.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Procedures</strong> &mdash; queries (read) vs mutations (write)</li>
+        <li><strong>Routers</strong> &mdash; group procedures, nest routers (<code>session</code>, <code>reports</code>, <code>teams</code>)</li>
+        <li><strong>Input validation with Zod</strong> &mdash; <code>.input(z.object({ ... }))</code></li>
+        <li><strong>Context</strong> &mdash; the per-call object (auth, db, services) injected into every procedure</li>
+        <li><strong>Middleware</strong> &mdash; <code>requireAuth</code>, <code>requireAdmin</code>, logging</li>
+        <li><strong>Output inference</strong> &mdash; the procedure's return type flows to the caller automatically</li>
+        <li><strong>Error handling</strong> &mdash; <code>TRPCError</code>, error codes, formatting for the client</li>
+        <li><strong>Client</strong> &mdash; <code>createTRPCProxyClient</code> in renderer, the autocomplete experience</li>
+        <li><strong>Integration with TanStack Query</strong> &mdash; <code>@trpc/react-query</code> gives you <code>useQuery</code> / <code>useMutation</code> hooks per procedure</li>
+        <li><strong>electron-trpc transport</strong> &mdash; how it replaces the HTTP link</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://trpc.io/" target="_blank">trpc.io</a> &mdash; main site.</li>
+        <li><a href="https://trpc.io/docs/quickstart" target="_blank">Quickstart</a></li>
+        <li><a href="https://trpc.io/docs/server/routers" target="_blank">Routers</a></li>
+        <li><a href="https://trpc.io/docs/client/react" target="_blank">React Query integration</a></li>
+        <li><a href="https://github.com/jsonnull/electron-trpc" target="_blank">electron-trpc — IPC adapter</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — tRPC explained / Why I love tRPC</a></div>
+          <p class="desc">Theo is one of the loudest tRPC advocates and the co-creator of the T3 stack (Next + tRPC + Prisma + Tailwind). His videos are the right entry point.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — tRPC complete tutorial</a></div>
+          <p class="desc">Clean walkthrough: setup, routers, mutations, error handling, React Query integration.</p>
+        </div>
+        <span class="duration">1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Cody</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevCody" target="_blank">Web Dev Cody — tRPC in real apps</a></div>
+          <p class="desc">Practical project patterns.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Niall Maher</div>
+          <div class="title"><a href="https://www.youtube.com/@NiallMaher" target="_blank">Niall — Electron + tRPC walkthroughs</a></div>
+          <p class="desc">Less common topic but Niall covers it; useful for the Electron-specific transport setup.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Define the router (main process)</h4>
+<pre><code>// src/main/trpc/router.ts
+import { initTRPC } from '@trpc/server';
+import { z } from 'zod';
+
+const t = initTRPC.create();
+
+export const appRouter = t.router({
+  session: t.router({
+    current: t.procedure.query(() =&gt; sessionService.getCurrent()),
+
+    start: t.procedure
+      .input(z.object({
+        name: z.string().min(1),
+        goal: z.string().optional(),
+      }))
+      .mutation(({ input }) =&gt; sessionService.create(input)),
+
+    end: t.procedure.mutation(() =&gt; sessionService.end()),
+  }),
+
+  reports: t.router({
+    list: t.procedure.query(() =&gt; reportService.list()),
+
+    get: t.procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .query(({ input }) =&gt; reportService.get(input.id)),
+  }),
+});
+
+export type AppRouter = typeof appRouter;</code></pre>
+
+      <h4>Wire the IPC transport</h4>
+<pre><code>// src/main/main.ts
+import { createIPCHandler } from 'electron-trpc/main';
+import { appRouter } from './trpc/router';
+
+createIPCHandler({ router: appRouter, windows: [win] });
+
+// src/preload/preload.ts
+import { exposeElectronTRPC } from 'electron-trpc/preload';
+exposeElectronTRPC();</code></pre>
+
+      <h4>Use in the renderer</h4>
+<pre><code>// src/renderer/src/trpc.ts
+import { createTRPCProxyClient } from '@trpc/client';
+import { ipcLink } from 'electron-trpc/renderer';
+import type { AppRouter } from '../../main/trpc/router';
+
+export const trpc = createTRPCProxyClient&lt;AppRouter&gt;({
+  links: [ipcLink()],
+});
+
+// in a component
+const reports = await trpc.reports.list.query();
+//    ^ typed as Report[]
+const created = await trpc.session.start.mutate({ name: 'morning' });
+//    ^ typed as Session
+//    autocomplete on { name, goal }</code></pre>
+
+      <h4>With TanStack Query (the v2 pattern)</h4>
+<pre><code>// hooks/useReports.ts
+export function useReports() {
+  return useQuery({
+    queryKey: ['reports'],
+    queryFn: () =&gt; trpc.reports.list.query(),
+  });
+}
+
+// or use @trpc/react-query which auto-generates hooks:
+const { data } = trpcReact.reports.list.useQuery();</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Replace your electron-vite lab's IPC with tRPC:</p>
+        <ol>
+          <li>Install <code>@trpc/server</code>, <code>@trpc/client</code>, <code>electron-trpc</code>, <code>zod</code>.</li>
+          <li>Create <code>src/main/trpc/router.ts</code>. Add three procedures: <code>system.info</code> (query), <code>echo.shout</code> (mutation taking a string, returning the uppercased version), <code>session.tick</code> (subscription emitting a count every second &mdash; subscriptions are advanced; you can skip if pressed for time).</li>
+          <li>Wire <code>createIPCHandler</code> in main and <code>exposeElectronTRPC</code> in preload.</li>
+          <li>In the renderer, call all three. Confirm autocomplete works end-to-end. Deliberately typo a procedure name and watch it fail to compile.</li>
+          <li>Add input validation with Zod. Try to pass a wrong type; confirm both compile-time and runtime errors.</li>
+          <li>Integrate with TanStack Query. Build a button that calls <code>echo.shout</code> via <code>useMutation</code>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>tRPC is the centerpiece of the v2 IPC rewrite. The 169-channel preload disappears. <code>src/ipc/</code> in v1 (109 actual <code>ipcMain.handle</code> callsites across 20 files) collapses into one router file per domain, organized into a tree:</p>
+      <pre><code>appRouter
+  ├── auth          (sign in, sign out, refresh)
+  ├── session       (start, end, current, history)
+  ├── capture       (status, start, stop, takeScreenshot)
+  ├── pipeline      (activity stream control, training data control)
+  ├── reports       (list, get, generate, share)
+  ├── teams         (CRUD, invite, members)
+  ├── profile       (read, update, OW Profile data)
+  ├── settings      (read, update)
+  └── system        (platform info, permissions, paths)</code></pre>
+      <p>The backend tRPC router (Express transport) shares types with the desktop via a shared types package, so a renderer call to <code>trpc.reports.list</code> and the backend's <code>/api/reports</code> return the exact same TypeScript type.</p>
+      <p>Roughly half of v1's IPC handlers are pure HTTP pass-throughs. Those get deleted: the renderer calls the backend directly via <code>fetch</code> with the stored JWT. Only the genuinely-native handlers (capture, OCR, permissions, deep-link OAuth, auto-update, tray, settings persistence, clipboard) stay in the IPC router. Expected count: ~20&ndash;30 procedures, down from 109.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="electron-builder.html">
+        <span class="label-small">Previous</span>
+        electron-builder
+      </a>
+      <a class="next" href="native-modules.html">
+        <span class="label-small">Next</span>
+        Native modules →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

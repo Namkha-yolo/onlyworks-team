@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TanStack Query · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="shadcn-ui.html">← shadcn/ui</a>
+    <a href="tanstack-router.html">Next: Router →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">06 · State &amp; data</div>
+      <h1>Tan<em>Stack Query</em></h1>
+      <p class="lede">Server state, properly. Replaces every "fetch in <code>useEffect</code>, cache in <code>useState</code>, invalidate by hand" pattern in the v1 renderer.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The v1 renderer has a hand-rolled cache layer in <code>src/app/modules/data-manager.js</code> &mdash; per-domain TTLs, manual invalidation, an event bus for refetches. It's well-intentioned and broken in subtle ways: when you switch tabs, the cache invalidates at a different time than the UI re-renders, and a stale report flashes for half a second before the loading state.</p>
+      <p>TanStack Query handles all of this. It manages <strong>server state</strong> (data you don't own &mdash; it lives on a backend) separately from UI state. It caches by query key, deduplicates concurrent fetches, retries on failure, refetches on window focus, and gives you stale-while-revalidate for free. You write <code>useQuery({ queryKey: ['reports'], queryFn: fetchReports })</code> and it Just Works.</p>
+      <p>Mutations get a typed <code>useMutation</code> that integrates with the cache: after a successful POST, invalidate the affected query keys and the UI re-fetches automatically.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>The mental model</strong> &mdash; server state vs UI state (use Zustand for UI state)</li>
+        <li><strong><code>QueryClient</code></strong> + <code>QueryClientProvider</code> at the root</li>
+        <li><strong><code>useQuery</code></strong> &mdash; queryKey, queryFn, the return shape (<code>data</code>, <code>isLoading</code>, <code>isError</code>, <code>error</code>, <code>refetch</code>)</li>
+        <li><strong>Query keys</strong> &mdash; arrays, hierarchical (e.g. <code>['reports', userId]</code>), the implications for invalidation</li>
+        <li><strong>Stale time vs cache time</strong> &mdash; the two TTLs and what they mean</li>
+        <li><strong>Refetching</strong> &mdash; on mount, on window focus, on interval, on reconnect</li>
+        <li><strong><code>useMutation</code></strong> &mdash; <code>mutationFn</code>, <code>onSuccess</code>, <code>onError</code>, optimistic updates</li>
+        <li><strong>Invalidation</strong> &mdash; <code>queryClient.invalidateQueries({ queryKey: ['reports'] })</code></li>
+        <li><strong>Optimistic updates</strong> &mdash; the pattern, when it's worth it, how to roll back</li>
+        <li><strong>Suspense mode</strong> &mdash; <code>useSuspenseQuery</code>, integration with React's <code>&lt;Suspense&gt;</code></li>
+        <li><strong>Pagination &amp; infinite queries</strong> &mdash; <code>useInfiniteQuery</code></li>
+        <li><strong>React Query DevTools</strong> &mdash; always install in dev</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react/overview" target="_blank">tanstack.com/query — Overview</a></li>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react/quick-start" target="_blank">Quick Start</a></li>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults" target="_blank">Important Defaults</a> &mdash; the one chapter that prevents 90% of "why is it refetching?" confusion.</li>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react/guides/query-keys" target="_blank">Query Keys</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — TanStack Query playlist</a></div>
+          <p class="desc">The clearest practical intro on YouTube. Watch his "All useState should be replaced with TanStack Query" video to anchor the mental model.</p>
+        </div>
+        <span class="duration">~2h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — Why TanStack Query</a></div>
+          <p class="desc">Theo's strong-take videos on why useEffect-for-fetching is wrong. Search "Theo TanStack Query" or "Theo react query".</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">TkDodo · Blog + YouTube</div>
+          <div class="title"><a href="https://tkdodo.eu/blog/practical-react-query" target="_blank">Practical React Query — Dominik Dorfmeister</a></div>
+          <p class="desc">Dominik is a TanStack Query maintainer. His blog series is THE deep reference. Read it. Also check his YouTube interviews.</p>
+        </div>
+        <span class="duration">~3h to read</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Cosden Solutions</div>
+          <div class="title"><a href="https://www.youtube.com/@cosdensolutions" target="_blank">Cosden — React Query tutorial</a></div>
+          <p class="desc">Clean intro-to-intermediate walkthrough.</p>
+        </div>
+        <span class="duration">45m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Long-form deep dives</h2>
+      <ul>
+        <li><a href="https://tkdodo.eu/blog/practical-react-query" target="_blank">Practical React Query series</a> by TkDodo &mdash; <strong>read every post</strong>. This is the single best resource.</li>
+        <li><a href="https://tanstack.com/query/latest/docs/framework/react/guides/queries" target="_blank">Queries / Mutations / Invalidation guides</a> on the official site &mdash; not optional.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Provider setup</h4>
+<pre><code>// src/main.tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,        // 1 minute
+      refetchOnWindowFocus: false, // we're in Electron, the window is always focused
+      retry: 2,
+    },
+  },
+});
+
+&lt;QueryClientProvider client={queryClient}&gt;
+  &lt;App /&gt;
+  &lt;ReactQueryDevtools /&gt;
+&lt;/QueryClientProvider&gt;</code></pre>
+
+      <h4>Custom hooks per resource</h4>
+<pre><code>// hooks/useReports.ts
+export function useReports() {
+  return useQuery({
+    queryKey: ['reports'],
+    queryFn: () =&gt; trpc.reports.list.query(),
+  });
+}
+
+export function useGenerateReport() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: GenerateReportInput) =&gt; trpc.reports.generate.mutate(input),
+    onSuccess: () =&gt; {
+      qc.invalidateQueries({ queryKey: ['reports'] });
+    },
+  });
+}</code></pre>
+
+      <h4>Stale-while-revalidate without thinking</h4>
+<pre><code>function ReportList() {
+  const { data, isLoading, isFetching } = useReports();
+
+  if (isLoading) return &lt;Spinner /&gt;;
+  return (
+    &lt;div&gt;
+      {isFetching &amp;&amp; &lt;RefreshIndicator /&gt;}
+      {data?.map(r =&gt; &lt;ReportCard key={r.id} report={r} /&gt;)}
+    &lt;/div&gt;
+  );
+}</code></pre>
+      <p>The user sees cached data <em>immediately</em>. A subtle refresh indicator says "loading newer data". When it arrives, the list updates. No flash of blank screen.</p>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Refactor your GitHub repo browser (from the React doc) to use TanStack Query:</p>
+        <ol>
+          <li>Install <code>@tanstack/react-query</code> and the devtools.</li>
+          <li>Wrap the app in <code>QueryClientProvider</code>.</li>
+          <li>Replace the <code>useEffect</code>-based fetch with <code>useQuery</code>.</li>
+          <li>Add a "Refresh" button that calls <code>refetch()</code>.</li>
+          <li>Add a search input that adds a new query key per username so cache stays separated.</li>
+          <li>Add a mutation: a fake "Star this repo" button that <code>POST</code>s to a dummy endpoint. Invalidate the repo list on success.</li>
+          <li>Open the DevTools panel and watch the cache update.</li>
+          <li>Set <code>staleTime: 60_000</code> and confirm: re-mounting the component within 60s doesn't refetch.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>Every IPC call from the renderer goes through TanStack Query. We delete <code>data-manager.js</code> entirely. The per-domain TTLs and event bus are replaced by query keys + <code>invalidateQueries</code>. The "auto-refresh current view after writes" pattern becomes one line in a mutation's <code>onSuccess</code>.</p>
+      <p>Since v2 uses tRPC over IPC, the queryFn for every hook is one-liner: <code>() =&gt; trpc.&lt;router&gt;.&lt;procedure&gt;.query()</code>. End-to-end types: the component code knows the exact shape of <code>data</code> without writing a single interface.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="shadcn-ui.html">
+        <span class="label-small">Previous</span>
+        shadcn/ui
+      </a>
+      <a class="next" href="tanstack-router.html">
+        <span class="label-small">Next</span>
+        TanStack Router →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

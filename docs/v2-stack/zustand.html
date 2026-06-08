@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zustand · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="tanstack-router.html">← Router</a>
+    <a href="react-hook-form-zod.html">Next: Forms →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">08 · State &amp; data</div>
+      <h1><em>Zustand</em></h1>
+      <p class="lede">UI state without the Redux ceremony. One hook, no providers, no actions, no reducers — and ~1KB.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>v1 has a hand-rolled <code>window.AppStore</code> + ~6 global flags (<code>isCapturing</code>, <code>currentSessionId</code>, <code>sessionStartTime</code>, <code>currentSection</code>, etc.) updated from various modules. It's invisible state, untyped, untestable.</p>
+      <p>v2 uses two state systems, by category:</p>
+      <ul>
+        <li><strong>Server state</strong> (anything that lives on the backend) &mdash; <a href="tanstack-query.html">TanStack Query</a></li>
+        <li><strong>UI state</strong> (anything that doesn't outlive a session) &mdash; Zustand</li>
+      </ul>
+      <p>"UI state" means: theme, sidebar collapsed/expanded, currently-open modal, the active session's local capture state, draft form contents, layout preferences. Things React state hooks could handle if they didn't have to be lifted six levels.</p>
+      <p>We avoid Redux for the same reason React's docs do: too much boilerplate per change. Zustand is what people reach for in 2024+.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong><code>create</code></strong> &mdash; the one factory you'll call</li>
+        <li><strong>The store as a hook</strong> &mdash; <code>useStore(s =&gt; s.theme)</code></li>
+        <li><strong>Selectors</strong> &mdash; pass a function, only re-render when that slice changes</li>
+        <li><strong>Actions</strong> &mdash; just functions on the store, no dispatching</li>
+        <li><strong>Equality functions</strong> &mdash; <code>shallow</code> for picking multiple fields, <code>useShallow</code></li>
+        <li><strong>Middleware</strong> &mdash; <code>persist</code> (localStorage), <code>devtools</code>, <code>immer</code></li>
+        <li><strong>Slicing</strong> &mdash; one big store with sub-slices, or several small stores; both work, pick a convention</li>
+        <li><strong>Computed values</strong> &mdash; derive in the selector, don't store derived state</li>
+        <li><strong>Testing</strong> &mdash; the store is just a function call; no provider mocking</li>
+        <li><strong>Outside React</strong> &mdash; you can read/write the store from non-component code (e.g. an IPC handler)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://github.com/pmndrs/zustand" target="_blank">github.com/pmndrs/zustand</a> &mdash; the README is the docs. Read it top to bottom (~15 minutes).</li>
+        <li><a href="https://docs.pmnd.rs/zustand/getting-started/introduction" target="_blank">docs.pmnd.rs/zustand</a> &mdash; the longer guide.</li>
+        <li><a href="https://github.com/pmndrs/zustand/blob/main/docs/guides/typescript.md" target="_blank">TypeScript guide</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — Zustand v5 / state management videos</a></div>
+          <p class="desc">Walks through the modern Zustand API and compares it to Redux/Recoil/Jotai. The state-management comparison is genuinely useful.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Cosden Solutions</div>
+          <div class="title"><a href="https://www.youtube.com/@cosdensolutions" target="_blank">Cosden — Learn Zustand in 18 minutes</a></div>
+          <p class="desc">Cleanest one-sitting intro. Watch this first.</p>
+        </div>
+        <span class="duration">18m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">Why I'm Using Zustand Over Redux</a></div>
+          <p class="desc">Kyle's framing of when state management is needed at all (often, less than you think).</p>
+        </div>
+        <span class="duration">15m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — Zustand quick takes</a></div>
+          <p class="desc">Theo uses Zustand as his default state manager and explains why in several short videos.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>A simple typed store</h4>
+<pre><code>// src/state/ui-store.ts
+import { create } from 'zustand';
+
+interface UIState {
+  sidebarCollapsed: boolean;
+  theme: 'light' | 'dark' | 'auto';
+
+  toggleSidebar: () =&gt; void;
+  setTheme: (t: 'light' | 'dark' | 'auto') =&gt; void;
+}
+
+export const useUI = create&lt;UIState&gt;((set) =&gt; ({
+  sidebarCollapsed: false,
+  theme: 'auto',
+
+  toggleSidebar: () =&gt; set((s) =&gt; ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  setTheme: (theme) =&gt; set({ theme }),
+}));</code></pre>
+
+      <h4>Persist middleware (localStorage)</h4>
+<pre><code>import { persist } from 'zustand/middleware';
+
+export const useUI = create&lt;UIState&gt;()(
+  persist(
+    (set) =&gt; ({ /* ... */ }),
+    { name: 'ow-ui' }, // localStorage key
+  ),
+);</code></pre>
+
+      <h4>Selectors prevent re-renders</h4>
+<pre><code>// Re-renders on ANY UI state change — bad
+const ui = useUI();
+
+// Re-renders only when theme changes — good
+const theme = useUI((s) =&gt; s.theme);
+
+// Multiple fields — use useShallow
+import { useShallow } from 'zustand/react/shallow';
+const { theme, sidebarCollapsed } = useUI(
+  useShallow((s) =&gt; ({ theme: s.theme, sidebarCollapsed: s.sidebarCollapsed }))
+);</code></pre>
+
+      <h4>Reading the store from outside React</h4>
+<pre><code>// e.g. inside an IPC handler that needs the current theme
+const theme = useUI.getState().theme;
+
+// or subscribe to changes:
+const unsub = useUI.subscribe((s) =&gt; s.theme, (theme) =&gt; {
+  console.log('theme changed to', theme);
+});</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Add a Zustand store to your GitHub browser project:</p>
+        <ol>
+          <li>Install Zustand. Create <code>src/state/ui.ts</code>.</li>
+          <li>Track three things in UI state: theme (<code>'light' | 'dark'</code>), recentlyViewedUsernames (string[]), favoriteRepoIds (number[]).</li>
+          <li>Use the <code>persist</code> middleware for theme and favorites; <em>don't</em> persist recentlyViewed (it should reset between sessions).</li>
+          <li>Build a theme switcher in the sidebar. Verify selector subscriptions: when you click theme, only components that read <code>theme</code> re-render.</li>
+          <li>Use <code>useShallow</code> to subscribe to two fields at once.</li>
+          <li>From a non-React place (a util function), read the current theme via <code>getState()</code>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>v2 has 2&ndash;3 Zustand stores: one for UI (theme, sidebar, modals), one for session state (the local mirror of the running capture session), maybe one for tutorial / onboarding flow. Together they replace the entire <code>window.AppStore</code> + scattered globals from v1.</p>
+      <p>Server-state (reports, sessions list, OW Profile) all goes through TanStack Query. If you find yourself reaching for Zustand to cache a fetched API response, stop &mdash; that's TanStack Query's job.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="tanstack-router.html">
+        <span class="label-small">Previous</span>
+        TanStack Router
+      </a>
+      <a class="next" href="react-hook-form-zod.html">
+        <span class="label-small">Next</span>
+        React Hook Form + Zod →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="vitest.html">← Vitest</a>
+    <a href="python-pytorch.html">Next: Python + PyTorch →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">21 · Testing</div>
+      <h1><em>Playwright</em></h1>
+      <p class="lede">End-to-end browser + Electron testing. Drives a real browser, asserts on real DOM, takes real screenshots. Catches the regressions that unit tests can't.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Unit tests catch logic regressions. They don't catch "the sidebar nav broke after the React 19 upgrade", "the OAuth flow loses the redirect URL on Safari", or "after sign-in, the dashboard route 404s on the first load."</p>
+      <p>Playwright drives a real Chrome / Firefox / WebKit instance, runs through a flow as a user would, and asserts on the outcome. It also has first-class support for Electron via <code>_electron</code> &mdash; launch the packaged app, attach to its windows, run the same kinds of assertions.</p>
+      <p>For the website (Next.js), Playwright tests the marketing flows, the OAuth round-trip with Supabase, the Talent Community magic-link signup. For the desktop, Playwright tests the onboarding flow, sign-in, session start/end, and report visibility &mdash; the critical paths that have broken before.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Test structure</strong> &mdash; <code>test('description', async ({ page }) =&gt; ...)</code></li>
+        <li><strong>Locators</strong> &mdash; <code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code>, <code>getByTestId</code></li>
+        <li><strong>Why selector strategy matters</strong> &mdash; prefer roles + labels over CSS selectors</li>
+        <li><strong>Auto-waiting</strong> &mdash; Playwright auto-waits for elements; you almost never <code>sleep</code></li>
+        <li><strong>Assertions</strong> &mdash; <code>expect(locator).toBeVisible()</code>, <code>toHaveText</code>, <code>toHaveURL</code></li>
+        <li><strong>Multiple browsers</strong> &mdash; run the same test across Chromium, Firefox, WebKit</li>
+        <li><strong>Trace viewer</strong> &mdash; on failure, watch the test as a movie; inspect the DOM at any frame</li>
+        <li><strong>Fixtures</strong> &mdash; share auth state, build a logged-in user once, reuse across tests</li>
+        <li><strong>Network interception</strong> &mdash; mock backend responses, simulate failures</li>
+        <li><strong>Electron testing</strong> &mdash; <code>_electron.launch</code>, attaching to windows, IPC inspection</li>
+        <li><strong>CI integration</strong> &mdash; the official GitHub Action, cross-browser matrices, retries</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://playwright.dev/" target="_blank">playwright.dev</a> &mdash; the docs.</li>
+        <li><a href="https://playwright.dev/docs/intro" target="_blank">Getting Started</a></li>
+        <li><a href="https://playwright.dev/docs/locators" target="_blank">Locators guide</a> &mdash; read this carefully.</li>
+        <li><a href="https://playwright.dev/docs/trace-viewer" target="_blank">Trace Viewer</a></li>
+        <li><a href="https://playwright.dev/docs/api/class-electron" target="_blank">Electron API</a></li>
+        <li><a href="https://playwright.dev/docs/best-practices" target="_blank">Best Practices</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Playwright (official) · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@Playwrightdev" target="_blank">Playwright official channel</a></div>
+          <p class="desc">The team's own videos. "Getting Started" + the deep dives on locators, fixtures, and traces are the cleanest reference.</p>
+        </div>
+        <span class="duration">~2h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">freeCodeCamp</div>
+          <div class="title"><a href="https://www.youtube.com/c/Freecodecamp" target="_blank">Playwright Tutorial for Beginners — full course</a></div>
+          <p class="desc">Search "freeCodeCamp Playwright". 4+ hours, covers everything end-to-end.</p>
+        </div>
+        <span class="duration">4h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Cypress vs Playwright comparison videos</div>
+          <div class="title">"Should I use Cypress or Playwright in 2024"</div>
+          <p class="desc">Several creators cover this. We use Playwright; the comparison videos help with the "why" if you've used Cypress before.</p>
+        </div>
+        <span class="duration">15m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>A web flow test</h4>
+<pre><code>// e2e/talent-community.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('user can request a magic link', async ({ page }) =&gt; {
+  await page.goto('/talent');
+  await page.getByLabel('Email').fill('test@example.com');
+  await page.getByLabel('Full name').fill('Test User');
+  await page.getByRole('button', { name: /join/i }).click();
+  await expect(page.getByText(/check your inbox/i)).toBeVisible();
+});</code></pre>
+
+      <h4>Auth fixture (reusable logged-in state)</h4>
+<pre><code>// tests/setup/auth.ts
+import { test as base } from '@playwright/test';
+
+export const test = base.extend({
+  authedPage: async ({ page }, use) =&gt; {
+    await page.goto('/login');
+    await page.getByLabel('Email').fill(process.env.E2E_EMAIL!);
+    await page.getByLabel('Password').fill(process.env.E2E_PASSWORD!);
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.waitForURL('/dashboard');
+    await use(page);
+  },
+});</code></pre>
+
+      <h4>Electron test</h4>
+<pre><code>import { _electron as electron, expect, test } from '@playwright/test';
+
+test('desktop boots to the auth screen', async () =&gt; {
+  const app = await electron.launch({ args: ['.'] });
+  const window = await app.firstWindow();
+  await expect(window.getByText('Sign in')).toBeVisible();
+  await app.close();
+});</code></pre>
+
+      <h4>Network mock</h4>
+<pre><code>test('shows error state when backend is down', async ({ page }) =&gt; {
+  await page.route('**/api/reports/user', (route) =&gt; route.fulfill({
+    status: 500,
+    body: JSON.stringify({ success: false, error: 'oops' }),
+  }));
+  await page.goto('/dashboard');
+  await expect(page.getByText(/couldn.t load reports/i)).toBeVisible();
+});</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Add Playwright to your Next.js verified-lab from the previous chapter:</p>
+        <ol>
+          <li><code>pnpm create playwright</code> &mdash; pick TS, default settings.</li>
+          <li>Write 3 tests: homepage loads, profile page loads with a real GitHub username, profile page 404s with a nonsense username.</li>
+          <li>Use <code>getByRole</code> + <code>getByText</code> as primary locators &mdash; not CSS classes.</li>
+          <li>Add a network mock test for the 500-error case.</li>
+          <li>Run <code>pnpm exec playwright test --ui</code> and explore the UI runner + trace viewer.</li>
+          <li>Wire into GitHub Actions: install Playwright browsers, run tests, upload the HTML report as an artifact.</li>
+          <li>Bonus: an Electron test for your Electron lab project &mdash; just launch the app and assert that a window opens.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>Playwright covers the v2 critical paths that broke in v1:</p>
+      <ul>
+        <li>Onboarding (welcome → permissions → profile-setup → dashboard)</li>
+        <li>Sign-in (system browser OAuth + the polling rendezvous with the desktop)</li>
+        <li>Start session → end session → daily report visible</li>
+        <li>Generate a custom report from selected sessions</li>
+        <li>Share report via link / email</li>
+        <li>Talent Community magic-link signup → OW Profile public view</li>
+        <li>Hiring search (anonymous teaser → authed full view)</li>
+      </ul>
+      <p>One Playwright test per critical path. Run them on every PR. Re-run on a nightly schedule against production-like data. The cost is small; the prevention of "we shipped a broken sign-in flow" regressions is large.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="vitest.html">
+        <span class="label-small">Previous</span>
+        Vitest
+      </a>
+      <a class="next" href="python-pytorch.html">
+        <span class="label-small">Next</span>
+        Python + PyTorch →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

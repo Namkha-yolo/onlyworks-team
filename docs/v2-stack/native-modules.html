@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Native modules · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="trpc.html">← tRPC</a>
+    <a href="macos-vision-ocr.html">Next: macOS OCR →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">14 · Native plumbing</div>
+      <h1><em>Native modules</em></h1>
+      <p class="lede">uIOhook, active-win, sharp, tesseract.js. The Node packages that wrap C/C++/Rust binaries. Where most Electron release-day surprises live.</p>
+    </header>
+
+    <section>
+      <h2>Why this needs its own doc</h2>
+      <p>OnlyWorks depends on a handful of npm packages that wrap native binaries:</p>
+      <ul>
+        <li><strong>uiohook-napi</strong> &mdash; system-wide mouse + keyboard hooks (libuiohook → Cocoa / Win32 / X11)</li>
+        <li><strong>active-win</strong> &mdash; identify the focused window's app + title (Cocoa / Win32 / X11)</li>
+        <li><strong>sharp</strong> &mdash; libvips image processing (resize / re-encode screenshots before sending)</li>
+        <li><strong>tesseract.js-core</strong> &mdash; WASM OCR fallback when platform OCR isn't available</li>
+      </ul>
+      <p>These have non-obvious failure modes: native modules need to be rebuilt for Electron's Node ABI, they break when packaged inside <code>app.asar</code>, they need <code>asarUnpack</code> entries, and they can abort the whole process at the C level when permissions are missing (uIOhook on macOS without Accessibility is the canonical example).</p>
+      <p>You don't need to write a native module. You do need to know how to consume them, ship them, and debug them when they fail in a packaged build.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Native vs pure-JS modules</strong> &mdash; <code>node-pre-gyp</code>, <code>napi-rs</code>, <code>node-gyp</code>; what each does</li>
+        <li><strong><code>electron-rebuild</code></strong> &mdash; rebuilds C++ bindings against Electron's Node ABI. Triggered by <code>electron-builder install-app-deps</code> postinstall.</li>
+        <li><strong><code>asarUnpack</code></strong> &mdash; native files must live <em>outside</em> the <code>app.asar</code> archive at runtime; <code>asarUnpack</code> globs decide what gets extracted to <code>app.asar.unpacked/</code></li>
+        <li><strong>Lazy require</strong> in services that touch native modules &mdash; so a missing dep doesn't crash startup</li>
+        <li><strong>Try/catch around <code>start()</code> calls</strong> &mdash; some native libs abort at C level if you call them without permissions. You can't catch a libuv assert. Gate the call.</li>
+        <li><strong>Pre-flight permission checks</strong> &mdash; on macOS, <code>systemPreferences.isTrustedAccessibilityClient(false)</code> before <code>uIOhook.start()</code>; on Windows, check VC++ Runtime presence</li>
+        <li><strong>User-friendly fallbacks</strong> &mdash; a missing native module shouldn't break the whole app. Show a notification, degrade gracefully.</li>
+        <li><strong>How to debug a packaged build</strong> &mdash; you can <code>open -a "OnlyWorks Desktop" --args --inspect</code> to attach a debugger to a signed app</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://www.electronjs.org/docs/latest/tutorial/using-native-node-modules" target="_blank">Electron — Using Native Node Modules</a></li>
+        <li><a href="https://nodejs.org/api/n-api.html" target="_blank">Node-API (N-API)</a> &mdash; the ABI-stable interface most modern native modules use</li>
+        <li><a href="https://www.electron.build/configuration/contents#asarunpack" target="_blank">electron-builder &mdash; asarUnpack</a></li>
+        <li><a href="https://github.com/SnosMe/uiohook-napi" target="_blank">uiohook-napi README</a></li>
+        <li><a href="https://github.com/sindresorhus/active-win" target="_blank">active-win README</a></li>
+        <li><a href="https://sharp.pixelplumbing.com/" target="_blank">sharp docs</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">ElectronJS · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@ElectronJS" target="_blank">Electron — native module talks</a></div>
+          <p class="desc">Search "Electron native modules" or "n-api electron" for conference talks. The architecture talks are the best entry point.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">napi-rs · YouTube + GitHub</div>
+          <div class="title"><a href="https://napi.rs/" target="_blank">napi.rs (Rust → Node native modules)</a></div>
+          <p class="desc">If you ever need to write a native module, do it in Rust via napi-rs &mdash; the safest modern path. The site has linked talks.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">No good single tutorial &mdash; learn from v1</div>
+          <div class="title">Read <code>src/services/capture-service.js</code> in v1</div>
+          <p class="desc">The setupKeyboardListeners() function and the lazy-require pattern at the top of the file are the practical reference. Reading code &gt; watching tutorials here.</p>
+        </div>
+        <span class="duration">15m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Lazy-require with graceful degradation</h4>
+<pre><code>// src/main/services/capture-service.ts
+let uIOhook: typeof import('uiohook-napi').uIOhook | null = null;
+try {
+  ({ uIOhook } = require('uiohook-napi'));
+} catch (err) {
+  logger.error('Failed to load uiohook-napi:', err.message);
+  // Continue without input listeners. Notify user.
+}</code></pre>
+
+      <h4>Permission-gated startup (macOS)</h4>
+<pre><code>// Before calling uIOhook.start() on macOS, check Accessibility.
+// If the user hasn't granted it yet, libuiohook will abort at the
+// C level (libuv assertion). Try/catch can't catch it.
+if (process.platform === 'darwin') {
+  const trusted = systemPreferences.isTrustedAccessibilityClient(false);
+  if (!trusted) {
+    logger.warn('Accessibility not granted — input listeners deferred');
+    emit('inputListenersDeferred');
+    return;
+  }
+}
+
+try {
+  uIOhook.start();
+} catch (err) {
+  logger.error('uIOhook.start failed:', err);
+}</code></pre>
+
+      <h4>asarUnpack in package.json</h4>
+<pre><code>"asarUnpack": [
+  "node_modules/uiohook-napi/**",
+  "node_modules/sharp/**",
+  "node_modules/@img/**",       // sharp's prebuilt libvips
+  "node_modules/active-win/**",
+  "node_modules/tesseract.js-core/**",
+  "src/utils/*.ps1"             // Windows OCR + active-win PowerShell scripts
+]</code></pre>
+
+      <h4>Active-win fallback chain</h4>
+<pre><code>// Try the native package first, fall back to platform-specific helpers.
+async function getActiveWindowInfo() {
+  if (process.platform === 'win32') {
+    try {
+      const { activeWindow } = require('active-win');
+      const win = await activeWindow();
+      if (win) return { app: win.owner?.name, title: win.title };
+    } catch (err) {
+      logger.warn('active-win failed, falling back to PowerShell');
+    }
+    // Fallback: spawn PowerShell with Win32 API script
+    return await getActiveWindowViaPowerShell();
+  }
+  // macOS: AppleScript via System Events
+  // Linux: TBD
+}</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Add a native module to your Electron lab app:</p>
+        <ol>
+          <li>Install <code>sharp</code> as a dependency.</li>
+          <li>Add an IPC procedure <code>image.resize</code> that takes a Buffer + max width and returns a resized JPEG buffer.</li>
+          <li>Test it from the renderer with a file picker + image preview.</li>
+          <li>Run <code>pnpm dist</code>. Open the packaged app. Confirm it still works (this is where unconfigured <code>asarUnpack</code> bites you).</li>
+          <li>Now <em>remove</em> sharp from <code>asarUnpack</code>, rebuild, and watch the failure mode (the resize call will throw "Could not find module").</li>
+          <li>Bonus: add <code>active-win</code> and surface "current focused window" in the UI.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>v2 keeps the same native module list as v1 (uIOhook, active-win, sharp, tesseract.js-core). The wrappers move into Consumer files on the unified <code>CaptureEngine</code>, but the underlying packages don't change &mdash; they have years of platform bug fixes embedded.</p>
+      <p>The Windows pre-flight diagnostics in v1 (<code>src/services/windows-preflight.js</code>) check for missing VC++ Runtime, PowerShell execution policy issues, and native module load failures at startup. That code ports straight to v2 with minimal changes &mdash; read it before you debug your first packaged-build issue.</p>
+      <div class="callout warning">
+        <div class="label-tag">War wound</div>
+        <p>The macOS TCC trust-state snapshot in v1's <code>main.js</code> exists because if the user grants Accessibility while the app is running, the running process doesn't pick it up &mdash; and the next <code>uIOhook.start()</code> aborts at the C level. v1 snapshots trust state at launch, and onboarding-complete triggers a <code>app.relaunch()</code> if state changed. v2 must preserve this exact behavior.</p>
+      </div>
+    </section>
+
+    <div class="next-prev">
+      <a href="trpc.html">
+        <span class="label-small">Previous</span>
+        tRPC
+      </a>
+      <a class="next" href="macos-vision-ocr.html">
+        <span class="label-small">Next</span>
+        macOS Vision OCR →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

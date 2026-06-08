@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python + PyTorch · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="playwright.html">← Playwright</a>
+    <a href="huggingface-transformers.html">Next: Hugging Face →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">22 · AI / model training</div>
+      <h1>Python <em>+ PyTorch</em></h1>
+      <p class="lede">The foundation of everything ML. We train our own model on top of PyTorch — but first you need to be able to read a training loop without panicking.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The endgame for OnlyWorks AI: <strong>train a proprietary multimodal model</strong> that takes a screenshot + activity context (OCR text, app, window title) and emits the same kind of interpretation we currently get from Gemini Vision. Replacing Gemini at scale is the bet that makes the product economics work past 100k users.</p>
+      <p>Every modern model lives in the PyTorch ecosystem. The model weights are PyTorch tensors. The training loop is a PyTorch <code>nn.Module</code> + <code>optimizer.step()</code> dance. Hugging Face Transformers is a PyTorch library. LoRA and QLoRA fine-tuning are PyTorch operations. If you're going to do anything with our model, you read and write PyTorch.</p>
+      <p>You don't need to be a research-paper-publishing PyTorch wizard. You need to:</p>
+      <ul>
+        <li>Read a training script and understand what each line does.</li>
+        <li>Modify a training config (learning rate, batch size, optimizer).</li>
+        <li>Spot when something is wrong (loss is NaN, gradient explodes, GPU is OOM).</li>
+        <li>Run inference, save and load checkpoints, evaluate on a held-out set.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>Python (the language)</h3>
+      <ul>
+        <li>The basics: types, functions, classes, modules, packages</li>
+        <li><strong>List/dict/set comprehensions</strong>, generators, iterators</li>
+        <li><strong>Decorators</strong> &mdash; <code>@property</code>, <code>@dataclass</code>, custom decorators</li>
+        <li><strong>Context managers</strong> &mdash; <code>with</code> statements, building your own</li>
+        <li><strong>Type hints</strong> &mdash; basic typing module, <code>Optional</code>, <code>Union</code>, <code>Callable</code></li>
+        <li><strong>Virtual environments</strong> &mdash; <code>venv</code> + <code>pip</code>, or <code>conda</code>, or <code>uv</code> (the modern choice)</li>
+        <li><strong>Package management</strong> &mdash; <code>requirements.txt</code>, <code>pyproject.toml</code>, why pinning matters</li>
+      </ul>
+
+      <h3>The scientific Python stack</h3>
+      <ul>
+        <li><strong>NumPy</strong> &mdash; arrays, broadcasting, vectorized ops; the mental model carries over to tensors</li>
+        <li><strong>pandas</strong> &mdash; dataframes for dataset prep + analysis</li>
+        <li><strong>matplotlib</strong> + <strong>seaborn</strong> &mdash; quick plots when debugging training</li>
+        <li><strong>Jupyter / VS Code notebooks</strong> &mdash; where most exploration happens</li>
+      </ul>
+
+      <h3>PyTorch fundamentals</h3>
+      <ul>
+        <li><strong>Tensors</strong> &mdash; <code>torch.tensor</code>, shapes, dtypes, devices (CPU / GPU)</li>
+        <li><strong>Autograd</strong> &mdash; <code>requires_grad</code>, <code>backward()</code>, <code>no_grad()</code> contexts</li>
+        <li><strong><code>nn.Module</code></strong> &mdash; defining a model class with <code>__init__</code> + <code>forward</code></li>
+        <li><strong>Layers</strong> &mdash; Linear, Conv2d, LayerNorm, Embedding, MultiHeadAttention</li>
+        <li><strong>Loss functions</strong> &mdash; CrossEntropyLoss, MSELoss, what they expect</li>
+        <li><strong>Optimizers</strong> &mdash; Adam, AdamW, SGD; learning rate, weight decay, scheduling</li>
+        <li><strong>The training loop</strong> &mdash; the canonical 6 lines: forward → loss → zero_grad → backward → step → log</li>
+        <li><strong>DataLoader</strong> &mdash; batching, shuffling, num_workers, custom Datasets</li>
+        <li><strong>GPU usage</strong> &mdash; <code>.to('cuda')</code>, mixed precision (<code>torch.cuda.amp</code>)</li>
+        <li><strong>Saving / loading</strong> &mdash; <code>state_dict</code>, checkpoints</li>
+        <li><strong>Distributed training basics</strong> &mdash; <code>DistributedDataParallel</code>, when you need it</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank">Python — Official Tutorial</a></li>
+        <li><a href="https://pytorch.org/tutorials/" target="_blank">PyTorch Tutorials</a> &mdash; start with "Learn the Basics".</li>
+        <li><a href="https://pytorch.org/docs/stable/index.html" target="_blank">PyTorch API reference</a></li>
+        <li><a href="https://numpy.org/doc/stable/user/quickstart.html" target="_blank">NumPy Quickstart</a></li>
+        <li><a href="https://docs.astral.sh/uv/" target="_blank">uv — modern Python package manager</a> &mdash; use this, not pip+venv directly.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Andrej Karpathy · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@AndrejKarpathy" target="_blank">Andrej Karpathy — Neural Networks: Zero to Hero</a></div>
+          <p class="desc">The single most important playlist in ML education. Karpathy (ex-OpenAI, ex-Tesla AI) builds neural networks from scratch in Python + PyTorch. Watch in order. ~15 hours; spread over weeks.</p>
+        </div>
+        <span class="duration">~15h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Daniel Bourke · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@mrdbourke" target="_blank">Daniel Bourke — Learn PyTorch for Deep Learning (10h+)</a></div>
+          <p class="desc">The most beginner-friendly PyTorch course. If Karpathy is too dense, start here and come back to him.</p>
+        </div>
+        <span class="duration">10h+</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">StatQuest with Josh Starmer</div>
+          <div class="title"><a href="https://www.youtube.com/@statquest" target="_blank">StatQuest — Neural networks, gradient descent, backprop</a></div>
+          <p class="desc">The clearest explanations of the math behind training, ever. Watch his backprop and gradient-descent videos before Karpathy.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Aladdin Persson</div>
+          <div class="title"><a href="https://www.youtube.com/@AladdinPersson" target="_blank">Aladdin Persson — PyTorch tutorials from scratch</a></div>
+          <p class="desc">Implementations of classic papers from scratch. Useful after you have the basics for "how do I actually build X".</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">3Blue1Brown</div>
+          <div class="title"><a href="https://www.youtube.com/@3blue1brown" target="_blank">3Blue1Brown — Neural Networks series</a></div>
+          <p class="desc">If the math feels opaque (matrix multiplications, gradients, attention), Grant's animations are the cure. Watch the "Neural Networks" + "Essence of Calculus" series.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Books &amp; long-form</h2>
+      <ul>
+        <li><a href="https://d2l.ai/" target="_blank">Dive into Deep Learning</a> &mdash; free, comprehensive, modern. PyTorch examples. Read the chapters relevant to vision-language models.</li>
+        <li><a href="https://www.deeplearningbook.org/" target="_blank">Deep Learning</a> by Ian Goodfellow, Yoshua Bengio, Aaron Courville &mdash; the canonical textbook. Free online. Heavy on math.</li>
+        <li><a href="https://pytorch.org/tutorials/beginner/basics/intro.html" target="_blank">PyTorch — Learn the Basics</a> &mdash; official walkthrough.</li>
+        <li><a href="https://karpathy.github.io/2019/04/25/recipe/" target="_blank">"A Recipe for Training Neural Networks"</a> by Karpathy &mdash; what to actually do when your loss isn't going down.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in our model training code</h2>
+
+      <h4>A minimal PyTorch training loop</h4>
+<pre><code>import torch
+from torch import nn, optim
+from torch.utils.data import DataLoader
+
+model = MyModel().to('cuda')
+optimizer = optim.AdamW(model.parameters(), lr=3e-4, weight_decay=0.01)
+loss_fn = nn.CrossEntropyLoss()
+loader = DataLoader(my_dataset, batch_size=32, shuffle=True, num_workers=4)
+
+for epoch in range(num_epochs):
+    model.train()
+    for batch in loader:
+        x, y = batch['input'].to('cuda'), batch['label'].to('cuda')
+
+        logits = model(x)
+        loss = loss_fn(logits, y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    # Eval
+    model.eval()
+    with torch.no_grad():
+        for batch in val_loader:
+            # ... compute metrics ...
+            pass
+
+    torch.save(model.state_dict(), f'ckpt_epoch_{epoch}.pt')</code></pre>
+
+      <h4>A custom Dataset class</h4>
+<pre><code>from torch.utils.data import Dataset
+from PIL import Image
+
+class TrainingFrameDataset(Dataset):
+    def __init__(self, manifest_path, transform):
+        self.records = json.load(open(manifest_path))
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.records)
+
+    def __getitem__(self, idx):
+        record = self.records[idx]
+        image = Image.open(record['image_path']).convert('RGB')
+        image = self.transform(image)
+        return {
+            'image': image,
+            'text': record['ocr_text'],
+            'label': record['activity_label'],
+        }</code></pre>
+
+      <h4>Mixed precision (free speedup on GPU)</h4>
+<pre><code>scaler = torch.cuda.amp.GradScaler()
+
+for batch in loader:
+    with torch.cuda.amp.autocast():
+        logits = model(batch['x'])
+        loss = loss_fn(logits, batch['y'])
+
+    optimizer.zero_grad()
+    scaler.scale(loss).backward()
+    scaler.step(optimizer)
+    scaler.update()</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Train MNIST classification end-to-end as a warm-up:</p>
+        <ol>
+          <li>Install Python 3.11 via <code>uv</code>. Create a venv.</li>
+          <li>Install <code>torch</code>, <code>torchvision</code>, <code>matplotlib</code>.</li>
+          <li>Load MNIST via <code>torchvision.datasets.MNIST</code>.</li>
+          <li>Define a small CNN (2 conv + 1 dense) as an <code>nn.Module</code>.</li>
+          <li>Train for 5 epochs. Plot the loss curve. Confirm test accuracy &gt; 98%.</li>
+          <li>Save the model. Load it in a separate script. Run inference on a single image.</li>
+          <li>If you have a GPU: move to it (<code>.to('cuda')</code>) and add mixed precision. Time both.</li>
+          <li>Add Weights &amp; Biases logging (we'll cover this in the MLOps doc).</li>
+        </ol>
+        <p>Goal: you should be able to recite the training loop from memory after this exercise. Karpathy's "Zero to Hero" videos prepare you for it; this exercise solidifies it.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The OnlyWorks model-training stack is Python first. The Node-based <code>training-data-service</code> in the desktop captures full-res frames + metadata and stores them in <code>training_frames</code> table + Supabase Storage. The Python side reads from that storage, builds datasets, trains models.</p>
+      <p>Once you've done the MNIST exercise, the next steps in this track are: Hugging Face Transformers (load existing models), Vision-Language Models (the architecture we're starting from), and LoRA fine-tuning (how we adapt a base model to our data).</p>
+      <div class="callout">
+        <div class="label-tag">Cost note</div>
+        <p>Local CPU training is fine for the MNIST warm-up. The minute you move to anything bigger (a fine-tune of a 7B model), you need a GPU. We rent them on Modal / RunPod / Lambda Labs. <strong>Ask before you spin one up.</strong> See <a href="training-infrastructure.html">training infrastructure</a>.</p>
+      </div>
+    </section>
+
+    <div class="next-prev">
+      <a href="playwright.html">
+        <span class="label-small">Previous</span>
+        Playwright
+      </a>
+      <a class="next" href="huggingface-transformers.html">
+        <span class="label-small">Next</span>
+        Hugging Face Transformers →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="nodejs-express.html">← Node + Express</a>
+    <a href="nextjs.html">Next: Next.js →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">18 · Backend</div>
+      <h1><em>Supabase</em></h1>
+      <p class="lede">Postgres + auth + storage + edge functions, as a hosted service. Our database, our user table, our row-level-security policies, our file storage.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Supabase is Postgres with batteries: an auth service that handles OAuth + email magic links + password reset, row-level-security policies enforced by the database (so even a misbehaving service role can't leak data), storage with signed URLs, edge functions for Deno-based serverless, and a TypeScript client that handles JWT signing/refresh.</p>
+      <p>For OnlyWorks, this means we don't host or operate a Postgres ourselves, don't write our own auth, don't write our own file-upload signed-URL logic. The trade-off is vendor lock-in &mdash; we use the auth schema, the storage API, the RLS model. So far the speed gain has been worth it.</p>
+      <p>Tables that matter: <code>web_users</code>, <code>profiles</code>, <code>screenshot_sessions</code>, <code>activity_log</code>, <code>generated_reports</code>, <code>training_frames</code>, <code>teams</code>, <code>team_members</code>, <code>team_invitations</code>, <code>hiring_managers</code>, <code>job_posts</code>, <code>job_matches</code>, <code>verified_skills</code>, <code>ow_profile_cache</code>. See <code>CLAUDE/supabase_schema.sql</code> in the desktop repo.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>Postgres fundamentals</h3>
+      <ul>
+        <li><strong>Tables, columns, types</strong> &mdash; <code>uuid</code>, <code>jsonb</code>, <code>timestamp with time zone</code>, arrays</li>
+        <li><strong>Constraints</strong> &mdash; primary key, foreign key, unique, check</li>
+        <li><strong>Indexes</strong> &mdash; B-tree, partial, expression; when each helps</li>
+        <li><strong>Joins</strong> &mdash; inner, left, right, full outer</li>
+        <li><strong>JSONB</strong> &mdash; querying nested data, GIN indexes, the <code>-&gt;</code>/<code>-&gt;&gt;</code> operators</li>
+        <li><strong>Transactions</strong> &mdash; <code>BEGIN</code>/<code>COMMIT</code>, isolation levels at the basic level</li>
+        <li><strong>Reading <code>EXPLAIN ANALYZE</code></strong> &mdash; for when a query is slow</li>
+      </ul>
+
+      <h3>Supabase specifics</h3>
+      <ul>
+        <li><strong>The two clients</strong> &mdash; anon (RLS enforced) vs service role (bypasses RLS, server-only)</li>
+        <li><strong>Row Level Security (RLS)</strong> &mdash; policies are SQL predicates that run per-row per-query</li>
+        <li><strong><code>auth.uid()</code></strong> in policies &mdash; the current user's UUID</li>
+        <li><strong>Migrations</strong> &mdash; numbered SQL files in <code>migrations/</code>; how to apply via Supabase CLI or dashboard</li>
+        <li><strong>The JS client</strong> &mdash; <code>createClient</code>, queries with <code>.from().select().eq()</code></li>
+        <li><strong>Auth helpers for Next.js</strong> &mdash; <code>@supabase/auth-helpers-nextjs</code>, server vs browser clients</li>
+        <li><strong>Storage</strong> &mdash; buckets, public vs private, signed URLs</li>
+        <li><strong>Edge functions</strong> &mdash; Deno-based, useful for webhooks and lightweight serverless</li>
+        <li><strong>Realtime</strong> &mdash; Postgres change-feeds via websockets</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://supabase.com/docs" target="_blank">supabase.com/docs</a> &mdash; the docs hub.</li>
+        <li><a href="https://supabase.com/docs/guides/database/overview" target="_blank">Database</a></li>
+        <li><a href="https://supabase.com/docs/guides/auth" target="_blank">Auth</a></li>
+        <li><a href="https://supabase.com/docs/guides/database/postgres/row-level-security" target="_blank">Row Level Security</a> &mdash; the one chapter that bites you if you skip it.</li>
+        <li><a href="https://supabase.com/docs/reference/javascript/introduction" target="_blank">JS client reference</a></li>
+        <li><a href="https://supabase.com/docs/guides/auth/server-side/nextjs" target="_blank">Next.js auth helpers</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Supabase · YouTube (official)</div>
+          <div class="title"><a href="https://www.youtube.com/@Supabase" target="_blank">Supabase official channel</a></div>
+          <p class="desc">The team's own videos. "Supabase Crash Course" and the auth deep dives are essential. Follow their Build in Public series for the latest features.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jon Meyers</div>
+          <div class="title"><a href="https://www.youtube.com/@jonmeyers_io" target="_blank">Jon Meyers — Supabase + Next.js tutorials</a></div>
+          <p class="desc">Jon works at Supabase. His tutorials on RLS, auth flows, and Next.js integration are the cleanest.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — Supabase reviews and gotchas</a></div>
+          <p class="desc">Theo's strong-take videos on what Supabase does well and where to be careful (RLS, edge functions, pricing).</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Code with Antonio</div>
+          <div class="title"><a href="https://www.youtube.com/@codewithantonio" target="_blank">Code with Antonio — full apps with Supabase</a></div>
+          <p class="desc">Long-form full-stack projects using Supabase as the database + auth. Best for seeing the integration end-to-end.</p>
+        </div>
+        <span class="duration">5h+</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Greg Richardson · Supabase</div>
+          <div class="title"><a href="https://www.youtube.com/results?search_query=greg+richardson+supabase" target="_blank">Greg Richardson — Supabase deep dives</a></div>
+          <p class="desc">Greg's livestreams cover advanced topics: pg_vector, edge functions, observability.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Long-form &amp; books</h2>
+      <ul>
+        <li><a href="https://supabase.com/blog" target="_blank">Supabase blog</a> &mdash; high-quality posts on each major feature.</li>
+        <li><a href="https://www.postgresqltutorial.com/" target="_blank">PostgreSQL Tutorial</a> &mdash; if SQL is rusty.</li>
+        <li><a href="https://use-the-index-luke.com/" target="_blank">Use The Index, Luke!</a> &mdash; the canonical practical book on Postgres indexing. Skim early; reference often.</li>
+        <li><code>CLAUDE/supabase_schema.sql</code> in the desktop repo &mdash; the full v1 schema, ~480 lines.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Two clients (admin vs anon)</h4>
+<pre><code>// On the backend (Node)
+import { createClient } from '@supabase/supabase-js';
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Admin client — used by repositories that need to bypass RLS.
+// NEVER expose the service role key to client code.
+export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});</code></pre>
+
+      <h4>An RLS policy (SQL)</h4>
+<pre><code>-- Only let users read their own sessions.
+create policy "Users see their own sessions"
+on screenshot_sessions for select
+using (auth.uid() = user_id);
+
+-- Allow insert only if the user_id matches the authenticated user.
+create policy "Users create their own sessions"
+on screenshot_sessions for insert
+with check (auth.uid() = user_id);</code></pre>
+
+      <h4>A repository (TypeScript)</h4>
+<pre><code>export class ReportsRepository {
+  constructor(private readonly db = supabaseAdmin) {}
+
+  async listByUser(userId: string) {
+    const { data, error } = await this.db
+      .from('generated_reports')
+      .select('id, title, created_at, report_type')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    return data;
+  }
+}</code></pre>
+
+      <h4>Migration file naming</h4>
+<pre><code>migrations/
+  018_talent_community.sql
+  019_self_reported_skills.sql
+  020_v2_capture_consumers.sql</code></pre>
+      <p>One purpose per migration. Never edit an applied migration; add a new one.</p>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Convert your Express auth lab to use Supabase:</p>
+        <ol>
+          <li>Create a free Supabase project. Note the URL, anon key, service role key.</li>
+          <li>Create a <code>profiles</code> table: <code>id uuid PK</code>, <code>email text unique</code>, <code>full_name text</code>, <code>created_at timestamptz default now()</code>.</li>
+          <li>Replace the in-memory Map from the Express lab with Supabase calls.</li>
+          <li>Add RLS: only the row's owner can <code>select</code>/<code>update</code> their own profile.</li>
+          <li>Write a small Node script that uses the <em>anon</em> client to fetch <code>/profiles</code> after signing in. Confirm RLS prevents it from seeing other users' rows.</li>
+          <li>Write the same script using the <em>service role</em> client. Confirm it sees everything (and decide where you can/can't use this client).</li>
+          <li>Add a Supabase Storage bucket for avatars. Write a route that returns a signed upload URL for the current user.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>Supabase is unchanged from v1. The same project, the same tables, the same migration numbering. Read <code>CLAUDE/supabase_schema.sql</code> in the desktop repo for the full schema reference.</p>
+      <p>One v1 footnote that affects v2: <strong>the Teams repository uses <code>supabaseAdmin</code> to bypass an RLS infinite-recursion bug</strong>. Authorization is enforced in the Express <code>TeamController::requireMember</code> middleware, not in RLS. Every team endpoint must go through that middleware. Don't recreate the RLS bug.</p>
+      <p>The talent-community magic-link flow, the OW Profile cache, the durable <code>verified_skills</code> table (added after the April 14 postmortem) &mdash; these all stay. v2 just adds new columns / migrations as needed for the unified capture pipeline and the proprietary model dataset.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="nodejs-express.html">
+        <span class="label-small">Previous</span>
+        Node + Express
+      </a>
+      <a class="next" href="nextjs.html">
+        <span class="label-small">Next</span>
+        Next.js 14 →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

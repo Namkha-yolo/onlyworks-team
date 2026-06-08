@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tailwind CSS · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="vite.html">← Vite</a>
+    <a href="shadcn-ui.html">Next: shadcn/ui →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">04 · Frontend foundations</div>
+      <h1><em>Tailwind CSS</em></h1>
+      <p class="lede">Utility-class CSS. Already 60% of how the v1 codebase styles things (<code>ow-flex</code>, <code>ow-mb-lg</code>, <code>ow-text-muted</code>). Tailwind is the formalized version, scoped per-component, with no naming collisions.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The current desktop has a <strong>5,700-line single CSS file</strong> with class names managed by social convention. The CLAUDE.md rules forbidding <code>.btn-*</code>, <code>.intention-btn-*</code>, <code>.modal-overlay</code> etc. exist because parallel naming systems kept getting reintroduced.</p>
+      <p>Tailwind eliminates this by removing the naming step entirely. You write styles inline on components: <code>className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white"</code>. No selector to collide with, no file to forget, no dead CSS to clean up. When you delete the component, you delete its styles.</p>
+      <p>The design tokens (colors, spacing, fonts) live in <code>tailwind.config.ts</code>, so the whole app is themeable from one place &mdash; dark mode included.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Setup</strong> &mdash; install, the <code>content</code> array (which files Tailwind scans), the <code>@tailwind</code> directives</li>
+        <li><strong>Spacing scale</strong> &mdash; <code>p-1</code> to <code>p-96</code>, gaps, margins. Memorize the small numbers (1-8).</li>
+        <li><strong>Layout</strong> &mdash; <code>flex</code>, <code>grid</code>, <code>items-*</code>, <code>justify-*</code>, <code>gap-*</code></li>
+        <li><strong>Sizing</strong> &mdash; <code>w-*</code>, <code>h-*</code>, <code>min-*</code>, <code>max-*</code>, <code>w-full</code></li>
+        <li><strong>Typography</strong> &mdash; <code>text-sm</code> to <code>text-9xl</code>, <code>font-medium</code>, <code>tracking-*</code>, <code>leading-*</code></li>
+        <li><strong>Colors</strong> &mdash; the palette, opacity modifiers (<code>bg-purple-600/50</code>)</li>
+        <li><strong>State variants</strong> &mdash; <code>hover:</code>, <code>focus:</code>, <code>disabled:</code>, <code>dark:</code>, <code>group-hover:</code>, <code>peer-checked:</code></li>
+        <li><strong>Responsive</strong> &mdash; <code>sm:</code>, <code>md:</code>, <code>lg:</code>, mobile-first thinking</li>
+        <li><strong>Arbitrary values</strong> &mdash; <code>w-[42rem]</code>, <code>bg-[#abc123]</code> &mdash; the escape hatch, use sparingly</li>
+        <li><strong>Custom theme</strong> &mdash; <code>tailwind.config.ts</code> <code>theme.extend</code> for design tokens</li>
+        <li><strong>Dark mode</strong> &mdash; <code>darkMode: 'class'</code>, toggling via JS</li>
+        <li><strong><code>@apply</code> escape hatch</strong> &mdash; rare, but useful for one-off compositions</li>
+        <li><strong>The <code>cn()</code> helper</strong> &mdash; <code>clsx</code> + <code>tailwind-merge</code> for conditional classes</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://tailwindcss.com/docs/installation" target="_blank">tailwindcss.com — Installation</a></li>
+        <li><a href="https://tailwindcss.com/docs/utility-first" target="_blank">"Utility-First Fundamentals"</a> &mdash; read this once and you'll get the philosophy.</li>
+        <li><a href="https://tailwindcss.com/docs/responsive-design" target="_blank">Responsive Design</a></li>
+        <li><a href="https://tailwindcss.com/docs/customizing-colors" target="_blank">Customizing Colors</a> + the full palette reference</li>
+        <li><a href="https://tailwindcss.com/docs/dark-mode" target="_blank">Dark Mode</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Tailwind Labs (official)</div>
+          <div class="title"><a href="https://www.youtube.com/@TailwindLabs" target="_blank">Tailwind Labs — official channel</a></div>
+          <p class="desc">Adam Wathan's own channel. His "Designing in the Terminal" stream and the Tailwind Connect talks are the best resources for understanding the design philosophy.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">Learn Tailwind CSS in 30 minutes</a></div>
+          <p class="desc">Cleanest one-sitting intro. Watch this first.</p>
+        </div>
+        <span class="duration">30m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Fireship</div>
+          <div class="title"><a href="https://www.youtube.com/watch?v=mr15Xzb1Ook" target="_blank">Tailwind CSS in 100 seconds</a></div>
+          <p class="desc">Quick vibes check. Watch before installing.</p>
+        </div>
+        <span class="duration">2m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Lukas Sliwka · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@LearnWithJason" target="_blank">Tailwind UI building deep-dives</a></div>
+          <p class="desc">Search "Tailwind deep dive" on YouTube — there are several great long-form videos walking through real component builds.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">ByteGrad</div>
+          <div class="title"><a href="https://www.youtube.com/@ByteGrad" target="_blank">ByteGrad — Tailwind + React patterns</a></div>
+          <p class="desc">Especially good for the "how to organize Tailwind classes in real components" question.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Books &amp; long-form</h2>
+      <ul>
+        <li><a href="https://www.refactoringui.com/" target="_blank">Refactoring UI</a> by Adam Wathan &amp; Steve Schoger. <strong>The single best book on design for developers</strong>, written by the Tailwind authors. Worth its price; the team has copies.</li>
+        <li><a href="https://tailwindcss.com/docs/utility-first" target="_blank">"Utility-First" philosophy essay</a></li>
+        <li><a href="https://adamwathan.me/css-utility-classes-and-separation-of-concerns/" target="_blank">"CSS Utility Classes and Separation of Concerns"</a> &mdash; the original 2017 essay that started Tailwind. Still the clearest explanation of why this approach works.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>The <code>cn</code> helper</h4>
+<pre><code>// lib/utils.ts
+import clsx, { type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// usage:
+&lt;div className={cn(
+  'px-4 py-2 rounded',
+  variant === 'primary' &amp;&amp; 'bg-purple-600 text-white',
+  variant === 'ghost' &amp;&amp; 'bg-transparent text-purple-600',
+  disabled &amp;&amp; 'opacity-50 cursor-not-allowed',
+)} /&gt;</code></pre>
+
+      <h4>Design tokens in config</h4>
+<pre><code>// tailwind.config.ts
+export default {
+  content: ['./src/**/*.{ts,tsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        accent: { DEFAULT: '#7c3aed', light: '#ede9fe', deep: '#6d28d9' },
+        paper: '#fafaf9',
+        ink: '#080503',
+      },
+      fontFamily: {
+        serif: ['Instrument Serif', 'serif'],
+        sans: ['Instrument Sans', 'sans-serif'],
+      },
+    },
+  },
+};</code></pre>
+      <p>Use the design tokens (e.g. <code>bg-accent</code>, <code>font-serif</code>) instead of raw values everywhere. When the brand changes color in 6 months, you edit one file.</p>
+
+      <h4>Dark mode toggle</h4>
+<pre><code>// in a wrapper component
+&lt;div className={darkMode ? 'dark' : ''}&gt;
+  &lt;App className="bg-paper text-ink dark:bg-zinc-900 dark:text-zinc-100" /&gt;
+&lt;/div&gt;</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Rebuild the OnlyWorks v1 design-system page in Tailwind:</p>
+        <ol>
+          <li>Open <code>CLAUDE/design-system.html</code> in the desktop repo. Look at the v1 component gallery.</li>
+          <li>In a Vite + React + Tailwind project, recreate the <code>&lt;Button&gt;</code> component with the 4 variants (primary, secondary, ghost, danger) and 3 sizes (sm, md, lg) using nothing but Tailwind utilities + the <code>cn</code> helper.</li>
+          <li>Add a dark mode toggle that flips a class on <code>&lt;html&gt;</code> and changes the page colors.</li>
+          <li>Recreate the <code>&lt;StatCard&gt;</code> component (value, label, icon). It should look identical light and dark.</li>
+          <li>Use the design tokens from <code>tailwind.config.ts</code>, not hardcoded colors.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>Tailwind is the styling layer for both the desktop renderer and the website. The website already uses it &mdash; look at <code>onlyworks_verified/tailwind.config.ts</code> for the current setup.</p>
+      <p>v2 ports the v1 utility classes 1:1: <code>ow-flex</code> becomes <code>flex</code>, <code>ow-mb-lg</code> becomes <code>mb-6</code>, <code>ow-text-muted</code> becomes <code>text-muted</code> (via a design token). The 5,700-line <code>styles.css</code> is deleted entirely.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="vite.html">
+        <span class="label-small">Previous</span>
+        Vite
+      </a>
+      <a class="next" href="shadcn-ui.html">
+        <span class="label-small">Next</span>
+        shadcn/ui →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

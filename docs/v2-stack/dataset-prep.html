@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dataset preparation · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="fine-tuning-lora.html">← Fine-tuning</a>
+    <a href="training-infrastructure.html">Next: Training infra →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">26 · AI / model training</div>
+      <h1>Dataset <em>preparation</em></h1>
+      <p class="lede">"You are what you eat." For models, what you eat is the dataset. The single highest-leverage area for our training program — better data beats bigger models almost every time.</p>
+    </header>
+
+    <section>
+      <h2>Why this matters more than you think</h2>
+      <p>You can spend $50K on GPUs and pick the best base model and write the most elegant training loop, and if your dataset is noisy, biased, or mislabeled, the result will be worse than a smaller model trained on a clean dataset. Karpathy: "Garbage in, garbage out, even with bigger models."</p>
+      <p>For OnlyWorks specifically: <strong>we already have the raw data</strong>. Every user session produces screenshots in <code>training_frames</code> and activity narratives in <code>generated_reports</code>. We don't need to scrape, license, or buy data. But the raw data needs cleaning, labeling, deduplication, filtering, and structuring into training-ready examples. That's where the next 6 months of model-training intern work lives.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>Dataset hygiene</h3>
+      <ul>
+        <li><strong>Deduplication</strong> &mdash; near-duplicate detection (perceptual hashes, embedding similarity)</li>
+        <li><strong>Quality filtering</strong> &mdash; reject low-resolution images, blank screenshots, frames with no OCR text</li>
+        <li><strong>Privacy filtering</strong> &mdash; OUR critical filter. Bank apps, iMessage, Slack DMs, password fields &mdash; never train on these. The v1 <code>sensitive-filter.js</code> is the starting point.</li>
+        <li><strong>Class balance</strong> &mdash; if 80% of frames are "user is typing in VS Code", the model overfits to it. Subsample.</li>
+        <li><strong>Train / val / test splits</strong> &mdash; split <strong>by user</strong>, not by frame. Or you'll leak.</li>
+        <li><strong>Splits over time</strong> &mdash; reserve the last N weeks of data for eval to catch drift.</li>
+      </ul>
+
+      <h3>Labeling</h3>
+      <ul>
+        <li><strong>Self-supervised first</strong> &mdash; use Gemini's existing outputs (from <code>generated_reports</code>) as initial labels. Cheap, gets us started.</li>
+        <li><strong>Human review for eval set</strong> &mdash; eval data needs human labels; the model is graded against them.</li>
+        <li><strong>Labeling tools</strong> &mdash; Label Studio, Argilla, or just a custom internal admin UI</li>
+        <li><strong>Inter-annotator agreement</strong> &mdash; if two humans disagree, the task isn't well-defined</li>
+      </ul>
+
+      <h3>Format</h3>
+      <ul>
+        <li><strong>Conversation format for instruction tuning</strong> &mdash; messages with role + content (text or image)</li>
+        <li><strong>Storage</strong> &mdash; JSON Lines (<code>.jsonl</code>), Parquet, WebDataset</li>
+        <li><strong>Image references</strong> &mdash; store image paths or URIs; load lazily in the Dataset</li>
+        <li><strong>Hugging Face Datasets format</strong> &mdash; <code>datasets.Dataset.from_json</code> + <code>.cast_column</code> for image fields</li>
+      </ul>
+
+      <h3>Tooling</h3>
+      <ul>
+        <li><strong>pandas / Polars</strong> &mdash; cleaning, joining, slicing</li>
+        <li><strong>DuckDB</strong> &mdash; SQL queries directly on Parquet files; very fast for analysis</li>
+        <li><strong>Pillow / OpenCV</strong> &mdash; image loading + transforms</li>
+        <li><strong>fastdup / imagehash</strong> &mdash; image deduplication</li>
+        <li><strong>Hugging Face <code>datasets</code></strong> &mdash; the canonical loader for training</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs &amp; reading</h2>
+      <ul>
+        <li><a href="https://huggingface.co/docs/datasets/index" target="_blank">datasets docs</a></li>
+        <li><a href="https://huggingface.co/learn/nlp-course/chapter5/1" target="_blank">HF NLP Course — chapter 5 (datasets)</a></li>
+        <li><a href="https://huggingface.co/blog/llava-vision-instruct" target="_blank">LLaVA's visual instruction dataset blog</a> &mdash; great case study of how a real VLM dataset gets built</li>
+        <li><a href="https://github.com/visual-layer/fastdup" target="_blank">fastdup</a> &mdash; image dedup tool</li>
+        <li><a href="https://labelstud.io/" target="_blank">Label Studio</a> &mdash; open-source labeling tool</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Hugging Face (official)</div>
+          <div class="title"><a href="https://www.youtube.com/@HuggingFace" target="_blank">Hugging Face — datasets library deep dives</a></div>
+          <p class="desc">Search "Hugging Face datasets" for the official walkthrough videos.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Karpathy · Zero to Hero</div>
+          <div class="title"><a href="https://www.youtube.com/@AndrejKarpathy" target="_blank">Karpathy — data preparation in nanoGPT</a></div>
+          <p class="desc">His "Let's build GPT" videos include hands-on data prep. It's at a much smaller scale than VLM but the principles transfer.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">DataTalksClub</div>
+          <div class="title"><a href="https://www.youtube.com/@DataTalksClub" target="_blank">DataTalksClub — data engineering tutorials</a></div>
+          <p class="desc">Their MLOps Zoomcamp covers the dataset side of ML at length.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Madewithml.com · Goku Mohandas</div>
+          <div class="title"><a href="https://madewithml.com/" target="_blank">Made With ML</a></div>
+          <p class="desc">Not YouTube specifically but a free course covering the full ML lifecycle including dataset versioning, labeling, and quality assurance. Highly recommended.</p>
+        </div>
+        <span class="duration">~10h</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Building the dataset from <code>training_frames</code></h4>
+<pre><code>import duckdb
+
+# Pull training-eligible frames from Supabase via DuckDB.
+df = duckdb.sql("""
+  SELECT
+    tf.image_path,
+    tf.app_name,
+    tf.window_title,
+    tf.activity_label,
+    gr.report_data-&gt;&gt;'executive_summary' AS narrative
+  FROM training_frames tf
+  JOIN screenshot_sessions s ON s.id = tf.session_id
+  JOIN generated_reports gr ON gr.session_id = s.id
+  WHERE tf.user_consented = true
+    AND tf.captured_at &gt; '2026-01-01'
+    AND gr.report_data IS NOT NULL
+  LIMIT 100000;
+""").to_df()</code></pre>
+
+      <h4>Privacy filter (port from v1)</h4>
+<pre><code>SENSITIVE_APPS = {'1Password', 'Bitwarden', 'Slack', 'Messages', 'WhatsApp', 'Banking', ...}
+SENSITIVE_KEYWORDS = ['password', 'social security', 'credit card', ...]
+
+def is_safe(row) -&gt; bool:
+    if row['app_name'] in SENSITIVE_APPS:
+        return False
+    title = (row['window_title'] or '').lower()
+    if any(kw in title for kw in SENSITIVE_KEYWORDS):
+        return False
+    return True
+
+df = df[df.apply(is_safe, axis=1)]</code></pre>
+
+      <h4>Image deduplication</h4>
+<pre><code>from PIL import Image
+import imagehash
+
+def phash(image_path) -&gt; str:
+    return str(imagehash.phash(Image.open(image_path)))
+
+df['phash'] = df['image_path'].apply(phash)
+df = df.drop_duplicates(subset='phash', keep='first')</code></pre>
+
+      <h4>Convert to HF dataset</h4>
+<pre><code>from datasets import Dataset, Image as HFImage
+
+records = []
+for _, row in df.iterrows():
+    records.append({
+        'image': row['image_path'],
+        'app': row['app_name'],
+        'window': row['window_title'],
+        'target_summary': row['narrative'],
+    })
+
+dataset = Dataset.from_list(records).cast_column('image', HFImage())
+dataset = dataset.train_test_split(test_size=0.05, seed=42)
+dataset.save_to_disk('./datasets/ow-activity-v0.1')</code></pre>
+
+      <h4>Split by user (not by frame)</h4>
+<pre><code># Critical: don't split a single session's frames between train and test.
+# If you do, the model "cheats" via near-duplicate frames.
+users = df['user_id'].unique()
+np.random.seed(42)
+np.random.shuffle(users)
+train_users = users[: int(len(users) * 0.9)]
+eval_users = users[int(len(users) * 0.9):]
+
+train_df = df[df['user_id'].isin(train_users)]
+eval_df = df[df['user_id'].isin(eval_users)]</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a tiny synthetic OnlyWorks-style dataset to practice the pipeline:</p>
+        <ol>
+          <li>Take 50 screenshots of yourself working in different apps.</li>
+          <li>For each: hand-write a 1-sentence summary of what's happening.</li>
+          <li>Store as a JSONL with <code>{image, app, window, summary}</code>.</li>
+          <li>Run perceptual-hash deduplication. Remove near-duplicates.</li>
+          <li>Apply a fake "privacy filter" rule (e.g. drop everything from "Slack").</li>
+          <li>Split 80/10/10 train/val/test by source-app to avoid leakage.</li>
+          <li>Load it via <code>datasets.Dataset.from_json</code> + cast the image column.</li>
+          <li>Use this dataset for a small VLM fine-tune (LoRA, 1 epoch) just to wire the pipeline end-to-end.</li>
+        </ol>
+        <p>The goal isn't a useful model. It's that <em>every step from raw screenshots to <code>trainer.train()</code> works on your machine</em>. That's a fundamental capability.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The v2 capture pipeline produces a stream of training data per consented user. The dataset team's job is:</p>
+      <ul>
+        <li>Run a privacy filter that's stricter than the v1 one (the bar for "OK to send to backend" is lower than "OK to put in a training set")</li>
+        <li>Deduplicate ruthlessly (a 30-minute session has 600 1-Hz frames but probably 50 unique "moments")</li>
+        <li>Label initial frames with Gemini's existing summaries; build a human-reviewed eval set</li>
+        <li>Version datasets (v0.1, v0.2, ...) so model runs are reproducible</li>
+        <li>Track which user/sessions are in which dataset version &mdash; for honoring deletion requests later</li>
+      </ul>
+      <p>This is unglamorous, day-job work. It's also where 70% of the eventual model quality comes from. Spend the time.</p>
+      <div class="callout warning">
+        <div class="label-tag">Consent + deletion</div>
+        <p>Training-data inclusion is opt-in per user. If a user revokes consent or asks for deletion, their frames must be removable from the dataset and (eventually) their influence on a model retrained without them. This is non-negotiable for the privacy story. Build the data pipeline with deletion in mind from day one.</p>
+      </div>
+    </section>
+
+    <div class="next-prev">
+      <a href="fine-tuning-lora.html">
+        <span class="label-small">Previous</span>
+        Fine-tuning with LoRA
+      </a>
+      <a class="next" href="training-infrastructure.html">
+        <span class="label-small">Next</span>
+        Training infrastructure →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

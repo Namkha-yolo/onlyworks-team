@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hugging Face Transformers · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="python-pytorch.html">← Python + PyTorch</a>
+    <a href="vision-language-models.html">Next: VLMs →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">23 · AI / model training</div>
+      <h1>Hugging Face <em>Transformers</em></h1>
+      <p class="lede">The library + hub for every open-source model that matters. Download a model in one line, fine-tune it in fifty, deploy it from the hub. The center of gravity for our model training stack.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Hugging Face is to ML what npm is to JS. The <strong>transformers</strong> library lets you load any model from the Hub with <code>AutoModel.from_pretrained('org/model-name')</code> and start using it in three lines of code. The <strong>Hub</strong> hosts hundreds of thousands of pretrained models, datasets, and demos. The <strong>datasets</strong> library handles loading + preprocessing at scale. The <strong>tokenizers</strong> library handles fast text encoding. The <strong>PEFT</strong> library adds LoRA / QLoRA on top.</p>
+      <p>For OnlyWorks: we start from an open Vision-Language Model (Qwen-VL, LLaVA, or similar), fine-tune it on our screenshot + activity dataset, and push the result to a private Hub repo. From there we serve it via vLLM or a similar inference framework. Every step is Hugging Face native.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>Core libraries</h3>
+      <ul>
+        <li><strong><code>transformers</code></strong> &mdash; the model + tokenizer + pipeline abstraction</li>
+        <li><strong><code>datasets</code></strong> &mdash; load + map + filter + split datasets</li>
+        <li><strong><code>tokenizers</code></strong> &mdash; fast Rust-based tokenization</li>
+        <li><strong><code>accelerate</code></strong> &mdash; one-call multi-GPU + mixed precision + device placement</li>
+        <li><strong><code>peft</code></strong> &mdash; LoRA + QLoRA + adapter management</li>
+        <li><strong><code>bitsandbytes</code></strong> &mdash; quantization for memory savings</li>
+        <li><strong><code>safetensors</code></strong> &mdash; safer model weight format (default now)</li>
+      </ul>
+
+      <h3>Auto classes</h3>
+      <ul>
+        <li><strong><code>AutoModel</code></strong>, <strong><code>AutoModelForCausalLM</code></strong>, <strong><code>AutoModelForVisualQuestionAnswering</code></strong></li>
+        <li><strong><code>AutoTokenizer</code></strong>, <strong><code>AutoProcessor</code></strong> (for multimodal)</li>
+        <li><strong><code>AutoConfig</code></strong> &mdash; inspect a model without loading weights</li>
+      </ul>
+
+      <h3>Training</h3>
+      <ul>
+        <li><strong><code>Trainer</code></strong> &mdash; high-level trainer with logging, evaluation, checkpointing</li>
+        <li><strong><code>TrainingArguments</code></strong> &mdash; the config object (learning rate, batch size, gradient accumulation, mixed precision, warmup, &hellip;)</li>
+        <li><strong>Custom loops</strong> &mdash; when <code>Trainer</code> isn't flexible enough</li>
+        <li><strong>Data collators</strong> &mdash; batching + padding for variable-length inputs</li>
+      </ul>
+
+      <h3>Inference</h3>
+      <ul>
+        <li><strong><code>pipeline()</code></strong> &mdash; one-liner inference for common tasks</li>
+        <li><strong>Generation</strong> &mdash; <code>model.generate(...)</code>, temperature, top-p, beam search</li>
+        <li><strong>Streaming</strong> &mdash; <code>TextIteratorStreamer</code> for token-by-token output</li>
+      </ul>
+
+      <h3>The Hub</h3>
+      <ul>
+        <li><strong>Model cards</strong> &mdash; read before you use a model</li>
+        <li><strong>Licenses</strong> &mdash; Apache 2.0, MIT, CreativeML, custom commercial restrictions</li>
+        <li><strong><code>huggingface-cli login</code></strong> + access tokens, private vs public repos</li>
+        <li><strong>Spaces</strong> &mdash; hosted demos, useful for sharing experiments</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://huggingface.co/docs" target="_blank">huggingface.co/docs</a> &mdash; the docs hub.</li>
+        <li><a href="https://huggingface.co/docs/transformers/quicktour" target="_blank">transformers — Quick Tour</a></li>
+        <li><a href="https://huggingface.co/learn/nlp-course" target="_blank">Hugging Face NLP Course</a> &mdash; free, excellent. The first 4 chapters are essential.</li>
+        <li><a href="https://huggingface.co/learn/computer-vision-course" target="_blank">Computer Vision Course</a></li>
+        <li><a href="https://huggingface.co/docs/datasets/quickstart" target="_blank">datasets — Quickstart</a></li>
+        <li><a href="https://huggingface.co/docs/peft/index" target="_blank">PEFT (LoRA / QLoRA) docs</a></li>
+        <li><a href="https://huggingface.co/docs/accelerate/index" target="_blank">accelerate docs</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Hugging Face (official) · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@HuggingFace" target="_blank">Hugging Face channel</a></div>
+          <p class="desc">The team's own videos: model walkthroughs, library deep dives, conference talks. Subscribe.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Sam Witteveen</div>
+          <div class="title"><a href="https://www.youtube.com/@samwitteveenai" target="_blank">Sam Witteveen — Open-source LLM walkthroughs</a></div>
+          <p class="desc">The best practical channel for "how do I run / fine-tune model X" using Hugging Face. New videos within days of new model drops.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">AI Anytime · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@AIAnytime" target="_blank">AI Anytime — practical HF tutorials</a></div>
+          <p class="desc">Lots of "build X with Hugging Face" videos. Hit-or-miss but high volume; good for finding tutorials on specific models.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Trelis Research</div>
+          <div class="title"><a href="https://www.youtube.com/@TrelisResearch" target="_blank">Trelis Research</a></div>
+          <p class="desc">Deep, practical fine-tuning tutorials. He builds entire fine-tune pipelines on real datasets and explains each decision.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Andrej Karpathy · Zero to Hero</div>
+          <div class="title"><a href="https://www.youtube.com/@AndrejKarpathy" target="_blank">Andrej Karpathy — Let's build GPT</a></div>
+          <p class="desc">Once you've used transformers, watch Karpathy's "Let's build GPT from scratch" video to understand what HF is wrapping. Will make the library make sense.</p>
+        </div>
+        <span class="duration">2h</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Long-form &amp; reading</h2>
+      <ul>
+        <li><a href="https://huggingface.co/learn/nlp-course/chapter1/1" target="_blank">HF NLP Course</a> &mdash; free, official. The first 4 chapters cover everything we need; the rest is optional depth.</li>
+        <li><a href="https://huggingface.co/blog" target="_blank">Hugging Face blog</a> &mdash; high quality, especially for new model releases and training techniques.</li>
+        <li><a href="https://github.com/huggingface/transformers/tree/main/examples" target="_blank">transformers/examples on GitHub</a> &mdash; real training scripts, by task.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Loading a model + tokenizer</h4>
+<pre><code>from transformers import AutoTokenizer, AutoModelForCausalLM
+
+model_id = 'Qwen/Qwen2.5-7B-Instruct'
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype='auto', device_map='auto')
+
+inputs = tokenizer('Summarize this work session...', return_tensors='pt').to(model.device)
+outputs = model.generate(**inputs, max_new_tokens=200, do_sample=True, temperature=0.7)
+print(tokenizer.decode(outputs[0], skip_special_tokens=True))</code></pre>
+
+      <h4>Loading a dataset</h4>
+<pre><code>from datasets import load_dataset
+
+# from the Hub
+dataset = load_dataset('squad', split='train')
+
+# from local files
+dataset = load_dataset('json', data_files='train.jsonl', split='train')
+
+# preprocess
+def tokenize(example):
+    return tokenizer(example['text'], truncation=True, max_length=512)
+
+dataset = dataset.map(tokenize, batched=True, remove_columns=dataset.column_names)</code></pre>
+
+      <h4>Trainer setup (minimal)</h4>
+<pre><code>from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
+
+args = TrainingArguments(
+    output_dir='./ckpts',
+    learning_rate=2e-5,
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=8,
+    num_train_epochs=3,
+    logging_steps=50,
+    save_steps=500,
+    bf16=True,
+    report_to='wandb',
+)
+
+trainer = Trainer(
+    model=model,
+    args=args,
+    train_dataset=tokenized_train,
+    eval_dataset=tokenized_val,
+    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
+)
+
+trainer.train()</code></pre>
+
+      <h4>Push to the Hub</h4>
+<pre><code>trainer.push_to_hub(
+    'onlyworks/activity-interpreter-v0.1',
+    private=True,
+)</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Fine-tune a small model on a public dataset:</p>
+        <ol>
+          <li>Pick a small base model (e.g. <code>distilbert-base-uncased</code>).</li>
+          <li>Pick a public sentiment dataset (e.g. <code>sst2</code> or <code>imdb</code>) via <code>datasets</code>.</li>
+          <li>Use the Trainer to fine-tune for 1&ndash;2 epochs on a sample.</li>
+          <li>Compute accuracy on the test split. Confirm &gt;80%.</li>
+          <li>Save with <code>trainer.save_model()</code>. Load it into a separate inference script.</li>
+          <li>Run <code>pipeline('sentiment-analysis', model='./model_dir')</code> and classify three custom sentences.</li>
+          <li>Push to the Hub as a private repo. Pull it back from a fresh notebook to confirm it works.</li>
+        </ol>
+        <p>This is doable on a Mac (CPU) in about an hour with a small model. Anything bigger needs a GPU.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>Hugging Face is the foundation for every step of our model-training plan:</p>
+      <ul>
+        <li>Picking a base Vision-Language Model &mdash; <a href="vision-language-models.html">next chapter</a></li>
+        <li>Loading and preprocessing our screenshot + activity dataset &mdash; <a href="dataset-prep.html">dataset prep</a></li>
+        <li>Fine-tuning with LoRA / QLoRA &mdash; <a href="fine-tuning-lora.html">fine-tuning</a></li>
+        <li>Hosting the resulting weights &mdash; private Hub repo</li>
+        <li>Serving inference &mdash; the backend calls our model via a self-hosted endpoint (vLLM / TGI) once it's good enough to replace Gemini</li>
+      </ul>
+      <p>The whole AI track of v2 reduces to: "be fluent in Hugging Face, then make a single specific model work very well on our task." Don't skip the basics; they pay off at every step.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="python-pytorch.html">
+        <span class="label-small">Previous</span>
+        Python + PyTorch
+      </a>
+      <a class="next" href="vision-language-models.html">
+        <span class="label-small">Next</span>
+        Vision-Language Models →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vite · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="react.html">← React</a>
+    <a href="tailwind.html">Next: Tailwind →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">03 · Frontend foundations</div>
+      <h1><em>Vite</em></h1>
+      <p class="lede">The dev server and bundler. Replaces "37 script tags loaded in strict order" with hot-module reload, tree-shaking, and a single <code>dist/</code> folder.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The current desktop loads modules via 37 ordered <code>&lt;script&gt;</code> tags in <code>app.html</code>, with a "load order matters" comment. Add a new module out of order and things break silently. There's no tree-shaking, no source maps, no hot reload &mdash; every change is a full window refresh.</p>
+      <p>Vite gives us all of that, for free, with five lines of config. It uses native ESM in dev (so the dev server is instant, regardless of project size), and uses Rollup for production builds. The Electron renderer can use it via <a href="electron-vite.html">electron-vite</a>; the Next.js site already uses Turbopack/webpack internally, but Vite is the standalone choice for the desktop renderer.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Project scaffolding</strong> &mdash; <code>pnpm create vite@latest</code>, the templates (<code>react-ts</code>, <code>vanilla-ts</code>)</li>
+        <li><strong>Dev server</strong> &mdash; <code>vite dev</code>, hot module reload, what triggers a full refresh</li>
+        <li><strong>Build</strong> &mdash; <code>vite build</code> produces a <code>dist/</code>; <code>vite preview</code> serves it</li>
+        <li><strong>Imports</strong> &mdash; you can <code>import</code> CSS, JSON, SVG, images directly. Vite handles them.</li>
+        <li><strong>Environment variables</strong> &mdash; <code>import.meta.env</code>, the <code>VITE_</code> prefix rule, <code>.env</code> files</li>
+        <li><strong>Path aliases</strong> &mdash; <code>resolve.alias</code> in config, matched with <code>paths</code> in <code>tsconfig.json</code></li>
+        <li><strong>Plugins</strong> &mdash; <code>@vitejs/plugin-react</code>, <code>vite-plugin-svgr</code>, <code>vite-plugin-electron</code></li>
+        <li><strong>Code splitting &amp; dynamic imports</strong> &mdash; lazy load routes, components</li>
+        <li><strong>Asset handling</strong> &mdash; <code>public/</code> vs imports, base URL config</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://vitejs.dev/guide/" target="_blank">vitejs.dev — Guide</a>. Start with "Why Vite", then "Getting Started", then "Features".</li>
+        <li><a href="https://vitejs.dev/config/" target="_blank">Configuration reference</a></li>
+        <li><a href="https://vitejs.dev/guide/env-and-mode.html" target="_blank">Env Variables and Modes</a></li>
+        <li><a href="https://vitejs.dev/plugins/" target="_blank">Plugin directory</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Fireship</div>
+          <div class="title"><a href="https://www.youtube.com/watch?v=KCrXgy8qtjM" target="_blank">Vite in 100 seconds</a></div>
+          <p class="desc">The vibes check. Watch it before reading the docs to get the shape of what Vite does and why it's not webpack.</p>
+        </div>
+        <span class="duration">2m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Lama Dev</div>
+          <div class="title"><a href="https://www.youtube.com/@LamaDev" target="_blank">Vite + React Crash Course</a></div>
+          <p class="desc">Search "Lama Dev Vite". Practical setup walkthroughs, not theory.</p>
+        </div>
+        <span class="duration">30m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Why Vite + how it works</a></div>
+          <p class="desc">Theo's videos explaining the ESM-in-dev vs Rollup-in-build trick. Important if you want to understand <em>why</em> Vite is fast.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">Vite explained / migration videos</a></div>
+          <p class="desc">Worth watching the "Why I'm replacing webpack with Vite" framing &mdash; he covers the dev-server experience well.</p>
+        </div>
+        <span class="duration">15m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Books &amp; long-form</h2>
+      <ul>
+        <li><a href="https://vitejs.dev/guide/why.html" target="_blank">"Why Vite" — the canonical essay</a> by Evan You (creator). Three pages, worth reading slowly.</li>
+        <li><a href="https://www.smashingmagazine.com/2022/04/replacing-webpack-vite/" target="_blank">Smashing Magazine — Replacing webpack with Vite</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Minimal config for the desktop renderer</h4>
+<pre><code>// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'node:path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@shared': path.resolve(__dirname, '../shared'),
+    },
+  },
+  build: {
+    outDir: 'dist/renderer',
+    sourcemap: true,
+  },
+});</code></pre>
+
+      <h4>Env vars at runtime</h4>
+<pre><code>// .env.local
+VITE_BACKEND_URL=http://localhost:8080
+
+// src/config.ts
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;</code></pre>
+      <p><code>VITE_</code>-prefixed vars are exposed to client code; non-prefixed ones aren't. <strong>Never put secrets in a <code>VITE_</code> var</strong> &mdash; they end up in the shipped bundle.</p>
+
+      <h4>Dynamic imports for route splitting</h4>
+<pre><code>const Dashboard = lazy(() =&gt; import('./pages/Dashboard'));
+const Settings = lazy(() =&gt; import('./pages/Settings'));
+
+&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+  &lt;Routes&gt;
+    &lt;Route path="/" element={&lt;Dashboard /&gt;} /&gt;
+    &lt;Route path="/settings" element={&lt;Settings /&gt;} /&gt;
+  &lt;/Routes&gt;
+&lt;/Suspense&gt;</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Set up a Vite + React + TS project from scratch and add three things on top of the template:</p>
+        <ol>
+          <li><code>pnpm create vite@latest vite-lab -- --template react-ts</code></li>
+          <li>Add path aliases (<code>@/…</code>) in both <code>vite.config.ts</code> and <code>tsconfig.json</code>. Use them in at least one import.</li>
+          <li>Add an env var <code>VITE_GITHUB_TOKEN</code> with a personal access token, read it via <code>import.meta.env</code>. Confirm it's not a secret leak (search for it in the built <code>dist/</code> bundle &mdash; it will be there, that's the point).</li>
+          <li>Add a second entry point (e.g. <code>src/popup/main.tsx</code>) and an additional <code>rollupOptions.input</code> so the build produces two HTML files.</li>
+          <li>Add the React Refresh DevTools and verify hot reload preserves state across edits.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>v2 uses Vite (via <a href="electron-vite.html">electron-vite</a>) for the renderer. The main process is bundled separately with the same toolchain. The website (Next.js) handles its own bundling &mdash; you don't directly touch Vite there.</p>
+      <p>One concrete win from Vite: when you edit a component, you'll see the change in the open Electron window in under 100ms with state preserved. Compare that to the current dev loop (kill, restart, log back in, reopen the session, navigate to the page) which is ~30s per change.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="react.html">
+        <span class="label-small">Previous</span>
+        React 18
+      </a>
+      <a class="next" href="tailwind.html">
+        <span class="label-small">Next</span>
+        Tailwind CSS →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

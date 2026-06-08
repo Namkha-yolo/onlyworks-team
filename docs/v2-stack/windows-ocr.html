@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows OCR · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="macos-vision-ocr.html">← macOS OCR</a>
+    <a href="nodejs-express.html">Next: Node + Express →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">16 · Native plumbing</div>
+      <h1>Windows <em>OCR</em></h1>
+      <p class="lede">Windows.Media.Ocr, called via a PowerShell wrapper. Built into Windows 10+, free, ~5x faster than tesseract.js. The Windows equivalent of macOS Vision.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Same logic as macOS Vision: tesseract.js works but is slow and middling quality; the OS-provided OCR is fast, free, and built-in. <code>Windows.Media.Ocr</code> ships in Windows 10+ via WinRT.</p>
+      <p>Unlike macOS where we compile a Swift binary, on Windows we spawn PowerShell with an inline-loaded script. The script imports the WinRT type, runs OCR, prints JSON. No compilation step, no installer flags &mdash; the PowerShell script ships as plain text.</p>
+      <p>Catch: PowerShell execution policy can block loading WinRT types on locked-down corporate machines. We bypass with <code>-ExecutionPolicy Bypass</code> per-call, but if the user is on a managed device that disables WinRT entirely, we fall back to tesseract.js.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Windows.Media.Ocr</strong> &mdash; the WinRT API, <code>OcrEngine</code>, <code>BitmapDecoder</code></li>
+        <li><strong>WinRT in PowerShell</strong> &mdash; <code>Add-Type -AssemblyName</code>, the <code>WinRT.Runtime</code> assembly</li>
+        <li><strong>PowerShell basics</strong> &mdash; enough to read and modify <code>src/utils/windows-ocr.ps1</code></li>
+        <li><strong><code>-ExecutionPolicy Bypass</code></strong> &mdash; what it does, why we use it per-invocation</li>
+        <li><strong>Calling from Node</strong> &mdash; <code>powershell -NoProfile -ExecutionPolicy Bypass -File &lt;script&gt; &lt;args&gt;</code></li>
+        <li><strong>JSON output</strong> &mdash; PowerShell prints, Node parses</li>
+        <li><strong>Circuit breaker</strong> &mdash; after 3 consecutive WinRT failures, switch to tesseract.js for the rest of the session</li>
+        <li><strong>The asarUnpack entry</strong> &mdash; the <code>.ps1</code> script must live outside <code>app.asar</code></li>
+        <li><strong>VC++ Runtime</strong> &mdash; doesn't affect OCR directly but affects uIOhook on the same machine; the pre-flight checks both</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://learn.microsoft.com/en-us/uwp/api/windows.media.ocr" target="_blank">Microsoft — Windows.Media.Ocr namespace</a></li>
+        <li><a href="https://learn.microsoft.com/en-us/uwp/api/windows.media.ocr.ocrengine" target="_blank">OcrEngine class</a></li>
+        <li><a href="https://learn.microsoft.com/en-us/powershell/" target="_blank">PowerShell documentation</a></li>
+        <li><a href="https://learn.microsoft.com/en-us/windows/uwp/audio-video-camera/imaging" target="_blank">Imaging (BitmapDecoder)</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Shane Young · PowerShell</div>
+          <div class="title"><a href="https://www.youtube.com/@ShaneYoung" target="_blank">Shane Young — PowerShell fundamentals</a></div>
+          <p class="desc">If PowerShell is new to you, his fundamentals series gets you reading and writing scripts quickly.</p>
+        </div>
+        <span class="duration">~2h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">PowerShell.org · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@PowerShellOrg" target="_blank">PowerShell.org conference talks</a></div>
+          <p class="desc">Talks on WinRT interop, advanced scripting. Useful when you want to push PowerShell harder.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">No good single tutorial for Windows.Media.Ocr from PowerShell</div>
+          <div class="title">Read v1's <code>src/utils/windows-ocr.ps1</code></div>
+          <p class="desc">The script is short. Reading it is the fastest way to understand what we do. Modify it; run it; observe.</p>
+        </div>
+        <span class="duration">15m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Read this code in v1</h2>
+      <ul>
+        <li><code>src/utils/windows-ocr.ps1</code> &mdash; the PowerShell wrapper.</li>
+        <li><code>src/services/ocr-service.js</code> &mdash; the <code>setupWindowsOcr</code>, <code>extractTextWindows</code>, and circuit-breaker logic.</li>
+        <li><code>src/services/windows-preflight.js</code> &mdash; checks PowerShell availability and VC++ runtime at startup.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>The PowerShell wrapper (skeleton)</h4>
+<pre><code># windows-ocr.ps1
+param([Parameter(Mandatory)][string]$ImagePath)
+$ErrorActionPreference = 'Stop'
+
+try {
+  Add-Type -AssemblyName System.Runtime.WindowsRuntime
+  # ... load WinRT types ...
+
+  $bitmap = [Windows.Graphics.Imaging.SoftwareBitmap, Windows.Graphics.Imaging, ContentType=WindowsRuntime]
+  $engine = [Windows.Media.Ocr.OcrEngine, Windows.Media.Ocr, ContentType=WindowsRuntime]::TryCreateFromUserProfileLanguages()
+
+  # ... decode image, run OCR ...
+
+  $output = @{ extractedText = $text; success = $true }
+  $output | ConvertTo-Json -Compress
+}
+catch {
+  @{ error = $_.Exception.Message; success = $false } | ConvertTo-Json -Compress
+  exit 1
+}</code></pre>
+      <p>The real script is ~80 lines &mdash; copy it from v1 verbatim. Don't write it from scratch.</p>
+
+      <h4>Calling from Node</h4>
+<pre><code>// src/main/services/ocr/windows.ts
+import { exec } from 'node:child_process';
+import path from 'node:path';
+
+export async function extractTextWindows(imagePath: string): Promise&lt;string&gt; {
+  const scriptPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'utils', 'windows-ocr.ps1')
+    : path.join(__dirname, '..', '..', 'utils', 'windows-ocr.ps1');
+
+  const cmd = `powershell -NoProfile -ExecutionPolicy Bypass -File "${scriptPath}" "${imagePath}"`;
+
+  return new Promise((resolve, reject) =&gt; {
+    exec(cmd, { timeout: 10_000, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) =&gt; {
+      if (err) return reject(new Error(stderr || err.message));
+      try {
+        const result = JSON.parse(stdout.trim());
+        if (result.error) return reject(new Error(result.error));
+        resolve(result.extractedText ?? '');
+      } catch (e) {
+        reject(new Error(`Parse Windows OCR output: ${e}`));
+      }
+    });
+  });
+}</code></pre>
+
+      <h4>The circuit breaker</h4>
+<pre><code>let consecutiveFailures = 0;
+let useWindowsOcr = true;
+
+async function extract(imagePath: string) {
+  if (useWindowsOcr) {
+    try {
+      const text = await extractTextWindows(imagePath);
+      consecutiveFailures = 0;
+      return text;
+    } catch (err) {
+      consecutiveFailures++;
+      if (consecutiveFailures &gt;= 3) {
+        logger.warn('Windows OCR failed 3 times — switching to Tesseract for this session');
+        useWindowsOcr = false;
+      }
+    }
+  }
+  return await extractTextTesseract(imagePath);
+}</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Get Windows OCR working on a Windows machine (or VM):</p>
+        <ol>
+          <li>Copy v1's <code>windows-ocr.ps1</code>. Run it from a PowerShell prompt: <code>.\windows-ocr.ps1 .\test.png</code>. Confirm JSON output.</li>
+          <li>Wire it into your Electron lab project under an <code>ocr.extract</code> tRPC procedure.</li>
+          <li>Add <code>asarUnpack</code> for the script. <code>pnpm dist:win</code>. Confirm the packaged app still finds the script.</li>
+          <li>Implement the circuit breaker: after 3 consecutive failures, switch to a stub fallback (just return "fallback used").</li>
+          <li>Force a failure: temporarily break the script (rename a WinRT type). Confirm 3 errors → fallback engages → recovery: fix the script, restart, normal operation resumes.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>v2's OcrConsumer on Windows is: <strong>Windows.Media.Ocr (via PowerShell)</strong> → tesseract.js fallback. The circuit breaker is mandatory: WinRT failures usually indicate a system-level issue (missing runtime, broken policy, Windows version mismatch) that won't self-heal mid-session. Switching to tesseract.js once is safer than thrashing.</p>
+      <p>The Windows pre-flight diagnostic (<code>src/services/windows-preflight.js</code> in v1) runs at startup and checks: PowerShell version, VC++ runtime presence, native module load. Failures surface in Settings → Diagnostics so the user can see <em>why</em> capture or OCR isn't working. v2 keeps this exactly.</p>
+      <div class="callout">
+        <div class="label-tag">Tip</div>
+        <p>If you're on macOS and need to test the Windows path, use Parallels Desktop or VMware Fusion with a Windows 11 VM. The Windows OCR APIs require a real Windows install (not Wine).</p>
+      </div>
+    </section>
+
+    <div class="next-prev">
+      <a href="macos-vision-ocr.html">
+        <span class="label-small">Previous</span>
+        macOS Vision OCR
+      </a>
+      <a class="next" href="nodejs-express.html">
+        <span class="label-small">Next</span>
+        Node.js + Express →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

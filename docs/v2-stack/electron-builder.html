@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>electron-builder · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="electron-vite.html">← electron-vite</a>
+    <a href="trpc.html">Next: tRPC →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">12 · Desktop shell</div>
+      <h1>electron-builder <em>+ updater</em></h1>
+      <p class="lede">DMG, NSIS, code signing, Apple notarization, and silent auto-updates from GitHub releases. The part of the stack that's nobody's favorite but always works.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Once <a href="electron-vite.html">electron-vite</a> has produced <code>out/main</code>, <code>out/preload</code>, <code>out/renderer</code>, you still need to:</p>
+      <ul>
+        <li>Package those into a single app bundle</li>
+        <li>Code-sign for macOS Gatekeeper</li>
+        <li>Notarize with Apple (or users see a scary dialog)</li>
+        <li>Sign for Windows SmartScreen</li>
+        <li>Generate <code>.dmg</code> and <code>.exe</code> installers</li>
+        <li>Build for x64 + arm64 on macOS, x64 + portable on Windows</li>
+        <li>Push to GitHub Releases with the right <code>latest-mac.yml</code> / <code>latest.yml</code> manifests</li>
+        <li>Trigger silent in-app updates via <code>electron-updater</code></li>
+      </ul>
+      <p>electron-builder + electron-updater handle every step. v1's config in <code>package.json</code> already works &mdash; v2 ports it nearly verbatim. This isn't a place to experiment.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>The <code>build</code> block in <code>package.json</code></strong> &mdash; the config lives here</li>
+        <li><strong>App ID</strong> (<code>com.onlyworks.desktop</code>) and <strong>product name</strong></li>
+        <li><strong>Targets per platform</strong> &mdash; <code>dmg</code>+<code>zip</code> on mac, <code>nsis</code>+<code>portable</code> on win</li>
+        <li><strong>Artifact naming</strong> &mdash; dots, not spaces (GitHub URL-encodes spaces, breaks auto-update URLs)</li>
+        <li><strong><code>asarUnpack</code></strong> &mdash; native modules that <em>can't</em> live in the <code>app.asar</code> archive (uiohook-napi, sharp, active-win, tesseract.js-core, PowerShell scripts)</li>
+        <li><strong>Code signing on macOS</strong> &mdash; Apple Developer ID, entitlements, hardened runtime</li>
+        <li><strong>Notarization</strong> &mdash; the <code>afterSign</code> hook + <code>@electron/notarize</code></li>
+        <li><strong>Windows signing</strong> &mdash; EV cert, <code>signAndEditExecutable</code>, <code>verifyUpdateCodeSignature</code></li>
+        <li><strong>The <code>publish</code> config</strong> &mdash; <code>provider: 'github'</code>, the release repo</li>
+        <li><strong><code>electron-updater</code></strong> &mdash; <code>autoUpdater.checkForUpdatesAndNotify()</code>, update events, the startup-screen UX</li>
+        <li><strong>Protocols</strong> &mdash; the <code>onlyworks://</code> custom URL scheme registration</li>
+        <li><strong>Extra resources</strong> &mdash; how to ship the compiled OCR binary alongside the app</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://www.electron.build/" target="_blank">electron.build</a> &mdash; the docs.</li>
+        <li><a href="https://www.electron.build/configuration/configuration" target="_blank">Configuration reference</a></li>
+        <li><a href="https://www.electron.build/configuration/mac" target="_blank">macOS-specific config</a></li>
+        <li><a href="https://www.electron.build/configuration/win" target="_blank">Windows-specific config</a></li>
+        <li><a href="https://www.electron.build/auto-update" target="_blank">Auto-update guide</a></li>
+        <li><a href="https://github.com/electron/notarize" target="_blank">@electron/notarize</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Coding Tech</div>
+          <div class="title"><a href="https://www.youtube.com/@CodingTech" target="_blank">Packaging Electron apps for distribution</a></div>
+          <p class="desc">Search "electron-builder tutorial" on YouTube. The Coding Tech and Traversy Media videos are the standard recommendations.</p>
+        </div>
+        <span class="duration">30m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Traversy Media</div>
+          <div class="title"><a href="https://www.youtube.com/@TraversyMedia" target="_blank">Traversy — Electron build &amp; publish</a></div>
+          <p class="desc">Practical walkthrough of <code>electron-builder</code> + auto-updates.</p>
+        </div>
+        <span class="duration">45m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Niall Maher · Codu</div>
+          <div class="title"><a href="https://www.youtube.com/@NiallMaher" target="_blank">Niall — Building &amp; releasing Electron apps</a></div>
+          <p class="desc">Modern packaging + signing walkthroughs.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Apple Developer (signing &amp; notarization)</div>
+          <div class="title"><a href="https://developer.apple.com/videos/" target="_blank">developer.apple.com/videos — Notarization sessions</a></div>
+          <p class="desc">Apple's own WWDC talks on notarization. Watch when notarization fails and you need to understand <em>why</em>.</p>
+        </div>
+        <span class="duration">30m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Long-form reading</h2>
+      <ul>
+        <li>The <code>build</code> block in OnlyWorks v1 <code>package.json</code> &mdash; read it line by line. Comments in the actual file explain a few non-obvious decisions (artifact naming, asarUnpack list).</li>
+        <li><code>src/services/auto-updater.js</code> + <code>src/core/auto-updater-flow.js</code> in v1 &mdash; the startup screen + skip/install flow we port directly.</li>
+        <li><code>build/notarize.js</code> + the entitlements plists in v1.</li>
+        <li><a href="https://github.com/electron-userland/electron-builder/blob/master/CHANGELOG.md" target="_blank">electron-builder changelog</a> &mdash; check when you upgrade.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>The build config (simplified from v1)</h4>
+<pre><code>// package.json
+{
+  "build": {
+    "appId": "com.onlyworks.desktop",
+    "productName": "OnlyWorks Desktop",
+    "afterSign": "build/notarize.js",
+    "files": ["out/**/*", "package.json"],
+    "asarUnpack": [
+      "node_modules/uiohook-napi/**",
+      "node_modules/sharp/**",
+      "node_modules/active-win/**"
+    ],
+    "publish": [{
+      "provider": "github",
+      "owner": "Namkha-yolo",
+      "repo": "ONLYWORKS_DIST"
+    }],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "artifactName": "OnlyWorks.Desktop-${version}-${arch}.${ext}"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    }
+  }
+}</code></pre>
+
+      <h4>The auto-updater (wire-up)</h4>
+<pre><code>// src/main/auto-updater.ts
+import { autoUpdater } from 'electron-updater';
+
+autoUpdater.on('update-available', (info) =&gt; {
+  sendToRenderer('update-status', { state: 'available', version: info.version });
+});
+
+autoUpdater.on('update-downloaded', () =&gt; {
+  sendToRenderer('update-status', { state: 'downloaded' });
+});
+
+autoUpdater.checkForUpdatesAndNotify();</code></pre>
+
+      <h4>Notarization (the afterSign hook)</h4>
+<pre><code>// build/notarize.js
+const { notarize } = require('@electron/notarize');
+
+exports.default = async function (context) {
+  if (context.electronPlatformName !== 'darwin') return;
+
+  await notarize({
+    appBundleId: 'com.onlyworks.desktop',
+    appPath: `${context.appOutDir}/OnlyWorks Desktop.app`,
+    appleId: process.env.APPLE_ID,
+    appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
+    teamId: process.env.APPLE_TEAM_ID,
+  });
+};</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Take your electron-vite lab project from the previous chapter and ship a release:</p>
+        <ol>
+          <li>Install <code>electron-builder</code> and <code>electron-updater</code>.</li>
+          <li>Add a <code>build</code> block with <code>appId</code>, <code>productName</code>, mac DMG target, win NSIS target.</li>
+          <li>Run <code>pnpm dist:mac</code> (or win). Inspect the generated <code>dist/</code>.</li>
+          <li>Drag the DMG to /Applications and run the app. Confirm it works.</li>
+          <li>Wire up <code>autoUpdater.checkForUpdatesAndNotify()</code> in main.</li>
+          <li>Set <code>publish.provider: 'github'</code> pointing at a private dist repo of yours.</li>
+          <li>Publish 1.0.0, then bump to 1.0.1, publish again, and verify the running 1.0.0 receives the update.</li>
+          <li>(macOS-only) Get signing + notarization working with your Apple Developer ID. The first time is hours; every time after is minutes.</li>
+        </ol>
+        <div class="callout warning">
+          <div class="label-tag">Ask first</div>
+          <p>Apple Developer Program ($99/yr) and a Windows EV code-signing certificate are real money. Don't buy either yourself &mdash; the team already has both. Ask before touching the production signing keys.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>v1's <code>build</code> block is solid &mdash; we port it. The <code>asarUnpack</code> list, the entitlements, the notarization hook, the artifact name format, the Mica option on Windows &mdash; all of it carries over with minimal change. The main updates are pointing at v2 source paths (<code>out/main/main.js</code> instead of <code>src/main.js</code>) and dropping any v1-specific paths.</p>
+      <p>The auto-update flow in v1 (<code>src/services/auto-updater.js</code> + <code>src/core/auto-updater-flow.js</code>) is well-thought and ports almost verbatim. The startup screen with "skip update / install now" prompts is a real-user pain killer &mdash; don't simplify it away.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="electron-vite.html">
+        <span class="label-small">Previous</span>
+        electron-vite
+      </a>
+      <a class="next" href="trpc.html">
+        <span class="label-small">Next</span>
+        tRPC →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

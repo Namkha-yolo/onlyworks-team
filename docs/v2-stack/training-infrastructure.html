@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training infrastructure · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="dataset-prep.html">← Dataset prep</a>
+    <a href="wandb-mlops.html">Next: W&amp;B + MLOps →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">27 · AI / model training</div>
+      <h1>Training <em>infrastructure</em></h1>
+      <p class="lede">Where to actually run the training. Modal, RunPod, Lambda Labs, Vast.ai. How to rent a GPU without burning thousands of dollars by accident.</p>
+    </header>
+
+    <section>
+      <h2>Why this is its own doc</h2>
+      <p>You will never train on the founders' laptops. GPUs cost real money per hour, get billed continuously while idle, and have a learning curve specific to each provider. The first time an intern leaves a $4/hr GPU running over a weekend, that's $130 of unwanted billing. We avoid this by being deliberate about which provider for which job and by always knowing where the active session is.</p>
+      <p>This doc covers: the providers we use, when to pick each one, the price/performance landscape, and the discipline patterns that prevent runaway spend.</p>
+    </section>
+
+    <section>
+      <h2>The providers we use</h2>
+
+      <h3>Modal Labs <span class="label recommended">Recommended default</span></h3>
+      <ul>
+        <li><strong>Model</strong>: serverless GPU as a function. You write Python, decorate it with <code>@app.function(gpu='A10G')</code>, call it, billed only while running.</li>
+        <li><strong>Best for</strong>: short-to-medium jobs (a few hours to overnight). Notebooks, eval runs, ad-hoc fine-tunes.</li>
+        <li><strong>Pricing</strong>: per-second billing. ~$1.10/hr for A10G, ~$4/hr for H100.</li>
+        <li><strong>Idle cost</strong>: zero &mdash; you only pay while the function is running. <strong>This is huge.</strong></li>
+        <li><strong>Catch</strong>: cold-start can be 30-60s for big container images. Cache aggressively.</li>
+      </ul>
+
+      <h3>RunPod</h3>
+      <ul>
+        <li><strong>Model</strong>: rent a persistent pod (SSH or Jupyter). Cheaper hardware than Modal.</li>
+        <li><strong>Best for</strong>: long training runs, interactive debugging.</li>
+        <li><strong>Pricing</strong>: ~$0.30/hr for L4, ~$0.60/hr for A40, ~$2/hr for H100.</li>
+        <li><strong>Idle cost</strong>: YOU pay while the pod is allocated, even if idle. <strong>Always shut down.</strong></li>
+        <li><strong>Catch</strong>: storage charged separately; persistent storage between runs costs.</li>
+      </ul>
+
+      <h3>Lambda Labs</h3>
+      <ul>
+        <li><strong>Model</strong>: similar to RunPod, often slightly cheaper.</li>
+        <li><strong>Best for</strong>: same use cases as RunPod.</li>
+        <li><strong>Pricing</strong>: similar to RunPod, sometimes cheaper for high-tier (H100/H200).</li>
+      </ul>
+
+      <h3>Vast.ai</h3>
+      <ul>
+        <li><strong>Model</strong>: marketplace &mdash; rent from individual providers, including consumer GPUs.</li>
+        <li><strong>Best for</strong>: cheapest option for experimentation when you don't need an SLA.</li>
+        <li><strong>Catch</strong>: variable reliability, providers can disappear, data integrity is on you.</li>
+      </ul>
+
+      <h3>Google Colab / Kaggle</h3>
+      <ul>
+        <li><strong>Model</strong>: free or cheap notebooks with limited GPU time.</li>
+        <li><strong>Best for</strong>: tutorials, prototyping, students. Not for production runs.</li>
+        <li><strong>Catch</strong>: sessions can be killed; storage doesn't persist; GPU you get is not guaranteed.</li>
+      </ul>
+
+      <table>
+        <thead>
+          <tr><th>Need</th><th>Use</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Following a tutorial</td><td>Colab Pro ($10/mo)</td></tr>
+          <tr><td>Ad-hoc Python script, 1&ndash;4 hours</td><td>Modal</td></tr>
+          <tr><td>Overnight LoRA fine-tune on a small VLM</td><td>RunPod L4 (~$0.50/hr)</td></tr>
+          <tr><td>Multi-day fine-tune of a 7B model</td><td>RunPod / Lambda H100 (~$2/hr)</td></tr>
+          <tr><td>Eval / inference of a finished model</td><td>Modal (serverless idle cost = 0)</td></tr>
+          <tr><td>Cheap experimentation</td><td>Vast.ai (with disposable data)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>GPU types</strong> &mdash; T4, L4, A10G, A40, A100 (40/80GB), H100 (80GB), H200. Memory + compute trade-offs.</li>
+        <li><strong>Quantization &amp; memory</strong> &mdash; with QLoRA, a 7B model fits on 12 GB; a 70B model fits on 80 GB. Plan accordingly.</li>
+        <li><strong>Storage</strong> &mdash; checkpoint sizes, where to push them (HF Hub private vs Supabase Storage vs S3)</li>
+        <li><strong>Setup time</strong> &mdash; first run on a new pod takes 15&ndash;30 min for environment setup. Bake it into a Docker image after that.</li>
+        <li><strong>Spot vs on-demand</strong> &mdash; cheaper but can be preempted; only use with checkpointing.</li>
+        <li><strong>Multi-GPU</strong> &mdash; rare for LoRA, common for full fine-tunes. Use <code>accelerate launch</code>.</li>
+        <li><strong>Monitoring</strong> &mdash; provider dashboards, billing alerts, W&amp;B for training progress.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://modal.com/docs" target="_blank">Modal docs</a></li>
+        <li><a href="https://docs.runpod.io/" target="_blank">RunPod docs</a></li>
+        <li><a href="https://docs.lambdalabs.com/" target="_blank">Lambda Labs docs</a></li>
+        <li><a href="https://vast.ai/docs/" target="_blank">Vast.ai docs</a></li>
+        <li><a href="https://huggingface.co/docs/accelerate/index" target="_blank">accelerate</a> &mdash; for multi-GPU launching</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Modal Labs · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@modal-labs" target="_blank">Modal — official tutorials</a></div>
+          <p class="desc">Their videos on serverless GPU + getting started are the right entry point. Modal is our default for new training work.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Trelis Research</div>
+          <div class="title"><a href="https://www.youtube.com/@TrelisResearch" target="_blank">Trelis Research — multi-cloud fine-tune tutorials</a></div>
+          <p class="desc">He runs fine-tunes on RunPod, Vast, and others end-to-end. Shows the actual interfaces and pitfalls.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">RunPod (official)</div>
+          <div class="title"><a href="https://www.youtube.com/@runpod" target="_blank">RunPod tutorials</a></div>
+          <p class="desc">Pod setup, persistent storage, networking.</p>
+        </div>
+        <span class="duration">~30m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Lambda Labs</div>
+          <div class="title"><a href="https://www.youtube.com/@LambdaLabs" target="_blank">Lambda Labs official</a></div>
+          <p class="desc">Setup, A100/H100 walkthroughs, real fine-tune runs.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>A Modal training function</h4>
+<pre><code>import modal
+
+app = modal.App('ow-finetune-v0_1')
+image = (
+    modal.Image.debian_slim()
+    .pip_install('torch', 'transformers', 'datasets', 'peft', 'bitsandbytes', 'accelerate', 'wandb')
+)
+
+@app.function(
+    image=image,
+    gpu='A100-80GB',
+    timeout=24 * 60 * 60,        # 24h max
+    secrets=[modal.Secret.from_name('huggingface'), modal.Secret.from_name('wandb')],
+    volumes={'/data': modal.Volume.from_name('ow-datasets')},
+)
+def train():
+    from transformers import Trainer, TrainingArguments
+    # ... load model, dataset, run training ...
+    trainer.train()
+    trainer.push_to_hub('onlyworks/activity-interpreter-v0.1', private=True)
+
+@app.local_entrypoint()
+def main():
+    train.remote()</code></pre>
+      <p>Run with <code>modal run train.py</code>. Cost = exactly the time spent training. No idle bill.</p>
+
+      <h4>The discipline rule: budget per run</h4>
+<pre><code># Pseudocode for a sanity check at the top of every training script.
+ESTIMATED_HOURS = 8
+COST_PER_HOUR = 4.00     # H100 on RunPod
+TOTAL_BUDGET = ESTIMATED_HOURS * COST_PER_HOUR
+print(f"This run is budgeted for ~${TOTAL_BUDGET:.2f}. Press enter to confirm.")
+input()</code></pre>
+      <p>It sounds silly. It saves real money.</p>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Run a training job on rented infrastructure for the first time. <strong>Ask before you spin one up</strong>; the team will share an account.</p>
+        <ol>
+          <li>Set up a Modal account, install the CLI, run <code>modal token new</code>.</li>
+          <li>Build a tiny training function that does 100 steps on MNIST + saves a checkpoint.</li>
+          <li>Run it on Modal with a T4 GPU (cheapest). Confirm it works.</li>
+          <li>Same task on RunPod: rent an L4, SSH in, run the script. Compare the experience.</li>
+          <li>Note the costs of each. Shut down the RunPod pod when done. Verify in the billing dashboard.</li>
+          <li>Add a "if billing &gt; $5, alert me" cap (Modal has built-in spending alerts).</li>
+          <li>Document for the team: which provider you'd recommend for your task, and why.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>House rules for GPU spend</h2>
+      <ul>
+        <li><strong>Ask before you spin one up</strong> &mdash; even cheap ones. Especially the first time. The team has shared accounts; we want to know what's running.</li>
+        <li><strong>Set spending alerts</strong> &mdash; per-provider, before you start. Daily and monthly caps.</li>
+        <li><strong>Shut down when done</strong> &mdash; literally check the dashboard before you close your laptop. RunPod / Lambda / Vast will keep billing you forever.</li>
+        <li><strong>Use Modal for short jobs</strong> &mdash; zero idle cost is the killer feature for prototyping.</li>
+        <li><strong>Checkpoint frequently</strong> &mdash; especially on spot / preemptible instances</li>
+        <li><strong>Push checkpoints off the pod immediately</strong> &mdash; to HF Hub or S3. Pod storage is ephemeral.</li>
+        <li><strong>Log every run to W&amp;B</strong> &mdash; if you can't show what a run produced, the spend was wasted (next doc).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The model-training stack runs entirely on rented compute. For 2026, the rhythm is roughly:</p>
+      <ul>
+        <li><strong>Experiments &amp; eval</strong> &mdash; Modal, costs &lt;$100/month</li>
+        <li><strong>Monthly LoRA fine-tune of the production model</strong> &mdash; RunPod H100, ~$50/run (10&ndash;15 hours)</li>
+        <li><strong>Quarterly full retraining / base model evaluation</strong> &mdash; Lambda or RunPod multi-GPU, low hundreds per run</li>
+      </ul>
+      <p>Total infra budget: a few hundred dollars a month, scaling with how aggressive we get on retraining. That's cheaper than 1% of one user-month of Gemini once we hit ~5K users. Hence: the bet pays off.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="dataset-prep.html">
+        <span class="label-small">Previous</span>
+        Dataset preparation
+      </a>
+      <a class="next" href="wandb-mlops.html">
+        <span class="label-small">Next</span>
+        Weights &amp; Biases + MLOps →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

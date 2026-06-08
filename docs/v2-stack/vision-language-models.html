@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vision-Language Models · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="huggingface-transformers.html">← Hugging Face</a>
+    <a href="fine-tuning-lora.html">Next: Fine-tuning →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">24 · AI / model training</div>
+      <h1>Vision-Language <em>Models</em></h1>
+      <p class="lede">Models that take an image + text and produce text. The architecture family we're starting from. Long-term, our proprietary "work activity interpreter" is a fine-tuned VLM.</p>
+    </header>
+
+    <section>
+      <h2>Why this is the right family</h2>
+      <p>The desktop captures screenshots + OCR text + app/window metadata. The output we want is structured narrative ("user spent 35 minutes editing a design in Figma, then 15 minutes in Slack discussing the change with their team"). Gemini Vision does this today &mdash; it takes the image + a system prompt and outputs the narrative.</p>
+      <p>A Vision-Language Model is the same shape: image input → text output, conditioned on a text prompt. CLIP started the family (text-image embeddings). LLaVA, Qwen-VL, InternVL, MiniCPM-V are modern open-weight versions that can accept multiple images and follow instructions like a chat model.</p>
+      <p>For OnlyWorks: pick a strong open VLM, fine-tune it on our task, deploy it, and slowly graduate users from Gemini to our model as quality matches. The economics &mdash; "$0 per inference call instead of $0.001" &mdash; pay back the training cost within a few thousand users.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>The architecture in one paragraph</h3>
+      <p>A modern VLM is: <strong>a vision encoder</strong> (often a CLIP or SigLIP image transformer) that turns an image into a sequence of visual tokens, + <strong>a connector</strong> (a small MLP or learned mapping) that projects those tokens into the language model's embedding space, + <strong>a language model</strong> (a regular causal LLM like Llama, Qwen, Mistral) that consumes the visual tokens as if they were text tokens and generates output. Training mixes pure-text data with image-instruction-response triples.</p>
+
+      <h3>Models worth knowing</h3>
+      <ul>
+        <li><strong>CLIP</strong> (OpenAI, 2021) &mdash; the foundational text-image embedding model. Not generative, but every downstream VLM uses something like its image encoder.</li>
+        <li><strong>BLIP / BLIP-2</strong> (Salesforce) &mdash; early instruction-following VLMs.</li>
+        <li><strong>LLaVA</strong> &mdash; the open-source breakthrough; first VLM trained from a small dataset of GPT-4-generated instructions. Iterations: LLaVA-1.5, LLaVA-1.6, LLaVA-OneVision.</li>
+        <li><strong>Qwen-VL / Qwen2-VL / Qwen2.5-VL</strong> (Alibaba) &mdash; current state-of-the-art open weights. Multiple sizes (2B, 7B, 72B). Strong on UI / screenshot understanding.</li>
+        <li><strong>InternVL</strong> &mdash; another strong family, mostly competitive with Qwen-VL.</li>
+        <li><strong>MiniCPM-V / Phi-3.5-vision</strong> &mdash; smaller (~3B) VLMs that fit on a 12GB GPU. Useful for prototyping.</li>
+        <li><strong>Idefics</strong> &mdash; Hugging Face's open VLM line.</li>
+        <li><strong>Closed-weight reference</strong> &mdash; Gemini Flash/Pro, Claude Sonnet (vision), GPT-4o. We compare our model's output to these as the moving "good enough" bar.</li>
+      </ul>
+
+      <h3>Concepts to learn</h3>
+      <ul>
+        <li><strong>Image tokenization</strong> &mdash; patches, ViT, image-token count vs context window</li>
+        <li><strong>Multi-image inputs</strong> &mdash; how a model handles a sequence of screenshots</li>
+        <li><strong>Resolution handling</strong> &mdash; native-resolution vs fixed-grid; importance for UI screenshots</li>
+        <li><strong>Instruction tuning</strong> &mdash; how chat / instruction VLMs are trained</li>
+        <li><strong>The processor</strong> &mdash; in HF, the <code>AutoProcessor</code> wraps tokenizer + image processor</li>
+        <li><strong>Prompting patterns</strong> &mdash; system message, image placeholder tokens, multi-turn</li>
+        <li><strong>Evaluation</strong> &mdash; what benchmarks exist (MMBench, MMMU, ChartQA), why none of them measure "interpret a work session"</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs &amp; papers</h2>
+      <ul>
+        <li><a href="https://huggingface.co/docs/transformers/model_doc/llava" target="_blank">HF docs — LLaVA</a></li>
+        <li><a href="https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct" target="_blank">Qwen2.5-VL model card</a></li>
+        <li><a href="https://arxiv.org/abs/2103.00020" target="_blank">CLIP paper (2021)</a></li>
+        <li><a href="https://arxiv.org/abs/2304.08485" target="_blank">LLaVA paper (2023)</a></li>
+        <li><a href="https://qwenlm.github.io/blog/" target="_blank">Qwen team blog</a> &mdash; release announcements with architecture details.</li>
+        <li><a href="https://huggingface.co/blog/idefics" target="_blank">HF Idefics blog series</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Andrej Karpathy</div>
+          <div class="title"><a href="https://www.youtube.com/@AndrejKarpathy" target="_blank">Andrej Karpathy — Intro to LLMs (1h talk)</a></div>
+          <p class="desc">Foundational context for what an LLM is and why VLMs are an extension of it. Watch first.</p>
+        </div>
+        <span class="duration">1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Yannic Kilcher</div>
+          <div class="title"><a href="https://www.youtube.com/@YannicKilcher" target="_blank">Yannic Kilcher — paper walkthroughs</a></div>
+          <p class="desc">Search "Yannic Kilcher CLIP" / "LLaVA" / "Qwen-VL". His paper walkthroughs are the cleanest way to understand the model architectures.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">AI Coffee Break with Letitia</div>
+          <div class="title"><a href="https://www.youtube.com/@AICoffeeBreak" target="_blank">AI Coffee Break — multimodal explainers</a></div>
+          <p class="desc">Best-in-class explanations of multimodal architectures. Visual, intuitive, not too math-heavy.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Sam Witteveen</div>
+          <div class="title"><a href="https://www.youtube.com/@samwitteveenai" target="_blank">Sam Witteveen — VLM tutorials</a></div>
+          <p class="desc">Practical "load and use Model X" videos when new VLMs drop.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Two Minute Papers</div>
+          <div class="title"><a href="https://www.youtube.com/@TwoMinutePapers" target="_blank">Two Minute Papers</a></div>
+          <p class="desc">Short summaries of new ML papers. Stay loosely current on what's coming out without reading every paper.</p>
+        </div>
+        <span class="duration">2m each</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in our pipeline</h2>
+
+      <h4>Running inference with Qwen2.5-VL</h4>
+<pre><code>from transformers import AutoProcessor, AutoModelForImageTextToText
+from PIL import Image
+
+model_id = 'Qwen/Qwen2.5-VL-7B-Instruct'
+processor = AutoProcessor.from_pretrained(model_id)
+model = AutoModelForImageTextToText.from_pretrained(
+    model_id, torch_dtype='auto', device_map='auto',
+)
+
+image = Image.open('screenshot.png')
+
+messages = [
+    {
+        'role': 'user',
+        'content': [
+            {'type': 'image', 'image': image},
+            {'type': 'text', 'text': 'Describe what the user is working on. Be specific.'},
+        ],
+    },
+]
+
+inputs = processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=True, return_tensors='pt').to(model.device)
+outputs = model.generate(**inputs, max_new_tokens=300)
+print(processor.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True))</code></pre>
+
+      <h4>Multi-image input (sequence of screenshots)</h4>
+<pre><code>messages = [
+    {
+        'role': 'user',
+        'content': [
+            {'type': 'image', 'image': img1},
+            {'type': 'image', 'image': img2},
+            {'type': 'image', 'image': img3},
+            {'type': 'text', 'text':
+                'These are screenshots from 3 minutes apart. '
+                'Summarize the user\'s activity across the sequence.'},
+        ],
+    },
+]</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a VLM playground for OnlyWorks-style screenshots:</p>
+        <ol>
+          <li>Rent a single small GPU (e.g. RunPod A10 24GB, ~$0.30/hr) &mdash; <strong>ask first</strong>. Or use a Mac M-series with MLX-Qwen-VL for free local inference.</li>
+          <li>Load a small VLM: <code>Qwen/Qwen2.5-VL-3B-Instruct</code> or <code>llava-hf/llava-1.6-mistral-7b-hf</code>.</li>
+          <li>Take 10 screenshots of yourself working in different apps (VS Code, Figma, browser, Slack).</li>
+          <li>For each: ask the model "Describe what the user is working on. List specific apps and any visible text."</li>
+          <li>Compare the output to what Gemini Flash gives you on the same image.</li>
+          <li>Try multi-image: pass 3 consecutive screenshots and ask for an "activity summary."</li>
+          <li>Document the failure modes: where does the open model lag behind Gemini? Hallucinated text? Wrong app names? Generic summaries? That gap is what fine-tuning targets.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The v2 plan:</p>
+      <ol>
+        <li><strong>Stage 0 (now)</strong> &mdash; Gemini Flash + Pro do all the interpretation. Pipeline 2 in the desktop sends OCR text + occasional images to <code>/api/pipeline/activity/stream</code>; backend calls Gemini; results land in <code>activity_log</code>.</li>
+        <li><strong>Stage 1 (3&ndash;6 months)</strong> &mdash; collect a labeled dataset. Pipeline 1 (the training-data consumer) is already capturing high-resolution screenshots into <code>training_frames</code>. Add user-consented labels &mdash; eventually self-supervised, initially the report text that Gemini produced is the supervision target.</li>
+        <li><strong>Stage 2 (6&ndash;12 months)</strong> &mdash; pick a base VLM (probably Qwen-VL-7B), fine-tune with LoRA on our dataset. Evaluate against Gemini Flash on a held-out test set.</li>
+        <li><strong>Stage 3 (12&ndash;18 months)</strong> &mdash; if eval passes, A/B test on a fraction of traffic. If it matches or beats Gemini, graduate the model to default. Continue to retrain quarterly.</li>
+      </ol>
+      <p>This is the bet that's driving the whole training-data side of the v1 → v2 architecture. Read the "Capture Pipeline: Unified Single-Trigger, Multi-Consumer" section of <code>03-architecture-review.html</code> for the long-form rationale.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="huggingface-transformers.html">
+        <span class="label-small">Previous</span>
+        Hugging Face
+      </a>
+      <a class="next" href="fine-tuning-lora.html">
+        <span class="label-small">Next</span>
+        Fine-tuning with LoRA →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

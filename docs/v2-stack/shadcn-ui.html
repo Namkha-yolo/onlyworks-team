@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>shadcn/ui · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="tailwind.html">← Tailwind</a>
+    <a href="tanstack-query.html">Next: TanStack Query →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">05 · Frontend foundations</div>
+      <h1><em>shadcn/ui</em></h1>
+      <p class="lede">Not a component library. A collection of copy-and-paste components built on Radix primitives + Tailwind. You own the code; you customize freely.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>Component libraries (Material UI, Chakra, Mantine) lock you into their design system. When you need to deviate &mdash; "make this dropdown look slightly different on Tuesdays" &mdash; you fight the library. shadcn/ui solves this by being <strong>not a library at all</strong>: it's a CLI that <em>copies source files into your repo</em>. After that, the code is yours.</p>
+      <p>The underlying components are built on <a href="https://www.radix-ui.com/primitives" target="_blank">Radix UI</a> &mdash; unstyled, accessible primitives with proper keyboard navigation, focus management, ARIA roles, and edge cases (e.g. closing a dropdown when you click outside) all handled correctly. shadcn/ui wraps Radix with sensible Tailwind defaults.</p>
+      <p>For OnlyWorks, this means we get a properly accessible modal, dropdown, dialog, command palette, tooltip &mdash; all in our own files, all styled to match the v2 brand &mdash; without writing them from scratch and without depending on a library.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>The mental model</strong> &mdash; "components live in your repo" vs "components live in <code>node_modules</code>"</li>
+        <li><strong>CLI</strong> &mdash; <code>npx shadcn@latest init</code>, then <code>add</code> components one at a time</li>
+        <li><strong>Setup</strong> &mdash; the <code>components.json</code> file, path aliases, the <code>cn()</code> helper</li>
+        <li><strong>What gets added</strong> &mdash; check in the generated files; they're yours to edit</li>
+        <li><strong>Radix primitives underneath</strong> &mdash; understanding why <code>Dialog</code>, <code>DropdownMenu</code>, <code>Popover</code> behave correctly</li>
+        <li><strong>Compound components</strong> &mdash; <code>&lt;Dialog&gt;&lt;DialogTrigger&gt;&lt;DialogContent&gt;</code> patterns</li>
+        <li><strong>Theming</strong> &mdash; CSS variables in <code>globals.css</code>, the <code>:root</code> + <code>.dark</code> pattern, customizing via <code>tailwind.config.ts</code></li>
+        <li><strong>Customizing components</strong> &mdash; the components are in your repo. Just edit them.</li>
+        <li><strong>Available components</strong> &mdash; Button, Input, Dialog, DropdownMenu, Select, Toast, Form (paired with React Hook Form), Command, Table, Tabs, Tooltip, …</li>
+        <li><strong>When to write your own</strong> &mdash; shadcn covers 80%; the OnlyWorks-specific stuff (StatCard, SessionPanel, ReportCard) you build yourself</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://ui.shadcn.com/" target="_blank">ui.shadcn.com</a> &mdash; the entire docs are component-by-component. Start with "Installation", then browse the component examples.</li>
+        <li><a href="https://ui.shadcn.com/docs/installation/vite" target="_blank">Installation for Vite</a> &mdash; the path we'll use for the desktop renderer.</li>
+        <li><a href="https://ui.shadcn.com/docs/installation/next" target="_blank">Installation for Next.js</a> &mdash; the path the website already uses.</li>
+        <li><a href="https://www.radix-ui.com/primitives/docs/overview/introduction" target="_blank">Radix Primitives — Introduction</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">shadcn · YouTube</div>
+          <div class="title"><a href="https://www.youtube.com/@shadcn" target="_blank">shadcn's own channel</a></div>
+          <p class="desc">The creator's videos. He walks through the design philosophy and how to build your own components in the same style. Best entry point.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — shadcn deep-dives</a></div>
+          <p class="desc">Theo's videos on why shadcn is the right answer, how he uses it, and how to extend it. Search "Theo shadcn".</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — shadcn/ui complete guide</a></div>
+          <p class="desc">Practical walkthroughs of building real UI flows with shadcn primitives.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Code with Antonio</div>
+          <div class="title"><a href="https://www.youtube.com/@codewithantonio" target="_blank">Code with Antonio — full apps with shadcn</a></div>
+          <p class="desc">His full-stack tutorials all use shadcn. Watch any of them to see real-world component composition.</p>
+        </div>
+        <span class="duration">5h+</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">ByteGrad</div>
+          <div class="title"><a href="https://www.youtube.com/@ByteGrad" target="_blank">ByteGrad — Forms with shadcn + React Hook Form + Zod</a></div>
+          <p class="desc">The standard pattern for forms in v2. Watch this when you get to <a href="react-hook-form-zod.html">the forms doc</a>.</p>
+        </div>
+        <span class="duration">45m</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>Adding a component</h4>
+<pre><code>npx shadcn@latest add button dialog dropdown-menu input
+# files appear in src/components/ui/</code></pre>
+
+      <h4>A typical compound component</h4>
+<pre><code>import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+
+function ConfirmDelete({ onConfirm }: { onConfirm: () =&gt; void }) {
+  return (
+    &lt;Dialog&gt;
+      &lt;DialogTrigger asChild&gt;
+        &lt;Button variant="destructive"&gt;Delete report&lt;/Button&gt;
+      &lt;/DialogTrigger&gt;
+      &lt;DialogContent&gt;
+        &lt;DialogHeader&gt;
+          &lt;DialogTitle&gt;Delete this report?&lt;/DialogTitle&gt;
+        &lt;/DialogHeader&gt;
+        &lt;p&gt;This cannot be undone.&lt;/p&gt;
+        &lt;Button variant="destructive" onClick={onConfirm}&gt;Confirm&lt;/Button&gt;
+      &lt;/DialogContent&gt;
+    &lt;/Dialog&gt;
+  );
+}</code></pre>
+
+      <h4>Theming via CSS variables</h4>
+<pre><code>/* globals.css */
+:root {
+  --background: 60 9% 98%;
+  --foreground: 24 10% 4%;
+  --primary: 263 70% 50%;       /* purple */
+  --primary-foreground: 0 0% 100%;
+  /* ... */
+}
+
+.dark {
+  --background: 24 10% 4%;
+  --foreground: 60 9% 98%;
+  /* ... */
+}</code></pre>
+      <p>shadcn uses HSL CSS vars so you can adjust the whole theme by editing two blocks. Don't hardcode colors in component files; use the tokens.</p>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Set up shadcn/ui in your Vite + React + Tailwind project from the previous chapter:</p>
+        <ol>
+          <li><code>npx shadcn@latest init</code> &mdash; pick the default theme.</li>
+          <li>Add: <code>button</code>, <code>input</code>, <code>dialog</code>, <code>dropdown-menu</code>, <code>toast</code>.</li>
+          <li>Build a "Settings" mini-page with a name input, a save button, a confirm-delete dialog, and a profile dropdown menu.</li>
+          <li>On submit, show a success toast.</li>
+          <li>Add a dark mode toggle that flips the theme by toggling a class on <code>&lt;html&gt;</code>.</li>
+          <li>Open one of the generated component files (e.g. <code>components/ui/button.tsx</code>). Change the default variant's color. Confirm the change propagates to every <code>&lt;Button&gt;</code> in your app.</li>
+        </ol>
+        <p>Goal: feel the difference between "use a library" and "own the code". The component is yours; touch it.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The desktop renderer uses shadcn primitives for everything that's not OnlyWorks-specific: dialogs, dropdowns, command palette, toasts, tables, tabs. The OnlyWorks-specific components (<code>&lt;SessionPanel&gt;</code>, <code>&lt;DailyBriefing&gt;</code>, <code>&lt;OWProfileCard&gt;</code>) are built in the same style &mdash; copy the shadcn patterns and adapt.</p>
+      <p>The website at <code>onlyworks_verified</code> already uses shadcn; see <code>components.json</code> and <code>components/ui/</code> there.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="tailwind.html">
+        <span class="label-small">Previous</span>
+        Tailwind CSS
+      </a>
+      <a class="next" href="tanstack-query.html">
+        <span class="label-small">Next</span>
+        TanStack Query →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

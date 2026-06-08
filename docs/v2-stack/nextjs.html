@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next.js 14 · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="supabase.html">← Supabase</a>
+    <a href="vitest.html">Next: Vitest →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">19 · Website</div>
+      <h1><em>Next.js 14</em></h1>
+      <p class="lede">The marketing site, public OW profiles, hiring search, Talent Community signup. App Router, server components, SSR. Already in production at only-works.com.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The website is at <code>/Users/xerneas/onlyworks_verified</code>. It serves three audiences: prospective users (download the app), employers (search verified candidates, post jobs), and Talent Community members (join via magic link). Each of those is a distinct flow with SEO needs, SSR needs, and auth needs that Next.js handles well out of the box.</p>
+      <p>App Router (Next 13.4+) is the version we use. Server components by default; client components when interactivity demands. Streaming, suspense, layouts &mdash; all native. SEO works because pages render on the server.</p>
+      <p>The site is deployed to Vercel. Backend calls go through <code>BACKEND_URL</code> &mdash; some calls happen in server components (no CORS), some in client code via the Next API routes (which proxy + add auth).</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>App Router fundamentals</h3>
+      <ul>
+        <li><strong>File-based routing</strong> &mdash; <code>app/page.tsx</code>, <code>app/about/page.tsx</code>, <code>app/p/[owId]/page.tsx</code></li>
+        <li><strong>Layouts</strong> &mdash; <code>app/layout.tsx</code> wraps everything; nested layouts wrap sub-trees</li>
+        <li><strong><code>loading.tsx</code></strong>, <strong><code>error.tsx</code></strong>, <strong><code>not-found.tsx</code></strong> &mdash; auto-mounted around children</li>
+        <li><strong>Route groups</strong> &mdash; <code>(marketing)/</code> doesn't add to the URL path</li>
+        <li><strong>Dynamic segments</strong> &mdash; <code>[id]</code> and <code>[...slug]</code></li>
+        <li><strong>Metadata API</strong> &mdash; <code>generateMetadata</code>, OG images, dynamic titles</li>
+      </ul>
+
+      <h3>Server vs client components</h3>
+      <ul>
+        <li><strong>Default: server</strong> &mdash; no <code>useState</code>, no <code>useEffect</code>, no event handlers</li>
+        <li><strong><code>'use client'</code></strong> at the top of a file to opt in to client behavior</li>
+        <li><strong>Server can fetch data</strong> with <code>await fetch(...)</code> directly &mdash; no useEffect</li>
+        <li><strong>Server can read cookies/headers</strong> via <code>next/headers</code></li>
+        <li><strong>Server actions</strong> &mdash; functions marked <code>'use server'</code> callable from client forms</li>
+        <li><strong>Streaming with <code>&lt;Suspense&gt;</code></strong> &mdash; render parts of the page as data arrives</li>
+      </ul>
+
+      <h3>API routes &amp; middleware</h3>
+      <ul>
+        <li><strong><code>app/api/.../route.ts</code></strong> &mdash; HTTP handlers</li>
+        <li><strong><code>middleware.ts</code></strong> &mdash; runs on the edge before any route, useful for auth gating</li>
+        <li><strong>NextResponse</strong>, <strong>NextRequest</strong></li>
+        <li><strong>The proxy pattern</strong> &mdash; site API routes forward to the Express backend, attaching auth</li>
+      </ul>
+
+      <h3>Supabase auth on Next</h3>
+      <ul>
+        <li><strong><code>@supabase/auth-helpers-nextjs</code></strong> + <code>@supabase/ssr</code></li>
+        <li><strong>Server &amp; client supabase clients</strong> with shared cookies</li>
+        <li><strong>The backend-token swap</strong> &mdash; supabase access_token → backend JWT (see <code>app/api/auth/backend-token/route.ts</code> in onlyworks_verified)</li>
+      </ul>
+
+      <h3>Production concerns</h3>
+      <ul>
+        <li><strong>Caching</strong> &mdash; <code>fetch</code>'s <code>cache</code> option, <code>revalidate</code>, <code>cache: 'no-store'</code></li>
+        <li><strong>Image optimization</strong> &mdash; <code>&lt;Image&gt;</code> component, <code>next.config.js</code> domains</li>
+        <li><strong>Environment variables</strong> &mdash; <code>NEXT_PUBLIC_</code> prefix for client-visible vars</li>
+        <li><strong>Deployment</strong> &mdash; Vercel auto-deploys per branch; preview URLs for PRs</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://nextjs.org/docs" target="_blank">nextjs.org/docs</a> &mdash; the canonical reference.</li>
+        <li><a href="https://nextjs.org/learn/react-foundations" target="_blank">Learn Next.js</a> &mdash; interactive tutorial. Start here.</li>
+        <li><a href="https://nextjs.org/docs/app/building-your-application/routing" target="_blank">Routing</a></li>
+        <li><a href="https://nextjs.org/docs/app/building-your-application/rendering/server-components" target="_blank">Server Components</a></li>
+        <li><a href="https://nextjs.org/docs/app/building-your-application/caching" target="_blank">Caching</a> &mdash; the model is non-obvious; read it twice.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Vercel · YouTube (official)</div>
+          <div class="title"><a href="https://www.youtube.com/@VercelHQ" target="_blank">Vercel official channel</a></div>
+          <p class="desc">Next.js Conf talks, App Router deep dives, perf workshops. Watch "Welcome to the Next.js App Router" first.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Lee Robinson · Vercel</div>
+          <div class="title"><a href="https://www.youtube.com/@leerob" target="_blank">Lee Robinson — Next.js / App Router</a></div>
+          <p class="desc">Lee leads DX at Vercel. His videos on server components, mutations, and caching are the best resources outside the docs themselves.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — Next.js tutorials</a></div>
+          <p class="desc">Strong on the App Router conceptual model. Watch his "Server Components Explained" and "Server Actions".</p>
+        </div>
+        <span class="duration">~2h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Theo · t3.gg</div>
+          <div class="title"><a href="https://www.youtube.com/@t3dotgg" target="_blank">Theo — Next.js opinions + gotchas</a></div>
+          <p class="desc">Theo is loud and useful on the App Router caching model, server actions, and Next.js's painful edges. Worth watching even when you disagree.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Code with Antonio</div>
+          <div class="title"><a href="https://www.youtube.com/@codewithantonio" target="_blank">Code with Antonio — full Next.js apps</a></div>
+          <p class="desc">10+ hour project builds with Next.js + Supabase + shadcn. Best for end-to-end pattern internalization.</p>
+        </div>
+        <span class="duration">10h+</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Long-form</h2>
+      <ul>
+        <li><a href="https://nextjs.org/learn" target="_blank">Next.js Learn course</a> &mdash; free and interactive.</li>
+        <li><a href="https://leerob.io/blog" target="_blank">Lee Robinson's blog</a> &mdash; in-depth Next.js posts.</li>
+        <li>The existing site at <code>/Users/xerneas/onlyworks_verified</code>. Read <code>app/layout.tsx</code>, <code>app/page.tsx</code>, <code>app/p/[owId]/page.tsx</code>, <code>app/api/auth/backend-token/route.ts</code>. That's how the patterns get used.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2 (and v1's website today)</h2>
+
+      <h4>Server component fetching backend data</h4>
+<pre><code>// app/p/[owId]/page.tsx
+import { BACKEND_URL } from '@/lib/config';
+
+async function getProfile(owId: string) {
+  const res = await fetch(`${BACKEND_URL}/api/profiles/${owId}`, { cache: 'no-store' });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.success ? data.data : null;
+}
+
+export default async function ProfilePage({ params }: { params: { owId: string } }) {
+  const profile = await getProfile(params.owId);
+  if (!profile) notFound();
+  return &lt;ProfileCard profile={profile} /&gt;;
+}</code></pre>
+
+      <h4>API route as a backend proxy</h4>
+<pre><code>// app/api/talent-community/join/route.ts
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  // ...validate with Zod...
+
+  const res = await fetch(`${BACKEND_URL}/api/talent-community/join`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.ok ? 200 : res.status });
+}</code></pre>
+
+      <h4>Supabase auth → backend JWT swap</h4>
+<pre><code>// app/api/auth/backend-token/route.ts
+export async function POST() {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return NextResponse.json({ error: 'No session' }, { status: 401 });
+
+  const res = await fetch(`${BACKEND_URL}/api/auth/website/website-token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ supabase_access_token: session.access_token }),
+  });
+  const data = await res.json();
+  return NextResponse.json({ token: data.data.token, user: data.data.user });
+}</code></pre>
+
+      <h4>Dynamic metadata</h4>
+<pre><code>export async function generateMetadata({ params }: { params: { owId: string } }): Promise&lt;Metadata&gt; {
+  const profile = await getProfile(params.owId);
+  if (!profile) return { title: 'Profile Not Found | OnlyWorks' };
+  return {
+    title: `${profile.full_name} | ${profile.ow_id} | OnlyWorks`,
+    openGraph: { /* ... */ },
+  };
+}</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a tiny App Router site that re-creates the public profile flow:</p>
+        <ol>
+          <li><code>pnpm create next-app@latest verified-lab --typescript --tailwind --app</code></li>
+          <li>Create a route at <code>/p/[owId]/page.tsx</code> &mdash; a server component that fetches from a public API (use <a href="https://api.github.com" target="_blank">api.github.com/users/:username</a> as a stand-in).</li>
+          <li>Add <code>generateMetadata</code> with a dynamic title and OG image.</li>
+          <li>Add <code>loading.tsx</code> and <code>not-found.tsx</code> at the right level.</li>
+          <li>Create <code>app/api/echo/route.ts</code> &mdash; a POST endpoint that returns the JSON body unchanged.</li>
+          <li>Build a client component that posts to it (use <code>'use client'</code>) &mdash; this teaches the server/client boundary.</li>
+          <li>Set up middleware that adds a custom header to every response.</li>
+          <li>Deploy to Vercel via GitHub. Confirm previews work.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The site code at <code>onlyworks_verified</code> is the v2 website. We don't rewrite it &mdash; we extend it. v2 adds:</p>
+      <ul>
+        <li><strong>Job post creation UI</strong> (backend done, frontend missing per the v2 roadmap)</li>
+        <li><strong>Resume verification flow</strong> &mdash; the "upload resume → AI extracts skills → generate assignments → verify in OW" loop</li>
+        <li><strong>Stripe checkout</strong> for the hiring-manager paid tier</li>
+        <li><strong>Notification center</strong></li>
+      </ul>
+      <p>Existing patterns to follow: the <code>BACKEND_URL</code> proxy in <code>lib/config.ts</code>, the Supabase auth-helpers in <code>lib/supabase/</code>, the public profile in <code>app/p/[owId]/page.tsx</code>, the API-route-as-proxy pattern in <code>app/api/talent-community/join/route.ts</code>. Reading those four files is the right onboarding to the website codebase.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="supabase.html">
+        <span class="label-small">Previous</span>
+        Supabase
+      </a>
+      <a class="next" href="vitest.html">
+        <span class="label-small">Next</span>
+        Vitest →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

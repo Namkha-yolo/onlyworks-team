@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Hook Form + Zod · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="zustand.html">← Zustand</a>
+    <a href="electron.html">Next: Electron →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">09 · State &amp; data</div>
+      <h1>React Hook Form <em>+ Zod</em></h1>
+      <p class="lede">Forms with schema validation, no boilerplate. Replaces the v1 pattern of <code>document.getElementById('email-input').value</code> + ad-hoc string checks.</p>
+    </header>
+
+    <section>
+      <h2>Why we use these together</h2>
+      <p>Forms are where untyped runtime data enters your app. v1 handles this with <code>getElementById</code> reads and regex checks scattered across page modules (<code>AuthService.validateEmail()</code> being one example of a real validation function, surrounded by many that aren't).</p>
+      <p>In v2:</p>
+      <ul>
+        <li><strong>Zod</strong> defines the shape and constraints of the form data. One schema, one source of truth.</li>
+        <li><strong>React Hook Form</strong> manages the form state without re-rendering the world on every keystroke (uncontrolled inputs + refs).</li>
+        <li><strong><code>@hookform/resolvers/zod</code></strong> bridges them: the Zod schema becomes the form validator.</li>
+        <li><strong>shadcn/ui Form components</strong> wire it all into accessible, styled inputs.</li>
+      </ul>
+      <p>End result: a form has a single schema, types flow everywhere automatically, validation messages come from one place, and the submit handler receives parsed-and-validated data.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>Zod</h3>
+      <ul>
+        <li><strong>Primitive schemas</strong> &mdash; <code>z.string()</code>, <code>z.number()</code>, <code>z.boolean()</code>, <code>z.date()</code></li>
+        <li><strong>Object schemas</strong> &mdash; <code>z.object({ email: z.string().email() })</code></li>
+        <li><strong>Refinements</strong> &mdash; <code>.min(8)</code>, <code>.regex(/.../)</code>, <code>.refine(...)</code></li>
+        <li><strong>Composition</strong> &mdash; <code>.extend</code>, <code>.pick</code>, <code>.omit</code>, <code>.merge</code>, <code>.partial</code></li>
+        <li><strong>Unions / discriminated unions</strong> &mdash; <code>z.union</code>, <code>z.discriminatedUnion</code></li>
+        <li><strong>Parsing</strong> &mdash; <code>.parse()</code> (throws), <code>.safeParse()</code> (returns Result), <code>.parseAsync()</code></li>
+        <li><strong>Type inference</strong> &mdash; <code>type FormData = z.infer&lt;typeof schema&gt;</code></li>
+        <li><strong>Transforming</strong> &mdash; <code>.transform()</code> for output shaping</li>
+        <li><strong>Custom error messages</strong> &mdash; <code>z.string({ required_error: '...' }).min(1, '...')</code></li>
+      </ul>
+
+      <h3>React Hook Form</h3>
+      <ul>
+        <li><strong><code>useForm</code></strong> &mdash; the hook, with <code>defaultValues</code>, <code>resolver</code>, <code>mode</code></li>
+        <li><strong><code>register</code></strong> vs <strong><code>Controller</code></strong> &mdash; uncontrolled vs controlled inputs</li>
+        <li><strong><code>handleSubmit</code></strong> &mdash; wraps your submit; runs validation first</li>
+        <li><strong><code>formState</code></strong> &mdash; <code>errors</code>, <code>isSubmitting</code>, <code>isDirty</code>, <code>isValid</code></li>
+        <li><strong><code>watch</code></strong> / <strong><code>setValue</code></strong> / <strong><code>reset</code></strong></li>
+        <li><strong>Validation modes</strong> &mdash; <code>onSubmit</code>, <code>onBlur</code>, <code>onChange</code>, <code>all</code></li>
+        <li><strong>Field arrays</strong> &mdash; <code>useFieldArray</code> for dynamic lists</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://zod.dev/" target="_blank">zod.dev</a> &mdash; full docs. Short, well-organized.</li>
+        <li><a href="https://react-hook-form.com/get-started" target="_blank">react-hook-form.com — Get Started</a></li>
+        <li><a href="https://react-hook-form.com/docs/useform" target="_blank">useForm API</a></li>
+        <li><a href="https://ui.shadcn.com/docs/components/form" target="_blank">shadcn Form component</a> &mdash; the pattern we use in v2.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">ByteGrad</div>
+          <div class="title"><a href="https://www.youtube.com/@ByteGrad" target="_blank">ByteGrad — Forms with shadcn + React Hook Form + Zod</a></div>
+          <p class="desc">Best practical tutorial on the exact stack we use. Watch this end-to-end.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">React Hook Form crash course + Zod video</a></div>
+          <p class="desc">Two separate videos; watch them back-to-back.</p>
+        </div>
+        <span class="duration">~1h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Jack Herrington</div>
+          <div class="title"><a href="https://www.youtube.com/@jherr" target="_blank">Jack Herrington — Zod and form validation patterns</a></div>
+          <p class="desc">Advanced patterns: composed schemas, conditional validation, async validation.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Matt Pocock</div>
+          <div class="title"><a href="https://www.youtube.com/@mattpocockuk" target="_blank">Matt Pocock — Zod tips</a></div>
+          <p class="desc">For when you want to push Zod harder: branded types, refinement composition, type inference details.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>One schema, many uses</h4>
+<pre><code>// schemas/profile.ts
+import { z } from 'zod';
+
+export const profileSchema = z.object({
+  username: z.string()
+    .min(3, 'Username must be at least 3 characters')
+    .regex(/^[a-z0-9_]+$/, 'Letters, numbers, underscore only'),
+  fieldOfWork: z.enum(['engineering', 'design', 'data', 'product', 'other']),
+  experienceLevel: z.enum(['entry', 'junior', 'mid', 'senior', 'lead', 'executive']),
+  bio: z.string().max(500).optional(),
+});
+
+export type ProfileInput = z.infer&lt;typeof profileSchema&gt;;</code></pre>
+      <p>That schema validates the form, validates the API request body, generates the TypeScript type, and ends up in the database column constraints.</p>
+
+      <h4>The form (with shadcn/ui)</h4>
+<pre><code>const form = useForm&lt;ProfileInput&gt;({
+  resolver: zodResolver(profileSchema),
+  defaultValues: { username: '', fieldOfWork: 'engineering', /* ... */ },
+});
+
+const onSubmit = form.handleSubmit(async (values) =&gt; {
+  await trpc.profile.update.mutate(values);
+});
+
+&lt;Form {...form}&gt;
+  &lt;form onSubmit={onSubmit} className="space-y-4"&gt;
+    &lt;FormField
+      control={form.control}
+      name="username"
+      render={({ field }) =&gt; (
+        &lt;FormItem&gt;
+          &lt;FormLabel&gt;Username&lt;/FormLabel&gt;
+          &lt;FormControl&gt;&lt;Input {...field} /&gt;&lt;/FormControl&gt;
+          &lt;FormMessage /&gt;
+        &lt;/FormItem&gt;
+      )}
+    /&gt;
+    {/* ... more fields ... */}
+    &lt;Button type="submit" disabled={form.formState.isSubmitting}&gt;
+      Save
+    &lt;/Button&gt;
+  &lt;/form&gt;
+&lt;/Form&gt;</code></pre>
+
+      <h4>Parsing API responses</h4>
+<pre><code>// at the boundary, parse — don't cast
+const response = await fetch('/api/profile');
+const json = await response.json();
+const profile = profileSchema.parse(json); // throws on invalid shape
+// profile is typed as ProfileInput now</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a settings page with three forms:</p>
+        <ol>
+          <li><strong>Profile form</strong>: username (3+ chars, lowercase letters/numbers/_ only), display name, bio (max 500).</li>
+          <li><strong>Email change form</strong>: current email (read-only), new email (must be valid), confirm new email (must match new email &mdash; use <code>.refine</code> on the object schema).</li>
+          <li><strong>Notification preferences</strong>: a dynamic list of channels using <code>useFieldArray</code> &mdash; add/remove channels at runtime.</li>
+          <li>Each form should show inline errors below the field, disable submit while submitting, and show a toast on success.</li>
+          <li>Define every schema in <code>src/schemas/</code> and import the inferred type wherever the form data shape is needed.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>Every form in the v2 desktop &mdash; sign-in, sign-up, password reset, profile setup, settings, session-start dialog, report-generation modal, custom-report-name &mdash; uses this stack. The same Zod schemas live in a shared package and validate on both sides of the wire: in the desktop form and in the Express request body parser.</p>
+      <p>For input that comes via IPC instead of a form (e.g. a tRPC procedure on the main process), the same Zod schema validates the input. One source of truth.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="zustand.html">
+        <span class="label-small">Previous</span>
+        Zustand
+      </a>
+      <a class="next" href="electron.html">
+        <span class="label-small">Next</span>
+        Electron →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

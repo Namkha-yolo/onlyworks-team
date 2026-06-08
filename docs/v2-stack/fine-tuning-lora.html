@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fine-tuning with LoRA · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="vision-language-models.html">← VLMs</a>
+    <a href="dataset-prep.html">Next: Dataset prep →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">25 · AI / model training</div>
+      <h1>Fine-tuning <em>with LoRA</em></h1>
+      <p class="lede">Adapt a 7B+ model on a single consumer GPU. LoRA + QLoRA + PEFT. How we actually customize a base VLM to OnlyWorks's task without renting a cluster.</p>
+    </header>
+
+    <section>
+      <h2>Why LoRA</h2>
+      <p>Full fine-tuning of a 7B model means: update 7 billion parameters. That requires ~140 GB of GPU memory for the weights + gradients + optimizer state, and the resulting checkpoint is 14 GB. You'd need 4&ndash;8 H100s per training run; checkpoint storage adds up; serving each fine-tune requires loading 14 GB into VRAM.</p>
+      <p><strong>LoRA</strong> (Low-Rank Adaptation) freezes the base model and learns small low-rank matrices &mdash; typically &lt;1% of the parameter count &mdash; that "patch" the model's behavior. You can fine-tune a 7B model on a single 24 GB GPU. The trained "LoRA" is ~50 MB; you load the base once and swap LoRAs at inference time.</p>
+      <p><strong>QLoRA</strong> goes further: quantize the frozen base to 4-bit. You can fine-tune a 7B model on a single 12 GB GPU. Standard answer for "I have one GPU and want to fine-tune."</p>
+      <p>For OnlyWorks: LoRA is the right default. We're not training from scratch; we're adapting an existing strong VLM to be better at "interpret a screenshot of work activity." A few hundred MB of adapter weights is enough.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+
+      <h3>LoRA fundamentals</h3>
+      <ul>
+        <li><strong>Rank (r)</strong> &mdash; the bottleneck of the low-rank decomposition. Lower r = fewer params = less capacity. Common: 8, 16, 32, 64.</li>
+        <li><strong>Alpha</strong> &mdash; a scaling factor. Usually 2x the rank.</li>
+        <li><strong>Target modules</strong> &mdash; which linear layers to attach LoRAs to. Usually <code>q_proj</code>, <code>k_proj</code>, <code>v_proj</code>, <code>o_proj</code>, sometimes the MLP layers too.</li>
+        <li><strong>Dropout</strong> &mdash; LoRA-specific dropout to prevent overfitting.</li>
+        <li><strong>Merging</strong> &mdash; after training, optionally merge the LoRA into the base for a standalone model.</li>
+      </ul>
+
+      <h3>QLoRA additions</h3>
+      <ul>
+        <li><strong>4-bit quantization</strong> via <code>bitsandbytes</code> (<code>load_in_4bit=True</code>)</li>
+        <li><strong>NF4</strong> &mdash; the quantization data type used in QLoRA</li>
+        <li><strong>Double quantization</strong> &mdash; quantize the quantization constants too, for more memory savings</li>
+        <li><strong>Paged optimizers</strong> &mdash; offload optimizer state to CPU memory</li>
+      </ul>
+
+      <h3>Hyperparameters that matter</h3>
+      <ul>
+        <li><strong>Learning rate</strong> &mdash; LoRA tolerates higher LR than full fine-tuning. 1e-4 to 5e-4 is normal.</li>
+        <li><strong>Batch size + gradient accumulation</strong> &mdash; effective batch = per-device batch × accum × num_devices</li>
+        <li><strong>Epochs vs steps</strong> &mdash; small datasets: a few epochs. Big datasets: think in steps + eval-based stopping.</li>
+        <li><strong>Warmup &amp; LR schedule</strong> &mdash; linear warmup, cosine decay is the standard combination.</li>
+        <li><strong>Sequence length</strong> &mdash; trade-off between context window and memory.</li>
+      </ul>
+
+      <h3>Specific to VLMs</h3>
+      <ul>
+        <li><strong>Whether to train the vision encoder</strong> &mdash; usually freeze it.</li>
+        <li><strong>Image resolution</strong> &mdash; higher = more visual tokens = more memory.</li>
+        <li><strong>Visual instruction format</strong> &mdash; the chat template matters; mismatch silently hurts.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs &amp; papers</h2>
+      <ul>
+        <li><a href="https://huggingface.co/docs/peft/index" target="_blank">PEFT docs</a> &mdash; the official library for LoRA / QLoRA / adapters.</li>
+        <li><a href="https://arxiv.org/abs/2106.09685" target="_blank">LoRA paper (Hu et al., 2021)</a></li>
+        <li><a href="https://arxiv.org/abs/2305.14314" target="_blank">QLoRA paper (Dettmers et al., 2023)</a></li>
+        <li><a href="https://github.com/TimDettmers/bitsandbytes" target="_blank">bitsandbytes</a></li>
+        <li><a href="https://huggingface.co/blog/peft" target="_blank">HF blog &mdash; PEFT</a></li>
+        <li><a href="https://huggingface.co/blog/4bit-transformers-bitsandbytes" target="_blank">HF blog &mdash; 4-bit training</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Trelis Research</div>
+          <div class="title"><a href="https://www.youtube.com/@TrelisResearch" target="_blank">Trelis Research — LoRA / QLoRA fine-tuning</a></div>
+          <p class="desc">The most consistent quality on YouTube for actually-runnable LoRA fine-tune walkthroughs. Watch his full LoRA fine-tuning series.</p>
+        </div>
+        <span class="duration">~5h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Sam Witteveen</div>
+          <div class="title"><a href="https://www.youtube.com/@samwitteveenai" target="_blank">Sam Witteveen — LoRA fine-tunes per model</a></div>
+          <p class="desc">When a new model drops, Sam usually has a "fine-tune X with LoRA in a Colab" video within days.</p>
+        </div>
+        <span class="duration">~1h each</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">AI Anytime</div>
+          <div class="title"><a href="https://www.youtube.com/@AIAnytime" target="_blank">AI Anytime — fine-tuning tutorials</a></div>
+          <p class="desc">Hit-or-miss, but high volume. Good for finding tutorials on a specific model + technique combo.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Andrej Karpathy</div>
+          <div class="title"><a href="https://www.youtube.com/@AndrejKarpathy" target="_blank">Andrej Karpathy — Let's reproduce GPT-2 / nanoGPT</a></div>
+          <p class="desc">Karpathy doesn't focus on LoRA specifically, but his "training from scratch" videos give you the deep understanding that makes LoRA make sense.</p>
+        </div>
+        <span class="duration">~4h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Brev.dev (now part of NVIDIA)</div>
+          <div class="title"><a href="https://www.youtube.com/results?search_query=brev.dev+fine-tune" target="_blank">Brev.dev — fine-tune walkthroughs</a></div>
+          <p class="desc">They run fine-tuning notebooks end-to-end on rented GPUs. Useful for the infrastructure side.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>LoRA setup with PEFT</h4>
+<pre><code>from peft import LoraConfig, get_peft_model, TaskType
+from transformers import AutoModelForCausalLM
+
+base = AutoModelForCausalLM.from_pretrained(
+    'Qwen/Qwen2.5-7B',
+    torch_dtype='auto', device_map='auto',
+)
+
+lora_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'],
+    lora_dropout=0.05,
+    bias='none',
+    task_type=TaskType.CAUSAL_LM,
+)
+
+model = get_peft_model(base, lora_config)
+model.print_trainable_parameters()
+# trainable params: 41,943,040 || all params: 7,657,943,040 || trainable%: 0.55%</code></pre>
+
+      <h4>QLoRA on a 12GB GPU</h4>
+<pre><code>from transformers import BitsAndBytesConfig
+
+bnb = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type='nf4',
+    bnb_4bit_compute_dtype='bfloat16',
+    bnb_4bit_use_double_quant=True,
+)
+
+base = AutoModelForCausalLM.from_pretrained(
+    'Qwen/Qwen2.5-7B',
+    quantization_config=bnb,
+    device_map='auto',
+)
+
+# Then attach LoRA as above.</code></pre>
+
+      <h4>Saving and loading just the adapter</h4>
+<pre><code># after trainer.train()
+model.save_pretrained('./ow-activity-interpreter-v0.1-lora')
+# saves only ~50 MB
+
+# later, in inference:
+from peft import PeftModel
+base = AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-7B', torch_dtype='auto', device_map='auto')
+model = PeftModel.from_pretrained(base, './ow-activity-interpreter-v0.1-lora')</code></pre>
+
+      <h4>Merging the adapter for deployment</h4>
+<pre><code>merged = model.merge_and_unload()
+merged.save_pretrained('./ow-activity-interpreter-v0.1-merged')
+# now a standalone model, ready for vLLM / TGI deployment</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Run a small QLoRA fine-tune you can actually finish in a few hours:</p>
+        <ol>
+          <li>Rent a single L4 (24 GB) on RunPod (~$0.50/hr) &mdash; <strong>ask first</strong>. Or use Colab Pro.</li>
+          <li>Pick a small base: <code>Qwen/Qwen2.5-3B-Instruct</code> or <code>meta-llama/Llama-3.2-3B</code>.</li>
+          <li>Pick a public instruction dataset: <code>tatsu-lab/alpaca</code> (~52K instructions).</li>
+          <li>Run a QLoRA fine-tune with r=16, 1 epoch. Use the <code>Trainer</code>.</li>
+          <li>Confirm the adapter saves as ~50 MB. Push it to the Hub privately.</li>
+          <li>Run inference: same base + your adapter on three custom instructions. Compare to base-only output.</li>
+          <li>Merge the adapter. Confirm the merged model gives the same output.</li>
+          <li>Log everything to <a href="wandb-mlops.html">Weights &amp; Biases</a> (next-but-one chapter).</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>The OnlyWorks fine-tuning loop:</p>
+      <ol>
+        <li><strong>Build the dataset</strong> &mdash; see <a href="dataset-prep.html">dataset prep</a>. Pairs of (sequence of screenshots + activity metadata) and (target narrative summary).</li>
+        <li><strong>Pick a base</strong> &mdash; start with Qwen2.5-VL-7B. Drop down to 3B if 7B is too expensive to iterate on.</li>
+        <li><strong>QLoRA fine-tune</strong> &mdash; on rented GPUs (Modal / RunPod / Lambda). Log metrics to W&amp;B.</li>
+        <li><strong>Eval</strong> &mdash; compare outputs to Gemini Flash on a held-out set. Use both automatic metrics (ROUGE, BLEU) and human review for the first few iterations.</li>
+        <li><strong>Iterate</strong> &mdash; tweak data, hyperparams, base. The first 3 rounds will be bad.</li>
+        <li><strong>Deploy</strong> &mdash; when eval looks plausibly good, merge the adapter and deploy via vLLM behind the existing <code>/api/pipeline/activity/stream</code> endpoint. A/B against Gemini on real traffic.</li>
+      </ol>
+      <p>None of this is short. Plan for 6&ndash;12 months from "first fine-tune" to "shipped to a meaningful fraction of users." But every step is doable on the budget we have.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="vision-language-models.html">
+        <span class="label-small">Previous</span>
+        Vision-Language Models
+      </a>
+      <a class="next" href="dataset-prep.html">
+        <span class="label-small">Next</span>
+        Dataset preparation →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>

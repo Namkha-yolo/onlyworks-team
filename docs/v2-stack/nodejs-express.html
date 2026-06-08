@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node.js + Express · v2 Stack Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">Only<em>Works</em><span class="tag">v2 Stack</span></a>
+  <div class="nav-meta">
+    <a href="index.html">All docs</a>
+    <a href="windows-ocr.html">← Windows OCR</a>
+    <a href="supabase.html">Next: Supabase →</a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">17 · Backend</div>
+      <h1>Node.js <em>+ Express</em></h1>
+      <p class="lede">The backend server. JWT-authenticated REST + tRPC, talks to Supabase Postgres and Gemini AI. Hosted on Render.</p>
+    </header>
+
+    <section>
+      <h2>Why we use this</h2>
+      <p>The backend has to: handle OAuth, manage sessions, take batched OCR frames from the desktop and invoke Gemini, generate reports, expose hiring search, send transactional email, run the talent-community magic-link flow, and serve the public OW profile pages. Express + Node is the obvious default: every contributor knows it, every library targets it, every host runs it.</p>
+      <p>The current backend (Express 4) is at <code>/Users/xerneas/onlyworks-backend-server</code>. It uses MVC (controllers / services / repositories), JWT middleware, Helmet for security headers, an in-memory rate limiter, and Supabase as the only database. v2 evolves this rather than rewriting it.</p>
+    </section>
+
+    <section>
+      <h2>What you need to know</h2>
+      <ul>
+        <li><strong>Node.js basics</strong> &mdash; event loop, streams, <code>Buffer</code>, <code>process.env</code>, child processes</li>
+        <li><strong>Express fundamentals</strong> &mdash; <code>app.use</code>, routers, middleware order, error handlers, <code>res.json</code>/<code>res.status</code></li>
+        <li><strong>Middleware patterns</strong> &mdash; logging, CORS, auth, rate-limiting, body parsing, error catching</li>
+        <li><strong>Async/await + error handling</strong> &mdash; <code>express-async-handler</code> or a custom wrapper to forward thrown errors to <code>next</code></li>
+        <li><strong>Route organization</strong> &mdash; one router per domain, mounted under a path</li>
+        <li><strong>Validation</strong> &mdash; Zod schemas on request body / query / params</li>
+        <li><strong>JWT</strong> &mdash; <code>jsonwebtoken</code>, signing with <code>JWT_SECRET</code>, verifying in middleware</li>
+        <li><strong>CORS</strong> &mdash; allow-list of origins, credentials, preflight</li>
+        <li><strong>Helmet</strong> &mdash; security headers, CSP</li>
+        <li><strong>Compression</strong> &mdash; gzip middleware</li>
+        <li><strong>Rate limiting</strong> &mdash; per-IP, separate stricter limits for auth endpoints</li>
+        <li><strong>Background workers</strong> &mdash; <code>setInterval</code>, single-flight gates, SIGTERM cleanup (the stale-session finalizer is the canonical example)</li>
+        <li><strong>SSE</strong> &mdash; server-sent events for live progress streams</li>
+        <li><strong>Logging</strong> &mdash; structured JSON, levels, request log middleware</li>
+        <li><strong>Testing with Vitest</strong> &mdash; supertest-style integration tests</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Official docs</h2>
+      <ul>
+        <li><a href="https://nodejs.org/en/learn/getting-started/introduction-to-nodejs" target="_blank">Node.js — Getting Started</a></li>
+        <li><a href="https://expressjs.com/" target="_blank">expressjs.com</a> &mdash; the docs are short, read all of "Guide".</li>
+        <li><a href="https://expressjs.com/en/guide/error-handling.html" target="_blank">Express — Error Handling</a></li>
+        <li><a href="https://github.com/auth0/node-jsonwebtoken" target="_blank">jsonwebtoken</a></li>
+        <li><a href="https://helmetjs.github.io/" target="_blank">Helmet</a></li>
+        <li><a href="https://github.com/expressjs/cors" target="_blank">cors</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>YouTube — start here</h2>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Traversy Media</div>
+          <div class="title"><a href="https://www.youtube.com/@TraversyMedia" target="_blank">Traversy — Node.js + Express crash courses</a></div>
+          <p class="desc">The standard intro track. Watch "Node.js Crash Course" and "Express Crash Course" back-to-back.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">The Net Ninja</div>
+          <div class="title"><a href="https://www.youtube.com/@NetNinja" target="_blank">Net Ninja — Express tutorial playlist</a></div>
+          <p class="desc">Short, well-organized videos. Easier to come back to than monolithic crash courses.</p>
+        </div>
+        <span class="duration">~3h</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Web Dev Simplified</div>
+          <div class="title"><a href="https://www.youtube.com/@WebDevSimplified" target="_blank">Web Dev Simplified — JWT auth videos</a></div>
+          <p class="desc">Kyle's "JWT Authentication Tutorial" is the canonical intro to access + refresh token flows.</p>
+        </div>
+        <span class="duration">25m</span>
+      </div>
+
+      <div class="resource">
+        <div class="resource-body">
+          <div class="meta">Hussein Nasser</div>
+          <div class="title"><a href="https://www.youtube.com/@hnasr" target="_blank">Hussein Nasser — backend engineering</a></div>
+          <p class="desc">Excellent for backend concepts (connection pooling, latency, async patterns) that don't fit in a tutorial. Watch when you want to understand <em>why</em> something is slow.</p>
+        </div>
+        <span class="duration">varies</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Long-form reading</h2>
+      <ul>
+        <li><a href="https://github.com/goldbergyoni/nodebestpractices" target="_blank">Node.js Best Practices</a> &mdash; a 700+ star community guide. Worth a slow read.</li>
+        <li>The Express section of <a href="https://www.youtube.com/c/Freecodecamp" target="_blank">freeCodeCamp's curriculum</a> &mdash; free and comprehensive.</li>
+        <li>The existing backend at <code>/Users/xerneas/onlyworks-backend-server</code> &mdash; 18 controllers, 33 services, 16 repositories. <strong>Read <code>src/app.js</code> top to bottom</strong>: rate limiter, CORS config, route mounting order, stale-session finalizer, SIGTERM handling. That file is the right reference.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Patterns you'll see in v2</h2>
+
+      <h4>App setup (lifted from v1)</h4>
+<pre><code>import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+
+const app = express();
+
+app.use(helmet({ contentSecurityPolicy: { /* ... */ } }));
+app.use(cors({
+  origin: (origin, cb) =&gt; {
+    if (!origin) return cb(null, true);                   // Electron has no Origin
+    if (allowList.includes(origin)) return cb(null, true);
+    cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
+app.use(compression());
+app.use(express.json({ limit: '10mb' }));
+app.use(requestLogger);
+app.use(rateLimiter);
+
+// routes
+app.use('/api/auth', authRoutes);
+app.use('/api/sessions', workSessionRoutes);
+app.use('/api/reports', reportRoutes);
+// ...
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+app.listen(PORT);</code></pre>
+
+      <h4>Auth middleware</h4>
+<pre><code>import jwt from 'jsonwebtoken';
+
+export function authenticateUser(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith('Bearer ')) return next(new ApiError('AUTH_REQUIRED'));
+
+  try {
+    const decoded = jwt.verify(auth.slice(7), process.env.JWT_SECRET);
+    req.user = { userId: decoded.userId, email: decoded.email };
+    next();
+  } catch {
+    next(new ApiError('AUTH_INVALID'));
+  }
+}</code></pre>
+
+      <h4>A typed route with Zod</h4>
+<pre><code>import { z } from 'zod';
+
+const createReportSchema = z.object({
+  startDate: z.string().date(),
+  endDate: z.string().date(),
+  title: z.string().min(1).max(120).optional(),
+});
+
+router.post('/generate-range', authenticateUser, async (req, res) =&gt; {
+  const input = createReportSchema.parse(req.body);
+  const report = await reportService.generateRange(req.user.userId, input);
+  res.json({ success: true, data: report });
+});</code></pre>
+
+      <h4>Background worker with single-flight guard</h4>
+<pre><code>let running = false;
+setInterval(async () =&gt; {
+  if (running) return;
+  running = true;
+  try {
+    const result = await staleSessionService.finalize(STALE_THRESHOLD_MIN);
+    if (result.processed &gt; 0) logger.info('Stale finalizer', result);
+  } catch (e) {
+    logger.error('Stale finalizer failed', { err: e.message });
+  } finally {
+    running = false;
+  }
+}, 10 * 60 * 1000);
+
+process.on('SIGTERM', () =&gt; { /* cleanup */ });</code></pre>
+    </section>
+
+    <section>
+      <div class="project-box">
+        <h3>Hands-on: build this</h3>
+        <p>Build a tiny replica of the v1 backend's auth slice:</p>
+        <ol>
+          <li>New Express app with TypeScript, Zod, jsonwebtoken, helmet, cors, compression.</li>
+          <li>Routes: <code>POST /auth/register</code> (email + password), <code>POST /auth/login</code> (issue JWT), <code>POST /auth/refresh</code> (rotate refresh token), <code>GET /me</code> (auth-required, returns user info).</li>
+          <li>Store users in memory (Map keyed by email) for now &mdash; Supabase comes next chapter.</li>
+          <li>Per-IP rate limit on <code>/auth/login</code> (5/min). On <code>/me</code>, use the normal limiter.</li>
+          <li>Middleware that validates the JWT and populates <code>req.user</code>.</li>
+          <li>Add a global error handler that returns <code>{ success: false, error }</code> JSON.</li>
+          <li>Write a Vitest integration test using <code>supertest</code> that hits each endpoint.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>How this fits OnlyWorks v2</h2>
+      <p>v2 keeps Express on the backend. The MVC layout (routes → controllers → services → repositories) stays. What changes:</p>
+      <ul>
+        <li><strong>TypeScript</strong> across the whole backend.</li>
+        <li><strong>Zod parsing</strong> on every request body / query / params.</li>
+        <li><strong>tRPC alongside REST</strong> &mdash; the website's typed client and the desktop both consume tRPC procedures backed by the same services. REST endpoints stay for share-link viewers and webhook callbacks where the consumer isn't ours.</li>
+        <li><strong>The 10-min stale-session finalizer</strong> stays exactly as-is. Same with SIGTERM handling and SSE cleanup.</li>
+        <li><strong>Vitest</strong> for tests, run on CI per PR.</li>
+      </ul>
+      <p>Read <code>/Users/xerneas/onlyworks-backend-server/src/app.js</code> and pick one route (e.g. <code>src/routes/authRoutes.js</code>). That's the reference for how every backend route is shaped in v2.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="windows-ocr.html">
+        <span class="label-small">Previous</span>
+        Windows OCR
+      </a>
+      <a class="next" href="supabase.html">
+        <span class="label-small">Next</span>
+        Supabase →
+      </a>
+    </div>
+  </article>
+</main>
+
+<footer>OnlyWorks v2 · Intern documentation</footer>
+
+</body>
+</html>
