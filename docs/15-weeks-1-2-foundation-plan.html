@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weeks 1-2 Foundation Plan · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>15 · 50 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 15 · For Interns</div>
+      <div class="title">Weeks 1-2 — Foundation Plan</div>
+      <div class="subtitle">Thorough instruction manual for the four
+foundation groups. Mission, day-by-day plan, hand-offs, pitfalls, and
+self-checks per group. No code — read this, then go build.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>50 min</strong></span>
+        <span>Audience<strong>Interns + Founder</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-06-09</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#weeks-1-2--foundation-plan"
+id="toc-weeks-1-2--foundation-plan">Weeks 1-2 — Foundation Plan</a>
+<ul>
+<li><a href="#0--how-to-use-this-document"
+id="toc-0--how-to-use-this-document">0 · How to use this document</a></li>
+<li><a href="#1--shared-operating-norms"
+id="toc-1--shared-operating-norms">1 · Shared operating norms</a></li>
+<li><a href="#2--the-four-groups-at-a-glance"
+id="toc-2--the-four-groups-at-a-glance">2 · The four groups at a glance</a></li>
+<li><a href="#3--cross-group-dependency-map"
+id="toc-3--cross-group-dependency-map">3 · Cross-group dependency map</a></li>
+<li><a href="#4--group-a--frontend--ui-platform"
+id="toc-4--group-a--frontend--ui-platform">4 · Group A — Frontend / UI Platform</a></li>
+<li><a href="#5--group-b--desktop--ipc-platform"
+id="toc-5--group-b--desktop--ipc-platform">5 · Group B — Desktop &amp; IPC Platform</a></li>
+<li><a href="#6--group-c--auth--secure-storage"
+id="toc-6--group-c--auth--secure-storage">6 · Group C — Auth &amp; Secure Storage</a></li>
+<li><a href="#7--group-d--capture-engine"
+id="toc-7--group-d--capture-engine">7 · Group D — Capture Engine</a></li>
+<li><a href="#8--end-of-w2-collective-demo"
+id="toc-8--end-of-w2-collective-demo">8 · End-of-W2 collective demo</a></li>
+<li><a href="#9--risks-watch-list" id="toc-9--risks-watch-list">9 · Risks watch list</a></li>
+<li><a href="#10--when-something-is-wrong"
+id="toc-10--when-something-is-wrong">10 · When something is wrong</a></li>
+</ul></li>
+</ul>
+
+<h1 id="weeks-1-2--foundation-plan">Weeks 1-2 — Foundation Plan</h1>
+
+<p>This is the <strong>instruction manual for the Foundation phase</strong>
+of OnlyWorks v2.0. The phase has four independent workstreams that run
+in parallel. Each is owned by one of four groups. By the end of Week 2,
+the four streams converge: signin works end-to-end, the capture engine
+emits events, and the renderer can call a typed procedure that flips a
+real backend bit.</p>
+
+<p>Read your group's section in full before Monday of Week 1. Read every
+other group's <em>Mission</em> and <em>Hand-offs</em> sections so you
+know who to talk to and when.</p>
+
+<h2 id="0--how-to-use-this-document">0 · How to use this document</h2>
+
+<p>This document does <strong>not</strong> contain code. It contains
+instructions. The expectation is that you, the intern, can take an
+instruction like &quot;wire TanStack Query to the tRPC client&quot; and
+turn it into working code by reading the relevant docs in
+<code>docs/v2-stack/</code>, the v1 source at
+<code>/Users/xerneas/onlyworks_desktop</code>, and the upstream
+project's documentation.</p>
+
+<p>If an instruction is ambiguous, that is a feature, not a bug. We want
+you to think, ask questions in your daily standup, and write a one-line
+proposal in the relevant PR description. The wrong move is to invent
+something complicated to be safe. The right move is to ask Namkha or
+your group lead.</p>
+
+<p>Conventions used below:</p>
+
+<ul>
+<li><strong>Mission</strong> — the one-sentence purpose of the group.</li>
+<li><strong>Skill profile</strong> — who should be assigned to this group.</li>
+<li><strong>Required reading</strong> — finish before you write code. Each
+item points to a file in this repo or in v1.</li>
+<li><strong>Day-by-day</strong> — what should land in
+<code>main</code> by EOD that day. Days are 5-6 productive hours, not 8.
+If a day's work spills into the next, that is acceptable once; twice in
+a row means escalate.</li>
+<li><strong>Hand-offs in / out</strong> — what you must receive from another
+group before you can finish your work, and what others are blocked on
+from you.</li>
+<li><strong>Definition of done</strong> — what Namkha will check on Friday.
+If you can&#39;t check every box, the week isn&#39;t done.</li>
+<li><strong>Pitfalls</strong> — the specific ways previous teams have lost
+days on this kind of work. Read them carefully.</li>
+<li><strong>Self-check</strong> — questions you should be able to answer
+without looking. If you can&#39;t, you don&#39;t understand what
+you built.</li>
+</ul>
+
+<h2 id="1--shared-operating-norms">1 · Shared operating norms</h2>
+
+<p>These apply to every group across both weeks.</p>
+
+<ol type="1">
+<li><strong>One PR per task, opened the day you start.</strong> Even if
+the PR is empty for the first hour. This gives everyone visibility into
+what is in flight.</li>
+
+<li><strong>Standup Tuesday and Thursday at 14:30, 15 minutes,
+hard stop.</strong> Yesterday/today/blockers. If you have no
+blockers, say &quot;no blockers&quot;. Don&#39;t fill time. Mon /
+Wed / Fri are heads-down — use the end-of-day Discord note for
+status on non-standup days.</li>
+
+<li><strong>End-of-day Discord note in
+<code>#swe-team</code> on Discord.</strong> One sentence per person, what
+moved forward, anything other groups should know. This is also where you
+flag a hand-off that landed.</li>
+
+<li><strong>Code review SLA: 4 working hours.</strong> If you opened a PR
+before noon, it gets reviewed before EOD. Namkha reviews everything in
+W1-2. Group leads (assigned by Wednesday of Week 1) co-review.</li>
+
+<li><strong>No bikeshedding in PRs.</strong> If a comment thread reaches
+five replies, it goes to Discord, then to a 10-minute call, then resolved.
+Do not let style debates block hand-offs.</li>
+
+<li><strong>Decisions are written down or they did not happen.</strong>
+If you make a non-trivial choice (which library, which file layout,
+which protocol), write a 4-7 line note in the PR description titled
+&quot;Decision&quot;. Namkha lifts those into an ADR file weekly.</li>
+
+<li><strong>End-of-week demo: Thursday at 19:00, 30 minutes.</strong>
+Each group shows what works. No slides. Live demo, or it doesn&#39;t
+count. If your demo is broken on Thursday morning, fix it first;
+everything else waits. Friday becomes the post-demo buffer day —
+ship the fixes raised in demo, finish docs, prep next week&#39;s
+hand-offs.</li>
+
+<li><strong>Lock dependency versions.</strong> Every package
+installed must be pinned to an exact version, not a caret range.
+We are not chasing the moving edge of any library during Foundation.</li>
+
+<li><strong>Branch naming:</strong>
+<code>w1/groupA/scaffold-electron-vite</code> style. Week, group,
+short slug. Everyone can grep the repo for their group.</li>
+
+<li><strong>Never merge red.</strong> CI must pass before merge.
+If CI is flaky, fix the test, do not retry until green. Flaky CI in
+Week 1 becomes broken CI by Week 4.</li>
+</ol>
+
+<h2 id="2--the-four-groups-at-a-glance">2 · The four groups at a glance</h2>
+
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Mission</th>
+<th>Best for</th>
+<th>Critical path?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A — Frontend / UI Platform</td>
+<td>The renderer is alive: app shell, routes, base components, query layer.</td>
+<td>Strongest React + design sensibility.</td>
+<td>Yes — repo scaffold blocks everyone in W1.</td>
+</tr>
+<tr>
+<td>B — Desktop &amp; IPC Platform</td>
+<td>Main and renderer talk over typed tRPC; build &amp; signing work.</td>
+<td>Likes tooling, debugging, system glue.</td>
+<td>Yes — tRPC bridge blocks A &amp; C in W2.</td>
+</tr>
+<tr>
+<td>C — Auth &amp; Secure Storage</td>
+<td>Signin works end-to-end, tokens survive restart and sleep/wake.</td>
+<td>Careful, security-minded, OAuth-comfortable.</td>
+<td>Soft — only blocks itself; gated on B&#39;s bridge.</td>
+</tr>
+<tr>
+<td>D — Capture Engine</td>
+<td>A native event-emitter that fires on time and on input, with guards.</td>
+<td>Likes low-level, hooks, native modules.</td>
+<td>Soft — runs solo W1, pairs with B briefly in W2.</td>
+</tr>
+</tbody>
+</table>
+
+<p>Group A is the only group whose Week 1 work blocks everyone. If A is
+behind on Tuesday, B/C/D should pause non-portable work and help A land
+the scaffold.</p>
+
+<h2 id="3--cross-group-dependency-map">3 · Cross-group dependency map</h2>
+
+<pre><code>WEEK 1
+  Mon  A: scaffold begins
+  Tue  A: scaffold mergeable          ← everyone clones it
+       B: signing in CI being set up
+       C: reading v1 auth code
+       D: reading v1 capture code
+  Wed  A: routes + Tailwind live
+       B: signing works locally
+       C: auto-updater port begins
+       D: CaptureEngine spec doc
+  Thu  A: shadcn + Vitest + README
+       B: tRPC spike 1-pager + signing in CI green
+       C: auto-updater tests + sleep/wake
+       D: CaptureEngine skeleton + observability
+       EoW1 demo (19:00) ← bridge decision locked here
+  Fri  Post-demo fixes &amp; buffer
+
+WEEK 2
+  Mon  A: app-shell layout
+       B: implement tRPC bridge (one procedure)
+       C: backend-auth port begins
+       D: uiohook-napi spike
+  Tue  B: tRPC bridge lands             ← C unblocks magic-link UI
+       D: uiohook events flowing
+  Wed  A: Query wired to bridge         ← gated on Tue
+       C: oauth-flow + token-refresh port
+       D: dedup + idle guard
+  Thu  C: magic-link UI complete
+       D: auto-stop guard
+       A: capture.start() button wired end-to-end
+  Thu  EoW2 demo (19:00): signin works, capture fires, renderer drives main
+  Fri  Post-demo fixes &amp; buffer</code></pre>
+
+<p>Two critical handoffs to watch:</p>
+
+<ol type="1">
+<li><strong>Tue W1 end-of-day:</strong> the repo scaffold must be on
+<code>main</code>. If it&#39;s not, every other group&#39;s W1 plan
+slips.</li>
+<li><strong>Tue W2 end-of-day:</strong> the tRPC bridge must work end-to-end
+for one procedure. If it slips, Group A &amp; Group C lose Wednesday and
+Thursday.</li>
+</ol>
+
+<h2 id="4--group-a--frontend--ui-platform">4 · Group A — Frontend / UI Platform</h2>
+
+<h3>Mission</h3>
+
+<p>Stand up the renderer side of the app: scaffold the repository, install
+the UI stack, define the route tree, set up state and data layers, and
+make sure everything builds, signs, and runs on macOS by end of Week 1.
+In Week 2, layer the app shell on top and connect to the tRPC bridge
+that Group B ships.</p>
+
+<h3>Skill profile</h3>
+
+<ul>
+<li>Has built at least one non-trivial React app and can explain
+component composition without notes.</li>
+<li>Comfortable with TypeScript: knows what discriminated unions and
+generics are, doesn&#39;t fear <code>tsconfig.json</code>.</li>
+<li>Has used Tailwind or a similar utility-CSS framework, or is willing
+to read the entire Tailwind v4 docs in one sitting before Monday.</li>
+<li>Has design sensibility — can look at a wireframe and reproduce
+spacing, hierarchy, and rhythm without being told every value.</li>
+<li>Enjoys building &quot;the platform other people build on&quot; more
+than building one specific feature.</li>
+</ul>
+
+<h3>Required reading (finish before Monday of W1)</h3>
+
+<ul>
+<li><code>docs/v2-stack/electron-vite.html</code> — read all of it. You own this tool.</li>
+<li><code>docs/v2-stack/react.html</code> — skim if experienced; read in full if new to hooks.</li>
+<li><code>docs/v2-stack/typescript.html</code> — read the &quot;Why TS&quot; and project conventions sections.</li>
+<li><code>docs/v2-stack/tailwind.html</code> — read all of it including v4 changes from v3.</li>
+<li><code>docs/v2-stack/shadcn-ui.html</code> — read all of it.</li>
+<li><code>docs/v2-stack/tanstack-router.html</code> — read all of it. Pay attention to file-based vs code-based routing.</li>
+<li><code>docs/v2-stack/tanstack-query.html</code> — read all of it.</li>
+<li><code>docs/v2-stack/zustand.html</code> — skim. You will use one store as a pattern.</li>
+<li><code>docs/v2-stack/vitest.html</code> — read the &quot;getting started&quot; section.</li>
+<li><code>visuals/00-design-system.html</code> — read all of it. You are
+implementing against this design system in W5-6; the tokens must already
+exist in your Tailwind config by end of W2.</li>
+<li><code>visuals/wireframes.html</code> — skim. You are not implementing
+screens yet, but the layout shell you build in W2 must accommodate them.</li>
+</ul>
+
+<h3>Week 1 — day by day</h3>
+
+<p><strong>Monday — Repo scaffold and first build.</strong></p>
+
+<ul>
+<li>Confirm the Apple Developer credential is provisioned and the CI signing
+work is owned by Group B. You only need it to work — Group B does it.</li>
+<li>Initialize the repository named <code>onlyworks_desktop_v2</code>
+using the official electron-vite React + TypeScript template. Do this
+in a fresh directory, not by copying the Week 0 todo app.</li>
+<li>Immediately remove example assets, demo components, and any boilerplate
+that isn&#39;t structurally required. The first commit is a clean
+template; the second commit removes demo code.</li>
+<li>Pin every dependency to an exact version. No carets, no tildes. Write
+the rationale in the PR.</li>
+<li>Open the PR by lunch. Ask Namkha and Group B for a same-day review.
+This must land Tuesday EOD at the latest.</li>
+<li>End of day: the empty scaffold builds and opens a blank window
+locally.</li>
+</ul>
+
+<p><strong>Tuesday — Tailwind v4 and the tsconfig that everyone will
+inherit.</strong></p>
+
+<ul>
+<li>Install Tailwind v4 in the renderer only. Do not configure for the
+main process — the main process never renders UI.</li>
+<li>Set up the design tokens from
+<code>visuals/00-design-system.html</code> as CSS custom properties
+inside your Tailwind theme. Do not invent new tokens.</li>
+<li>Fix path aliases for the renderer (<code>@/components</code>,
+<code>@/lib</code>, etc.). Group B&#39;s tRPC client will use the same
+aliases.</li>
+<li>Make sure the TypeScript project references between main, preload,
+and renderer compile cleanly. This is fiddly with electron-vite — read
+the docs carefully.</li>
+<li>End of day: blank window now renders a single styled element using
+a design-system token color.</li>
+</ul>
+
+<p><strong>Wednesday — Routing and state primitives.</strong></p>
+
+<ul>
+<li>Install TanStack Router. Choose <strong>code-based routing</strong>,
+not file-based — the renderer has too few routes for file-based to be
+worth its learning cost.</li>
+<li>Define three routes: <code>/</code> (Status placeholder),
+<code>/portfolio</code>, <code>/settings</code>. Each route renders a
+single heading and nothing else; it&#39;s a navigation skeleton.</li>
+<li>Install TanStack Query and wire its provider at the root. The Query
+client uses default config — no custom cache time, no retry tuning. We
+optimize once we have real data.</li>
+<li>Install Zustand. Create exactly one store
+(<code>useUiStore</code> with a single boolean, e.g.
+<code>isDevPanelOpen</code>) as the canonical pattern. Document the
+pattern in a 5-line README inside <code>src/renderer/state/</code>.</li>
+<li>End of day: three routes navigate, one Zustand store toggles, Query
+provider mounted but no queries yet.</li>
+</ul>
+
+<p><strong>Thursday — shadcn primitives, tests, demo (19:00).</strong></p>
+
+<ul>
+<li>Run the shadcn/ui CLI and generate exactly five components: Button,
+Input, Card, Dialog, Tabs. Nothing else. We add more on demand.</li>
+<li>Do not customize the components yet. Bring them in as the shadcn CLI
+emits them. Customization happens in W5 when designers see the screens.</li>
+<li>Create a single &quot;component gallery&quot; route (only in dev
+builds, gated behind your Zustand <code>isDevPanelOpen</code>) that
+renders all five components in their default states. This is your
+self-check that they styled correctly under your Tailwind setup.</li>
+<li>Install Vitest. Write one passing component test for the Button.</li>
+<li>Add a <code>pnpm test</code> script and wire it into CI. Group B&#39;s
+CI pipeline must run it on every PR by Monday W2.</li>
+<li>Write a 1-page README for the repo: clone, install, run dev,
+build a signed dev binary.</li>
+<li>Demo at 19:00: clone the repo on a fresh machine (or simulated
+fresh), <code>pnpm i</code>, <code>pnpm dev</code>, navigate three
+routes, open the component gallery, run <code>pnpm test</code>. If any
+step fails, the week is not done.</li>
+</ul>
+
+<p><strong>Friday — Buffer.</strong></p>
+
+<ul>
+<li>Fix anything raised in Thursday&#39;s demo.</li>
+<li>Polish the README based on questions other groups asked while
+cloning.</li>
+<li>Confirm with Group C that they can build their magic-link views on
+top of your shadcn primitives on Monday — share component locations
+and any layout helpers.</li>
+<li>If everything is green, this is a half-day. Don&#39;t invent work.</li>
+</ul>
+
+<h3>Week 2 — day by day</h3>
+
+<p><strong>Monday — App-shell layout.</strong></p>
+
+<ul>
+<li>Build the persistent app-shell layout: top bar with brand mark, left
+nav with three nav items, content outlet using TanStack Router&#39;s
+outlet primitive.</li>
+<li>Match the spacing and typography from
+<code>visuals/00-design-system.html</code>. If something is missing from
+the design system, ask Namkha; do not guess.</li>
+<li>Active route is visually highlighted in the nav.</li>
+<li>End of day: navigating any of the three routes feels like one app,
+not three pages.</li>
+</ul>
+
+<p><strong>Tuesday — Prepare for the tRPC hand-off.</strong></p>
+
+<ul>
+<li>Group B lands the tRPC bridge today. Until it merges, prepare:
+re-read <code>docs/v2-stack/trpc.html</code> end-to-end, including the
+<code>electron-trpc</code> client section.</li>
+<li>Stub a placeholder &quot;capture.start&quot; button on
+<code>/</code> that calls a no-op function. Once B&#39;s bridge merges,
+swap the no-op for the real client.</li>
+<li>End of day: button exists, no-op logged, ready to swap.</li>
+</ul>
+
+<p><strong>Wednesday — Wire Query to the bridge.</strong></p>
+
+<ul>
+<li>Replace your placeholder client with the electron-trpc client. Use a
+single React Query mutation hook for <code>capture.start</code>.</li>
+<li>The mutation should show a pending state (button disabled), a success
+state (toast or inline message), and an error state. Use the shadcn
+Dialog only for errors — successes can be inline.</li>
+<li>Add one TanStack Query <code>useQuery</code> for a trivial read
+procedure (Group B will ship <code>capture.status</code> for this
+purpose; if they haven&#39;t, ask). The point is to exercise both a
+mutation and a query.</li>
+<li>End of day: click button → real tRPC call → main process logs it →
+button shows success.</li>
+</ul>
+
+<p><strong>Thursday — Type-safety, tests, demo (19:00).</strong></p>
+
+<ul>
+<li>Confirm the tRPC client types flow into Query hooks. If you find
+yourself writing <code>any</code> or <code>as unknown as</code>, the
+import chain is wrong — talk to Group B.</li>
+<li>Write one Vitest test that mounts the Status route with a mocked tRPC
+client and asserts the button toggles a status query result. This is
+the template for all renderer tests going forward.</li>
+<li>Verify Tailwind purge / content paths cover all source files. Build a
+production bundle and inspect CSS size; if it&#39;s over a megabyte
+something is wrong.</li>
+<li>Pair with Group C earlier in the day so their magic-link views render
+correctly inside your app shell (their signin views must reuse your
+shadcn Input and Button).</li>
+<li>Demo at 19:00: launch, nav, click capture.start(), see status
+update, run tests, walk Group C&#39;s signin flow.</li>
+</ul>
+
+<p><strong>Friday — Buffer.</strong></p>
+
+<ul>
+<li>Fix anything raised in Thursday&#39;s demo.</li>
+<li>Tighten the &quot;how to ship a feature&quot; section of the README
+based on what tripped you up this week.</li>
+<li>Half-day if green.</li>
+</ul>
+
+<h3>Hand-offs</h3>
+
+<p><strong>Receive from:</strong></p>
+
+<ul>
+<li>Group B — CI pipeline (Tue W1), tRPC bridge (Tue W2).</li>
+<li>Group C — magic-link views to embed in app shell (Thu W2).</li>
+<li>Namkha — design-system tokens and any clarifications on the
+visual language.</li>
+</ul>
+
+<p><strong>Ship to:</strong></p>
+
+<ul>
+<li>Everyone — the repo itself (Tue W1).</li>
+<li>Group C — shadcn primitives and the app shell to embed signin views
+in (Mon W2).</li>
+<li>Group B — a renderer surface that exercises tRPC end-to-end so they
+can validate their bridge (Wed W2).</li>
+</ul>
+
+<h3>Definition of done</h3>
+
+<ul>
+<li>Repo exists, builds, signs in CI on macOS, opens to a non-empty
+window.</li>
+<li>Three routes navigate; app-shell layout persists across them.</li>
+<li>Tailwind v4 installed, design tokens wired, five shadcn primitives
+present and matching defaults.</li>
+<li>TanStack Router + TanStack Query + Zustand mounted at root.</li>
+<li>One Vitest unit test and one Vitest integration test pass; CI runs
+both on every PR.</li>
+<li>Renderer calls one tRPC procedure end-to-end and renders the result.</li>
+<li>README in repo root explains clone-to-run in fewer than 10 commands.</li>
+</ul>
+
+<h3>Pitfalls</h3>
+
+<ul>
+<li><strong>Picking file-based TanStack Router by default.</strong> File-based
+shines at 30+ routes. We have three. Code-based is faster to learn and
+easier to debug; pick it and move on.</li>
+<li><strong>Customizing shadcn components before screens exist.</strong>
+You will throw the customizations away. Resist the urge to make the
+Button &quot;ours&quot; this week.</li>
+<li><strong>Tailwind v4 content paths.</strong> v4 changed how content
+scanning works. Read the migration notes; do not trust v3 examples
+from blog posts.</li>
+<li><strong>Mixing main-process and renderer-process types in one
+folder.</strong> Keep them in separate tsconfig project references.
+Main code must never import renderer code, and vice versa.</li>
+<li><strong>Building before signing is ready.</strong> A binary that builds
+but does not sign is not a deliverable. Coordinate with Group B early.</li>
+<li><strong>Shipping the Week 0 todo app code into v2.</strong> The Week 0
+exercise was practice. v2 starts clean from the official template.</li>
+</ul>
+
+<h3>Self-check</h3>
+
+<ol type="1">
+<li>Why are we using electron-vite instead of plain Vite?</li>
+<li>What is the difference between the main, preload, and renderer
+processes in our repo, and which one runs React?</li>
+<li>What does TanStack Query give us that <code>useEffect</code> + fetch
+does not?</li>
+<li>Why is the Zustand store kept tiny and why is data fetched via Query
+instead?</li>
+<li>If a designer changes the brand purple, how many files do you edit?</li>
+<li>What is the production CSS bundle size and why is it that size?</li>
+</ol>
+
+<h2 id="5--group-b--desktop--ipc-platform">5 · Group B — Desktop &amp; IPC Platform</h2>
+
+<h3>Mission</h3>
+
+<p>Make sure the main process and the renderer process can talk to each
+other in a type-safe, ergonomic way. Make sure the whole binary builds,
+signs, and ships through CI on macOS by end of Week 1 and on Windows
+during Week 2. Pair with Group D on the native module build chain.</p>
+
+<h3>Skill profile</h3>
+
+<ul>
+<li>Has debugged a webpack, vite, or esbuild config to root-cause and
+can explain what a bundler does and does not do.</li>
+<li>Comfortable with CI configuration; ideally has touched GitHub
+Actions before. Not afraid of YAML.</li>
+<li>Has read at least one piece of code that uses IPC, channels, or
+RPC. Doesn&#39;t conflate &quot;message&quot; with &quot;function call&quot;.</li>
+<li>Has a security mindset for the preload boundary: knows what context
+isolation is and why it matters.</li>
+<li>Enjoys the kind of work where the success criterion is &quot;everything
+the other groups do gets faster&quot;.</li>
+</ul>
+
+<h3>Required reading (finish before Monday of W1)</h3>
+
+<ul>
+<li><code>docs/v2-stack/electron.html</code> — read all of it, twice if new
+to Electron.</li>
+<li><code>docs/v2-stack/electron-vite.html</code> — read all of it.</li>
+<li><code>docs/v2-stack/electron-builder.html</code> — read all of it
+including the macOS signing and notarization sections.</li>
+<li><code>docs/v2-stack/native-modules.html</code> — read all of it. You will
+own the rebuild step in CI.</li>
+<li><code>docs/v2-stack/trpc.html</code> — read all of it, paying special
+attention to the section on <code>electron-trpc</code>.</li>
+<li><code>docs/v2-stack/typescript.html</code> — skim if confident; read the
+project-references section in detail.</li>
+<li>v1 source: <code>src/main/index.js</code>, <code>src/main/preload.js</code>,
+<code>electron-builder.yml</code> if present. Read for shape, not to
+port verbatim.</li>
+</ul>
+
+<h3>Week 1 — day by day</h3>
+
+<p><strong>Monday — Sign-off and signing.</strong></p>
+
+<ul>
+<li>Confirm with Namkha that the Apple Developer account, certificates,
+and notarization credentials are provisioned and available as GitHub
+Actions secrets.</li>
+<li>While Group A scaffolds the repo, draft the GitHub Actions workflow
+file in a separate branch (you&#39;ll merge it on top of A&#39;s scaffold
+Tuesday).</li>
+<li>Plan the workflow: macOS runner, install Node, install pnpm, install
+dependencies, run lint, run tests, build the renderer, package the
+Electron app, sign, notarize, upload artifact.</li>
+<li>End of day: workflow file drafted, ready to layer onto the repo
+once it exists.</li>
+</ul>
+
+<p><strong>Tuesday — CI green on Group A&#39;s scaffold.</strong></p>
+
+<ul>
+<li>Within an hour of Group A&#39;s scaffold merging, open a PR adding
+the GitHub Actions workflow.</li>
+<li>Drive the workflow to a green build on macOS. Expect to spend most
+of the day on environment quirks: Node version mismatch, pnpm cache
+location, missing build deps. Document each fix in the PR.</li>
+<li>Do <strong>not</strong> attempt notarization on the first run. Get
+unsigned build → signed build → notarized build in three distinct
+commits.</li>
+<li>End of day: signed (not yet notarized) macOS build artifact downloadable
+from a green CI run.</li>
+</ul>
+
+<p><strong>Wednesday — Notarization and electron-rebuild.</strong></p>
+
+<ul>
+<li>Add notarization. Use <code>electron-builder</code>&#39;s built-in
+notarization step rather than a separate tool — fewer moving parts.</li>
+<li>Add an <code>electron-rebuild</code> step in the workflow. There are
+no native modules yet, but Group D needs the recipe to exist by end of
+Week 1.</li>
+<li>Test by adding a no-op native dependency (e.g. a small native package
+from the registry) in a throwaway branch, rebuilding, then removing the
+dependency. The point is to prove the recipe.</li>
+<li>End of day: notarized macOS artifact, electron-rebuild step
+verified.</li>
+</ul>
+
+<p><strong>Thursday — Local dev experience, tRPC spike, demo (19:00).</strong></p>
+
+<ul>
+<li>Document the local dev workflow in the repo README jointly with
+Group A: how to run, how to enable devtools, how to inspect the main
+process, how to test a signed build locally.</li>
+<li>Make sure <code>pnpm dev</code> works on a fresh clone in under
+two minutes including install.</li>
+<li>Add a pre-push git hook (using a tool the team likes; suggest
+<code>simple-git-hooks</code>) that runs <code>pnpm typecheck</code>
+and <code>pnpm test</code>. The hook is opt-in via local setup; do not
+force-install it.</li>
+<li>Spike in parallel: choose between <code>electron-trpc</code> and a
+hand-rolled IPC-over-tRPC implementation. Read the
+<code>electron-trpc</code> source and recent issues. Look at maintenance
+cadence, bundle cost, and how it handles streaming subscriptions (we
+need subscriptions in W3 for capture events).</li>
+<li>Write a 1-page decision doc in the PR description: trade-offs,
+recommendation, what we lose if we pick the wrong one. Present it
+during the demo so Namkha can decide live.</li>
+<li>Demo at 19:00: green CI run producing a signed, notarized macOS
+.dmg; walk the bridge decision 1-pager.</li>
+</ul>
+
+<p><strong>Friday — Buffer and decision lock.</strong></p>
+
+<ul>
+<li>If Namkha didn&#39;t lock the bridge decision in the Thursday
+demo, get it locked Friday morning. Monday W2 starts implementation —
+no decision means no Monday.</li>
+<li>Fix any CI flake raised in the demo.</li>
+<li>Stub the chosen bridge&#39;s file layout in a draft PR so Monday
+starts at the keyboard, not in the editor menu.</li>
+</ul>
+
+<h3>Week 2 — day by day</h3>
+
+<p><strong>Monday — Implement the bridge.</strong></p>
+
+<ul>
+<li>Implement the tRPC bridge based on Friday&#39;s decision. Start with
+exactly one procedure: <code>capture.start()</code>. It does nothing
+real yet — it logs to the main process console.</li>
+<li>Wire it through the preload script with proper context isolation.
+The preload script exposes the minimum surface possible; everything
+else flows through the typed bridge.</li>
+<li>Confirm types flow from main to renderer cleanly.</li>
+<li>End of day: bridge merged behind a feature flag if not ready; on
+<code>main</code> if it is.</li>
+</ul>
+
+<p><strong>Tuesday — Ship the bridge end-to-end.</strong></p>
+
+<ul>
+<li>The bridge must merge by EOD. This is a critical-path day.</li>
+<li>Add <code>capture.status()</code> as a query procedure (returns a
+boolean) so Group A has both a mutation and a query to wire on Wednesday.</li>
+<li>Write a 5-minute walkthrough doc in the repo: how to add a new
+procedure, how to call it from the renderer, how to add a Query hook.
+This unblocks every other group adding procedures going forward.</li>
+<li>End of day: Group A unblocked.</li>
+</ul>
+
+<p><strong>Wednesday — Windows build path.</strong></p>
+
+<ul>
+<li>Add Windows runner to the GitHub Actions workflow. Build only, no
+signing yet — Windows code-signing certs are a separate procurement.</li>
+<li>Expect Windows-specific issues: path separators, line endings,
+native module rebuild differences. Document each.</li>
+<li>End of day: unsigned Windows .exe artifact from CI.</li>
+</ul>
+
+<p><strong>Thursday — uiohook-napi pairing, profiling, demo (19:00).</strong></p>
+
+<ul>
+<li>Group D added <code>uiohook-napi</code> as a real native dependency
+earlier in the week. Pair with them in the morning to make sure the
+electron-rebuild step in CI handles it correctly on both macOS and
+Windows.</li>
+<li>Profile the bridge: how fast does a procedure round-trip from
+renderer to main and back? Document the number. We&#39;ll watch it
+across the project.</li>
+<li>Demo at 19:00: live CI run producing a signed macOS build with a
+working native module loaded and a working tRPC procedure call.</li>
+</ul>
+
+<p><strong>Friday — Buffer.</strong></p>
+
+<ul>
+<li>Fix any cross-platform CI failures raised in the demo.</li>
+<li>Polish the &quot;how to add a procedure&quot; doc based on questions
+Group C and Group A asked while wiring auth procedures and Query
+hooks.</li>
+<li>Half-day if green.</li>
+</ul>
+
+<h3>Hand-offs</h3>
+
+<p><strong>Receive from:</strong></p>
+
+<ul>
+<li>Group A — the scaffold itself (Tue W1).</li>
+<li>Group D — a real native module to test rebuild against (Thu W2).</li>
+<li>Namkha — signing credentials, and decision on the tRPC bridge
+approach (by EOD Thu W1 demo, latest Fri W1 morning).</li>
+</ul>
+
+<p><strong>Ship to:</strong></p>
+
+<ul>
+<li>Group A — CI pipeline including test step (Tue W1), tRPC bridge (Tue W2).</li>
+<li>Group C — tRPC bridge they can hang auth procedures on (Tue W2).</li>
+<li>Group D — electron-rebuild recipe (Wed W1), Windows build path (Wed W2).</li>
+</ul>
+
+<h3>Definition of done</h3>
+
+<ul>
+<li>CI pipeline green on macOS and Windows; macOS produces a signed,
+notarized build artifact; Windows produces an unsigned build artifact.</li>
+<li>electron-rebuild step works for at least one real native module.</li>
+<li>tRPC-over-IPC bridge ships at least two procedures end-to-end
+(<code>capture.start</code>, <code>capture.status</code>) with full
+type-safety from main to renderer.</li>
+<li>Preload script implements context isolation correctly; no direct
+<code>ipcRenderer</code> exposure.</li>
+<li>Decision doc on the bridge approach exists and is merged.</li>
+<li>How-to-add-a-procedure doc is in the repo.</li>
+<li>Local dev round-trip (clone → run) under two minutes.</li>
+</ul>
+
+<h3>Pitfalls</h3>
+
+<ul>
+<li><strong>Notarization on day one.</strong> Notarization needs Apple&#39;s
+servers and quirky credential handling. Get signing working first.</li>
+<li><strong>Hand-rolled IPC.</strong> If you pick hand-rolled, you take on
+ownership of the bridge forever. Pick it only if <code>electron-trpc</code>
+has a real blocker (streaming subscription bugs, abandonware, etc.).</li>
+<li><strong>Exposing <code>ipcRenderer</code> in preload.</strong> A common
+shortcut. Never. The preload exposes the typed tRPC client and nothing
+else.</li>
+<li><strong>Skipping context isolation.</strong> If the renderer can touch
+Node APIs directly, we have a security regression vs v1. Read
+Electron&#39;s security docs and the preload section twice.</li>
+<li><strong>Forgetting electron-rebuild for native modules.</strong>
+Without it, native modules built for Node will fail to load in Electron
+with an opaque error. Group D will lose half a day.</li>
+<li><strong>Letting CI go red and merging anyway.</strong> Never.</li>
+<li><strong>Caching native module builds incorrectly in CI.</strong> Cache
+hits with the wrong Electron version cause the most confusing build
+failures in this stack.</li>
+</ul>
+
+<h3>Self-check</h3>
+
+<ol type="1">
+<li>What is context isolation and what breaks if it is off?</li>
+<li>What is the difference between <code>contextBridge.exposeInMainWorld</code>
+and a normal global on <code>window</code>?</li>
+<li>Why do we need <code>electron-rebuild</code> instead of just running
+<code>pnpm install</code>?</li>
+<li>What is the latency of one tRPC procedure call on your machine, in
+milliseconds, and where does the time go?</li>
+<li>What happens to a signed build if the user&#39;s clock is wrong?</li>
+<li>If notarization fails with an opaque error, where do you look first?</li>
+</ol>
+
+<h2 id="6--group-c--auth--secure-storage">6 · Group C — Auth &amp; Secure Storage</h2>
+
+<h3>Mission</h3>
+
+<p>Port the auth and auto-update code from v1 to TypeScript verbatim,
+preserving the sleep/wake handling and encrypted token storage. By end
+of Week 2, signin via magic-link works end-to-end: user types email,
+clicks link in mailbox, app is authed, token survives restart and a
+laptop sleep cycle.</p>
+
+<h3>Skill profile</h3>
+
+<ul>
+<li>Detail-oriented — the kind of person who reads error messages before
+asking for help.</li>
+<li>Comfortable with OAuth flows: knows what an authorization code is,
+what a refresh token is, why we need both.</li>
+<li>Security mindset — instinctively asks &quot;what happens if this token
+leaks?&quot; and &quot;what does the encryption-at-rest story look like?&quot;</li>
+<li>Patient with edge cases: laptops sleep, tokens expire at inconvenient
+moments, mail clients mangle URLs, users open the magic link on a
+different device.</li>
+<li>Doesn&#39;t need design chops, but should be able to embed views in
+Group A&#39;s app shell using their shadcn primitives without
+re-inventing styles.</li>
+</ul>
+
+<h3>Required reading (finish before Monday of W1)</h3>
+
+<ul>
+<li><code>docs/v2-stack/electron.html</code> — focus on main-process,
+session, and protocol handler sections.</li>
+<li><code>docs/v2-stack/electron-builder.html</code> — focus on the
+auto-updater section.</li>
+<li><code>docs/v2-stack/typescript.html</code> — skim.</li>
+<li><code>docs/v2-stack/react.html</code> — skim if new; you&#39;ll write
+small renderer views in Week 2.</li>
+<li><code>docs/v2-stack/react-hook-form-zod.html</code> — read all of it.
+You will use both for the magic-link form.</li>
+<li>v1 source — <strong>read these in detail, you are porting them</strong>:
+  <ul>
+    <li><code>src/services/auto-updater.js</code></li>
+    <li><code>src/core/auto-updater-flow.js</code></li>
+    <li><code>src/services/backend-auth.js</code></li>
+    <li><code>src/core/oauth-flow.js</code></li>
+    <li><code>src/core/token-refresh.js</code></li>
+  </ul>
+</li>
+<li><code>docs/14-security-and-compliance.html</code> — read the section
+on token storage and the threat model. Your work touches this.</li>
+</ul>
+
+<h3>Week 1 — day by day</h3>
+
+<p><strong>Monday — Read v1 auto-updater code end-to-end.</strong></p>
+
+<ul>
+<li>Open both v1 auto-updater files and read them top to bottom. Map the
+control flow on paper: where the check fires, what events
+<code>electron-updater</code> emits, where errors are caught.</li>
+<li>Identify any JS idioms that will need TypeScript adjustments
+(callbacks vs promises, untyped event payloads, implicit globals).</li>
+<li>Write a 1-page port plan: file layout in v2, type definitions you
+will add, behavior you will preserve, behavior you will deliberately
+change (if any), and why.</li>
+<li>End of day: port plan PR (docs-only) open for review.</li>
+</ul>
+
+<p><strong>Tuesday — Start the port.</strong></p>
+
+<ul>
+<li>Wait for Group A&#39;s scaffold to land in the morning. While waiting,
+review the v1 files again and stub the v2 file structure in a draft PR.</li>
+<li>Begin porting <code>auto-updater.js</code> to TypeScript. Goal:
+JS → TS with the smallest possible behavioral diff. Do not refactor,
+do not rename, do not &quot;clean up while you&#39;re in there&quot;.</li>
+<li>If you find a bug in v1 while porting, leave it for now — write
+a TODO comment with the issue tracker link. We fix bugs after the port
+is complete, not during.</li>
+<li>End of day: <code>auto-updater.ts</code> compiles cleanly.</li>
+</ul>
+
+<p><strong>Wednesday — Wire auto-updater, port the flow file.</strong></p>
+
+<ul>
+<li>Wire the ported updater into the main process bootstrap. The
+auto-updater should run a check on launch in dev mode (against a fake
+update channel) and log all events.</li>
+<li>Port <code>auto-updater-flow.js</code> to TypeScript. Same rule:
+behavior-preserving port.</li>
+<li>End of day: in dev mode, launching the app logs an update-check
+event sequence to the main console.</li>
+</ul>
+
+<p><strong>Thursday — Tests, sleep/wake, demo (19:00).</strong></p>
+
+<ul>
+<li>Write Vitest unit tests for the flow file. Mock
+<code>electron-updater</code> events. Cover at least: happy path,
+no-update-available, network failure, update downloaded but install
+deferred.</li>
+<li>Verify behavior when the app is woken from sleep mid-check. This is
+where v1 had bugs historically; document what we observe.</li>
+<li>Update the repo README with the auto-updater channels and how to
+trigger a fake update in dev.</li>
+<li>Demo at 19:00: launch app, see update-check sequence, sleep machine,
+wake, see another check fire and complete correctly.</li>
+</ul>
+
+<p><strong>Friday — Buffer.</strong></p>
+
+<ul>
+<li>Fix anything raised in the demo.</li>
+<li>Re-read your Monday W2 plan (backend-auth port) so you can start
+fresh on Monday without reorienting.</li>
+<li>Confirm with Namkha that the v1 backend auth endpoints &amp; magic-link
+mailer are wired in staging.</li>
+</ul>
+
+<h3>Week 2 — day by day</h3>
+
+<p><strong>Monday — Backend-auth port begins.</strong></p>
+
+<ul>
+<li>Port <code>backend-auth.js</code> to TypeScript. Store tokens in
+encrypted <code>electron-store</code>. Use the OS keychain via
+<code>safeStorage</code> for the encryption key — never store a raw
+encryption key on disk.</li>
+<li>Add TypeScript types for the token shape (access, refresh, expiry,
+scope). Export them; Group A may need them later.</li>
+<li>End of day: token write/read round-trips through encrypted storage.</li>
+</ul>
+
+<p><strong>Tuesday — OAuth flow and token refresh.</strong></p>
+
+<ul>
+<li>Port <code>oauth-flow.js</code>. Preserve the deep-link handler
+behavior so the magic link clicked in the user&#39;s mail client opens
+the desktop app and completes auth.</li>
+<li>Register the custom protocol handler in
+<code>app.setAsDefaultProtocolClient</code>. Test on macOS by clicking
+a link in Mail. Document any quirks.</li>
+<li>Port <code>token-refresh.js</code>. The refresher must wake correctly
+from sleep — if the laptop slept past token expiry, the next API call
+should trigger a refresh, not a 401 cascade.</li>
+<li>End of day: token-refresh logic ported, sleep/wake behavior verified.</li>
+</ul>
+
+<p><strong>Wednesday — Add auth procedures to the tRPC bridge.</strong></p>
+
+<ul>
+<li>Group B&#39;s bridge merged Tuesday. Add three procedures on top of
+it: <code>auth.requestMagicLink({email})</code>,
+<code>auth.status()</code>, <code>auth.signOut()</code>.</li>
+<li>These procedures wrap the ported backend-auth code. The renderer
+never touches storage directly.</li>
+<li>End of day: procedures callable from the renderer, returning correct
+shapes.</li>
+</ul>
+
+<p><strong>Thursday — Magic-link UI, edge cases, demo (19:00).</strong></p>
+
+<ul>
+<li>Build three views inside Group A&#39;s app shell, using their shadcn
+Input, Button, and Card. Do not add new primitives.
+  <ol type="1">
+    <li>Email entry — react-hook-form + zod validation for a plausible
+    email shape.</li>
+    <li>Waiting state — &quot;Check your inbox&quot; with a resend link
+    after 60 seconds.</li>
+    <li>Success state — &quot;You&#39;re signed in&quot; that redirects
+    to <code>/</code>.</li>
+  </ol>
+</li>
+<li>Wire the form to <code>auth.requestMagicLink</code>. Wire the
+authed redirect to a TanStack Query subscription on
+<code>auth.status</code>.</li>
+<li>Smoke the edges: open magic link in a different browser → graceful
+error. Open it twice → second click idempotent. Click after expiry →
+clear error message. Sign out → token wiped, app returns to email
+view.</li>
+<li>Demo at 19:00: type email, click link in Mail, app is authed,
+restart app — still authed; sleep laptop 30 minutes (or simulate),
+wake — still authed; sign out — back to email view.</li>
+</ul>
+
+<p><strong>Friday — Buffer.</strong></p>
+
+<ul>
+<li>Fix anything raised in the demo. The sleep/wake edge case is the
+one Namkha will probe hardest — be ready to fix it Friday morning if
+the live demo wobbles.</li>
+<li>Document the auth state machine in
+<code>src/main/auth/README.md</code> so future contributors don&#39;t
+have to read three ported files to understand the flow.</li>
+</ul>
+
+<h3>Hand-offs</h3>
+
+<p><strong>Receive from:</strong></p>
+
+<ul>
+<li>Group A — repo scaffold (Tue W1), shadcn primitives + app shell (Mon W2).</li>
+<li>Group B — tRPC bridge (Tue W2).</li>
+<li>Namkha — backend auth endpoints (these already exist in v1; confirm
+URLs and shape).</li>
+</ul>
+
+<p><strong>Ship to:</strong></p>
+
+<ul>
+<li>Group A — three views to embed in the app shell (Thu W2).</li>
+<li>Everyone — auth procedures on the tRPC bridge (Wed W2) so other
+groups can gate features on signin status.</li>
+</ul>
+
+<h3>Definition of done</h3>
+
+<ul>
+<li>Auto-updater wired and running on app launch in dev mode against a
+fake channel.</li>
+<li>Backend-auth, oauth-flow, and token-refresh ported to TypeScript
+with behavior-preserving diffs.</li>
+<li>Encrypted token storage via <code>electron-store</code> +
+<code>safeStorage</code>; tokens survive restart.</li>
+<li>Token refresh handles sleep/wake correctly — manually verified, not
+just unit-tested.</li>
+<li>Three auth procedures live on the tRPC bridge.</li>
+<li>Magic-link renderer flow (three views) inside Group A&#39;s app shell.</li>
+<li>End-to-end signin demonstrated live at the Thursday W2 demo.</li>
+<li>Unit tests cover the happy path, expiry, and one network-failure
+case for both the updater flow and the auth flow.</li>
+</ul>
+
+<h3>Pitfalls</h3>
+
+<ul>
+<li><strong>Refactoring during the port.</strong> The number-one way to
+miss the Week 2 deadline. JS → TS first; refactor in a separate PR
+later or never.</li>
+<li><strong>Storing the encryption key in plaintext.</strong> If you
+hardcode or generate a key on first run and write it to disk
+unprotected, the encryption is theatre. Use <code>safeStorage</code>.</li>
+<li><strong>Forgetting the custom protocol handler.</strong> Magic link
+opens in browser, browser shows a blank page, you spend half a day
+confused. Register the protocol handler in <code>app.whenReady</code>.</li>
+<li><strong>Trusting <code>Date.now()</code> for token expiry.</strong>
+Laptops sleep. The system clock can jump. Use the difference between
+&quot;now&quot; and expiry, and re-check on wake.</li>
+<li><strong>Letting the renderer touch tokens.</strong> The renderer
+never sees raw tokens. It calls <code>auth.status()</code> and
+authenticated procedures; everything else stays in main.</li>
+<li><strong>One huge port PR.</strong> Three separate PRs — auto-updater,
+backend-auth, oauth-flow + token-refresh — review faster and bisect
+better.</li>
+<li><strong>Reusing v1&#39;s bugs accidentally.</strong> If you see a
+real bug in v1, file an issue. Don&#39;t fix it in the port.</li>
+</ul>
+
+<h3>Self-check</h3>
+
+<ol type="1">
+<li>Where does the encryption key for our token storage live? Why is
+that the right place?</li>
+<li>What is the exact sequence of events when a user clicks a magic
+link, from their email client to a fully authed app?</li>
+<li>What happens to a half-completed sign-in if the user closes the app
+in the middle?</li>
+<li>What protects us against a stale refresh token after a long sleep?</li>
+<li>Why are all auth procedures on the main process and not in the
+renderer?</li>
+<li>Where is the boundary between code we ported verbatim and code we
+intentionally rewrote? Can you point at it in a diff?</li>
+</ol>
+
+<h2 id="7--group-d--capture-engine">7 · Group D — Capture Engine</h2>
+
+<h3>Mission</h3>
+
+<p>Build the core event source of the product. By end of Week 2, the
+<code>CaptureEngine</code> emits <code>frame</code> events on three
+triggers (interval, click, Enter), with deduplication and idle
+auto-stop, and works on macOS through real native input hooks. No
+consumers yet — those land in Week 3. Just a clean, observable
+event stream.</p>
+
+<h3>Skill profile</h3>
+
+<ul>
+<li>Comfortable with Node.js event-emitter patterns and async code.</li>
+<li>Has either written or read code that touches native modules,
+OS-level APIs, or low-level system events. Doesn&#39;t panic at C++ in
+a stack trace.</li>
+<li>Performance-aware — instinctively thinks about how often code runs
+and what it allocates.</li>
+<li>Comfortable working solo for the first week — you have no hand-offs
+in W1.</li>
+<li>Doesn&#39;t need design chops or strong frontend skills.</li>
+</ul>
+
+<h3>Required reading (finish before Monday of W1)</h3>
+
+<ul>
+<li><code>docs/v2-stack/electron.html</code> — focus on the main process
+and child-process sections.</li>
+<li><code>docs/v2-stack/native-modules.html</code> — read all of it. You
+will own a real native module by Thursday W2.</li>
+<li><code>docs/v2-stack/typescript.html</code> — skim. Pay attention to
+typed event emitters.</li>
+<li><code>docs/v2-stack/macos-vision-ocr.html</code> and
+<code>windows-ocr.html</code> — skim only. You won&#39;t use them
+until Week 3, but understanding what your consumers will need shapes
+your event payload design.</li>
+<li>v1 source — <strong>read these in detail</strong>:
+  <ul>
+    <li><code>src/services/capture-service.js</code></li>
+    <li>Any related trigger or guard files in <code>src/core/</code> or
+    <code>src/services/</code></li>
+  </ul>
+</li>
+<li><code>docs/14-security-and-compliance.html</code> — focus on the
+sensitive-content filter section so you understand what gates will
+sit on top of your engine later.</li>
+</ul>
+
+<h3>Week 1 — day by day</h3>
+
+<p><strong>Monday — Read v1 capture code end-to-end.</strong></p>
+
+<ul>
+<li>Read the v1 capture-service file from top to bottom twice. The
+second read, take notes: every trigger, every guard, every event
+emitted, every external dependency.</li>
+<li>Identify the parts that are essential, the parts that are
+historical, and the parts you suspect are bugs. Don&#39;t fix anything
+yet.</li>
+<li>End of day: a one-page summary of v1 capture behavior, written in
+prose, in a draft PR.</li>
+</ul>
+
+<p><strong>Tuesday — Write the CaptureEngine spec.</strong></p>
+
+<ul>
+<li>Wait for Group A&#39;s scaffold to land. While waiting, write the
+spec doc that will live at the top of the <code>CaptureEngine</code>
+file: events emitted, payload shapes, public API surface, lifecycle
+(start, stop, pause), guard semantics (dedup, idle, sensitive content
+hook), error model.</li>
+<li>Decide on the event-emitter API: typed emitter (recommended) vs
+plain <code>EventEmitter</code> with documented event names. Write the
+trade-off in the spec.</li>
+<li>End of day: spec merged as a docs PR or as a comment block at the
+top of a stub file.</li>
+</ul>
+
+<p><strong>Wednesday — Skeleton with interval trigger.</strong></p>
+
+<ul>
+<li>Stub the <code>CaptureEngine</code> class in a new file under
+<code>src/main/capture/</code>.</li>
+<li>Implement only the interval trigger — fire a <code>frame</code> event
+every 10 seconds when started. The event payload is a placeholder
+with a timestamp and a synthetic ID; real frame data lands in Week 3.</li>
+<li>Implement manual <code>.capture()</code> method that emits a
+<code>frame</code> event on demand.</li>
+<li>Implement <code>start()</code>, <code>stop()</code>, and
+<code>isRunning</code>. <code>stop()</code> must cancel timers cleanly
+— no zombie callbacks after stop.</li>
+<li>End of day: in a small test harness (Vitest), starting the engine
+fires three events over 30 seconds, and stop halts emission.</li>
+</ul>
+
+<p><strong>Thursday — Observability, tests, demo (19:00).</strong></p>
+
+<ul>
+<li>Add a structured logger (use whatever the team standardizes on; if
+nothing is chosen, propose <code>pino</code>). Log every state
+transition, every fired event, every dropped event.</li>
+<li>Add lightweight metrics on the engine instance: count of fired
+events, count of dropped-by-guard events. Group A or Namkha will surface
+these in the dev panel later; you just expose the numbers.</li>
+<li>Write unit tests for the interval trigger and the manual trigger.</li>
+<li>Write a README inside <code>src/main/capture/</code> that explains
+the engine&#39;s contract for future consumer authors (Week 3). Add a
+JSDoc block to every public method.</li>
+<li>Demo at 19:00: in a test harness, start the engine, observe events
+firing on interval, call <code>.capture()</code> manually, observe
+the extra event, call <code>.stop()</code>, observe events halting,
+restart, observe resumption. Show metrics.</li>
+</ul>
+
+<p><strong>Friday — Buffer.</strong></p>
+
+<ul>
+<li>Fix anything raised in the demo.</li>
+<li>Pre-read <code>uiohook-napi</code> docs and native-modules notes so
+you can hit the ground running on Monday W2.</li>
+<li>Coordinate with Group B: schedule the Monday-afternoon pairing on
+electron-rebuild for the native module.</li>
+</ul>
+
+<h3>Week 2 — day by day</h3>
+
+<p><strong>Monday — uiohook-napi spike.</strong></p>
+
+<ul>
+<li>Install <code>uiohook-napi</code> as a real native dependency. Pair
+with Group B in the afternoon to verify the electron-rebuild step
+handles it correctly.</li>
+<li>Smoke-test in a throwaway script: start a uiohook listener, click
+around, see events log.</li>
+<li>Read enough of <code>uiohook-napi</code>&#39;s docs to understand the
+event payload shape and the cost of leaving it listening for a long
+session.</li>
+<li>End of day: native hook fires events into a console in a dev build.</li>
+</ul>
+
+<p><strong>Tuesday — Wire click and Enter triggers.</strong></p>
+
+<ul>
+<li>Add click and Enter as triggers in the <code>CaptureEngine</code>.
+Each trigger emits a <code>frame</code> event with a
+<code>trigger</code> field on the payload (e.g.
+<code>'interval' | 'click' | 'enter' | 'clipboard'</code>).</li>
+<li>Add the clipboard-copy trigger via Electron&#39;s clipboard event
+where available, or polling as a fallback. Document the choice.</li>
+<li>Make sure the uiohook listener can be cleanly started and stopped —
+no leaked listeners after <code>engine.stop()</code>.</li>
+<li>End of day: clicking, pressing Enter, or copying fires events.</li>
+</ul>
+
+<p><strong>Wednesday — Dedup and idle detection.</strong></p>
+
+<ul>
+<li>Implement SHA-256 deduplication of consecutive frames. Since frame
+payloads are placeholders this week, dedup is structural — same
+trigger within N milliseconds counts as a duplicate. Document the
+window value (suggest 250ms) in the spec.</li>
+<li>Implement idle detection: if no input event has fired in M minutes
+(suggest 5), the engine auto-pauses. On the next input event, it
+resumes. Port the thresholds from v1; adjust only with reason.</li>
+<li>End of day: rapid clicks dedup to a single event, idle pause/resume
+verified.</li>
+</ul>
+
+<p><strong>Thursday — Auto-stop, hook, tests, demo (19:00).</strong></p>
+
+<ul>
+<li>Implement auto-stop: after a configurable idle duration (suggest 30
+minutes), the engine stops fully rather than pausing. Stop is observable
+via an event so consumers can react.</li>
+<li>Add a stub for the sensitive-content filter — a function that
+takes a frame and returns &quot;allow&quot; or &quot;block&quot;. The
+real filter lands in Week 4; this week we ship a function that always
+returns &quot;allow&quot; and log when it&#39;s called. The hook
+exists so the integration point is real.</li>
+<li>Expand unit tests to cover dedup, idle, auto-stop, and the
+sensitive-content hook&#39;s integration point (with a mock).</li>
+<li>Update the README with the final list of events, triggers, guards,
+and configuration values.</li>
+<li>Demo at 19:00: run a 10-minute capture session (or a fast-forwarded
+test harness equivalent). Show events firing on clicks and Enter, dedup
+collapsing rapid clicks, idle detection pausing and resuming, auto-stop
+firing after a forced idle period.</li>
+</ul>
+
+<p><strong>Friday — Buffer.</strong></p>
+
+<ul>
+<li>Fix anything raised in the demo.</li>
+<li>If the engine is solid, start a one-page &quot;how to write a
+CaptureConsumer&quot; doc — this is Week 3&#39;s on-ramp for whoever
+builds <code>OcrConsumer</code> and friends.</li>
+</ul>
+
+<h3>Hand-offs</h3>
+
+<p><strong>Receive from:</strong></p>
+
+<ul>
+<li>Group A — repo scaffold (Tue W1).</li>
+<li>Group B — electron-rebuild recipe for native modules (Wed W1),
+hands-on pairing on <code>uiohook-napi</code> rebuild (Mon W2).</li>
+</ul>
+
+<p><strong>Ship to:</strong></p>
+
+<ul>
+<li>Group B — a real native dependency to test the rebuild pipeline
+against (Mon W2).</li>
+<li>Future consumers in Week 3 — a documented, tested event source.</li>
+</ul>
+
+<h3>Definition of done</h3>
+
+<ul>
+<li><code>CaptureEngine</code> class with public API:
+<code>start</code>, <code>stop</code>, <code>capture</code> (manual
+trigger), <code>isRunning</code>, events.</li>
+<li>Four triggers: interval, click, Enter, clipboard-copy. All testable
+in a dev harness.</li>
+<li>Dedup window suppresses rapid duplicate triggers.</li>
+<li>Idle detection pauses; longer idle auto-stops.</li>
+<li>Sensitive-content hook integrated (no-op implementation this
+phase).</li>
+<li>Vitest unit tests cover all triggers and guards.</li>
+<li>Structured logging and basic metrics surfaced on the engine
+instance.</li>
+<li>README inside <code>src/main/capture/</code> documents the
+contract for Week 3&#39;s consumer authors.</li>
+<li>End-to-end demo: 10-minute live session showing all behaviors.</li>
+</ul>
+
+<h3>Pitfalls</h3>
+
+<ul>
+<li><strong>Skipping the spec doc.</strong> If you skip Monday/Tuesday&#39;s
+write-up, you will rebuild the engine in Week 4 because the contract
+isn&#39;t clear. Write it.</li>
+<li><strong>Leaving the uiohook listener attached after stop.</strong>
+The most common bug in this kind of code. The OS keeps reporting events;
+your engine fires &quot;stopped&quot; events. Always pair attach/detach.</li>
+<li><strong>Dedup based on wall-clock alone.</strong> Use the trigger
+identity plus payload hash plus a time window. Wall-clock alone misses
+cases where two near-simultaneous distinct events should both fire.</li>
+<li><strong>Idle detection that races with the event loop.</strong>
+Use a monotonic clock and a single source of truth (one last-active
+timestamp), not multiple timers that can drift.</li>
+<li><strong>Treating clipboard polling as free.</strong> A 100ms poll
+loop is expensive over 8 hours. Use the OS event hook where available,
+poll with backoff otherwise, and document the decision.</li>
+<li><strong>Hand-rolling a typed EventEmitter wrapper.</strong> The
+overhead is negligible, but the API drift from Node&#39;s emitter
+causes confusion. Use a small, well-known typed-emitter package or
+keep it plain with documented event names.</li>
+<li><strong>Forgetting the Windows path until Week 7.</strong> You
+don&#39;t need to test on Windows this phase, but write your code so
+porting is mechanical, not architectural. Group B opens the Windows CI
+in Week 2 — use it.</li>
+</ul>
+
+<h3>Self-check</h3>
+
+<ol type="1">
+<li>What does the <code>frame</code> event payload look like, and which
+field is the trigger source?</li>
+<li>How does the engine guarantee no events fire after
+<code>stop()</code> returns?</li>
+<li>What is the dedup window value and why?</li>
+<li>What happens to the engine&#39;s state machine if the user&#39;s
+laptop sleeps for 8 hours?</li>
+<li>How do you tell if uiohook leaked listeners after a stop/start
+cycle?</li>
+<li>Where will the sensitive-content filter plug in next week, and what
+contract does it satisfy?</li>
+</ol>
+
+<h2 id="8--end-of-w2-collective-demo">8 · End-of-W2 collective demo</h2>
+
+<p>At 19:00 on Thursday of Week 2, the four groups give a single joint
+demo, 30 minutes, in this order:</p>
+
+<ol type="1">
+<li><strong>Group A</strong> — launch the app, walk the app shell, show
+the three routes, open the dev panel, run tests live.</li>
+
+<li><strong>Group B</strong> — show a green CI run producing a signed
+macOS build and an unsigned Windows build, click through to the
+notarized .dmg artifact, show the &quot;how to add a procedure&quot;
+doc.</li>
+
+<li><strong>Group C</strong> — type an email, click the link in Mail,
+the app authenticates, restart the app to show persistence, sleep the
+laptop for 30 seconds (or simulate), wake, confirm refresh works, sign
+out.</li>
+
+<li><strong>Group D</strong> — start the CaptureEngine via a dev panel
+button (or CLI harness), click and press Enter to fire triggers, show
+dedup, force idle to show pause, show auto-stop.</li>
+</ol>
+
+<p>If any group&#39;s demo fails, the failing group fixes it Friday
+W2 (the buffer day) before the weekend. Foundation is the foundation;
+we do not move forward on cracked ground.</p>
+
+<h2 id="9--risks-watch-list">9 · Risks watch list</h2>
+
+<p>Namkha and group leads watch for these signals across both weeks.
+If you see one, escalate the same day.</p>
+
+<ul>
+<li><strong>Scaffold slips past Tue W1.</strong> Trigger: A&#39;s PR not
+mergeable by end of Tuesday. Response: pull B/C/D off their work, pair
+on the scaffold until it lands.</li>
+
+<li><strong>Native module rebuild is silently broken.</strong> Trigger:
+local builds work, CI builds fail to load a native module at runtime.
+Response: B + D pair, expect a half-day; document the recipe.</li>
+
+<li><strong>tRPC bridge spike ends without a decision.</strong> Trigger:
+B&#39;s 1-pager doesn&#39;t merge by Friday W1 EOD. Response: Namkha
+locks the decision at the Thursday demo or, failing that, by Friday
+EOD so Monday W2 is unblocked.</li>
+
+<li><strong>Token storage leaks plaintext.</strong> Trigger: anything
+that writes a token, refresh token, or encryption key to disk outside
+<code>safeStorage</code>. Response: stop, fix, security review before
+any further work merges.</li>
+
+<li><strong>Magic-link sleep/wake is &quot;tested only in unit
+tests&quot;.</strong> Trigger: no live demo of sleeping the actual
+laptop and waking it. Response: do the manual test, on real hardware,
+before the Thursday W2 demo.</li>
+
+<li><strong>Capture engine has any code path that emits an event after
+stop.</strong> Trigger: console logs show events fired post-stop in any
+test or demo. Response: stop and fix; this is the kind of bug that
+becomes a production memory leak.</li>
+
+<li><strong>Anyone refactoring during a port.</strong> Trigger: a port
+PR that adds files unrelated to the v1 source it&#39;s porting.
+Response: split the PR; merge port first, evaluate refactor separately.</li>
+</ul>
+
+<h2 id="10--when-something-is-wrong">10 · When something is wrong</h2>
+
+<p>The right thing to do, in order:</p>
+
+<ol type="1">
+<li><strong>Search.</strong> Search the repo and the v1 source for
+similar patterns. Most of the answer is already written down.</li>
+
+<li><strong>Read the relevant <code>docs/v2-stack/</code> page.</strong>
+The reference pages exist for a reason. Read the whole page, not just
+the section you think is relevant.</li>
+
+<li><strong>Ask your group.</strong> Post in the group&#39;s Discord
+channel with the question and what you&#39;ve tried. Wait 15 minutes
+for a reply while you continue trying.</li>
+
+<li><strong>Ask Namkha.</strong> If you&#39;re still stuck after an
+hour, ping Namkha directly. Include: what you&#39;re trying to do,
+what you tried, what failed, what you think the cause is.</li>
+
+<li><strong>Don&#39;t suffer silently past lunch.</strong> If you
+spent the morning stuck on the same thing, raise it at standup. The
+team would rather you ask early than miss a hand-off.</li>
+</ol>
+
+<p>The wrong thing to do, in order:</p>
+
+<ol type="1">
+<li>Reinventing a piece of infrastructure another group owns.</li>
+<li>Adding a dependency without writing a one-line rationale in the
+PR.</li>
+<li>Merging a PR with a failing CI step that you believe is
+&quot;flaky&quot;.</li>
+<li>Deleting code you don&#39;t understand because it looks
+unused.</li>
+<li>Working past 19:00 on a Friday. Foundation is two weeks; pace it.</li>
+</ol>
+
+<hr />
+
+<p><strong>Last updated:</strong> 2026-06-09</p>
+
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>15 · 2026</span>
+</footer>
+
+</body>
+</html>
