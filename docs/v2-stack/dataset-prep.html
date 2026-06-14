@@ -41,7 +41,7 @@
       <ul>
         <li><strong>Deduplication</strong> &mdash; near-duplicate detection (perceptual hashes, embedding similarity)</li>
         <li><strong>Quality filtering</strong> &mdash; reject low-resolution images, blank screenshots, frames with no OCR text</li>
-        <li><strong>Privacy filtering</strong> &mdash; OUR critical filter. Bank apps, iMessage, Slack DMs, password fields &mdash; never train on these. The v1 <code>sensitive-filter.js</code> is the starting point.</li>
+        <li><strong>Privacy filtering</strong> &mdash; OUR critical filter. Bank apps, iMessage, Discord DMs, password fields &mdash; never train on these. The v1 <code>sensitive-filter.js</code> is the starting point.</li>
         <li><strong>Class balance</strong> &mdash; if 80% of frames are "user is typing in VS Code", the model overfits to it. Subsample.</li>
         <li><strong>Train / val / test splits</strong> &mdash; split <strong>by user</strong>, not by frame. Or you'll leak.</li>
         <li><strong>Splits over time</strong> &mdash; reserve the last N weeks of data for eval to catch drift.</li>
@@ -148,7 +148,7 @@ df = duckdb.sql("""
 """).to_df()</code></pre>
 
       <h4>Privacy filter (port from v1)</h4>
-<pre><code>SENSITIVE_APPS = {'1Password', 'Bitwarden', 'Slack', 'Messages', 'WhatsApp', 'Banking', ...}
+<pre><code>SENSITIVE_APPS = {'1Password', 'Bitwarden', 'Discord', 'Messages', 'WhatsApp', 'Banking', ...}
 SENSITIVE_KEYWORDS = ['password', 'social security', 'credit card', ...]
 
 def is_safe(row) -&gt; bool:
@@ -209,7 +209,7 @@ eval_df = df[df['user_id'].isin(eval_users)]</code></pre>
           <li>For each: hand-write a 1-sentence summary of what's happening.</li>
           <li>Store as a JSONL with <code>{image, app, window, summary}</code>.</li>
           <li>Run perceptual-hash deduplication. Remove near-duplicates.</li>
-          <li>Apply a fake "privacy filter" rule (e.g. drop everything from "Slack").</li>
+          <li>Apply a fake "privacy filter" rule (e.g. drop everything from "Discord").</li>
           <li>Split 80/10/10 train/val/test by source-app to avoid leakage.</li>
           <li>Load it via <code>datasets.Dataset.from_json</code> + cast the image column.</li>
           <li>Use this dataset for a small VLM fine-tune (LoRA, 1 epoch) just to wire the pipeline end-to-end.</li>

@@ -30,7 +30,7 @@
 
     <section>
       <h2>Why this is the right family</h2>
-      <p>The desktop captures screenshots + OCR text + app/window metadata. The output we want is structured narrative ("user spent 35 minutes editing a design in Figma, then 15 minutes in Slack discussing the change with their team"). Gemini Vision does this today &mdash; it takes the image + a system prompt and outputs the narrative.</p>
+      <p>The desktop captures screenshots + OCR text + app/window metadata. The output we want is structured narrative ("user spent 35 minutes editing a design in Figma, then 15 minutes in Discord discussing the change with their team"). Gemini Vision does this today &mdash; it takes the image + a system prompt and outputs the narrative.</p>
       <p>A Vision-Language Model is the same shape: image input → text output, conditioned on a text prompt. CLIP started the family (text-image embeddings). LLaVA, Qwen-VL, InternVL, MiniCPM-V are modern open-weight versions that can accept multiple images and follow instructions like a chat model.</p>
       <p>For OnlyWorks: pick a strong open VLM, fine-tune it on our task, deploy it, and slowly graduate users from Gemini to our model as quality matches. The economics &mdash; "$0 per inference call instead of $0.001" &mdash; pay back the training cost within a few thousand users.</p>
     </section>
@@ -178,7 +178,7 @@ print(processor.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_t
         <ol>
           <li>Rent a single small GPU (e.g. RunPod A10 24GB, ~$0.30/hr) &mdash; <strong>ask first</strong>. Or use a Mac M-series with MLX-Qwen-VL for free local inference.</li>
           <li>Load a small VLM: <code>Qwen/Qwen2.5-VL-3B-Instruct</code> or <code>llava-hf/llava-1.6-mistral-7b-hf</code>.</li>
-          <li>Take 10 screenshots of yourself working in different apps (VS Code, Figma, browser, Slack).</li>
+          <li>Take 10 screenshots of yourself working in different apps (VS Code, Figma, browser, Discord).</li>
           <li>For each: ask the model "Describe what the user is working on. List specific apps and any visible text."</li>
           <li>Compare the output to what Gemini Flash gives you on the same image.</li>
           <li>Try multi-image: pass 3 consecutive screenshots and ask for an "activity summary."</li>
