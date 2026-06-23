@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 2 — Status &amp; How-To · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>18 · Week 2</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 18 · Week 2 · Live</div>
+      <div class="title">Week 2 — <em>Status &amp; How-To</em></div>
+      <div class="subtitle">What each person has to land before we next meet — with step-by-step directions, real code, the traps to avoid, and resources. Covers Groups A, B, and C.</div>
+      <div class="doc-meta">
+        <span>Audience<strong>Interns · A B C</strong></span>
+        <span>Status<strong>Live · Week 2</strong></span>
+        <span>Next<strong>Thursday demo</strong></span>
+        <span>Updated<strong>2026-06-23</strong></span>
+      </div>
+    </header>
+<h2 id="the-one-thing-to-land-before-we-meet-next">The one thing to land
+before we meet next</h2>
+<p><strong>Lihan's "wire" between the two halves of the app has to be
+working.</strong></p>
+<p>The app has two halves — the screens people see, and the engine
+underneath. The wire that lets them talk to each other is Lihan's job.
+It isn't in yet — there's a document describing the approach, but no
+working code or open pull request so far.</p>
+<blockquote>
+<p>Until that wire lands, Jacqueline (A) and Yingzhu (C) are blocked —
+they can't finish their own work without it. So this is the whole week.
+Everything else here is secondary to getting the wire in.</p>
+</blockquote>
+<h2 id="who-owns-what">Who owns what</h2>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Person</th>
+<th>This week's job</th>
+<th>Where they stand</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A — Frontend</td>
+<td>Jacqueline</td>
+<td>The screens people click</td>
+<td>On track — re-land one shared piece for B &amp; C</td>
+</tr>
+<tr>
+<td>B — Desktop/IPC</td>
+<td>Lihan</td>
+<td>The wire connecting the two halves</td>
+<td>Not started — A and C build on it</td>
+</tr>
+<tr>
+<td>C — Auth</td>
+<td>Yingzhu</td>
+<td>Letting people log in</td>
+<td>This week's work not on the repo yet</td>
+</tr>
+</tbody>
+</table>
+<p>The detailed how-to for each person is below — copy-pasteable code,
+the traps to avoid, a "done when" checklist, and resources (your own
+<code>docs/v2-stack/</code> pages plus the official docs).</p>
+<hr />
+<h2 id="lihan--group-b--desktopipc">Lihan — Group B — Desktop/IPC</h2>
+<p><strong>Goal —</strong> By next meeting you'll have a hand-rolled
+tRPC-over-IPC "wire" merged: clicking "Start capture" in the renderer
+logs in the main-process pnpm dev terminal (capture.start mutation), a
+capture.status query returns a typed boolean, the renderer client is
+fully typed (a typo'd field fails to compile), and you've recorded the
+round-trip latency (ceiling 60ms).</p>
+<h3
+id="branch-off-main-and-confirm-the-current-state-with-your-own-eyes">Branch
+off main and confirm the current state with your own eyes</h3>
+<p>You're starting from the real repo. Before changing anything, branch
+and read the three files you'll touch so nothing surprises you.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/OnlyWorksCodeHub/onlyworks_desktop_v2.git</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> onlyworks_desktop_v2</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> install</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> lihan/trpc-ipc-bridge</span></code></pre></div>
+<p>Confirm the starting state (these are the exact current
+contents):</p>
+<ul>
+<li><code>src/preload/index.ts</code> — <code>const api = {}</code>
+(empty surface, already uses <code>contextBridge</code> +
+<code>@electron-toolkit/preload</code>).</li>
+<li><code>src/main/index.ts</code> — <code>webPreferences</code> only
+sets <code>sandbox: false</code>; no explicit
+<code>contextIsolation</code> / <code>nodeIntegration</code>.</li>
+<li><code>src/preload/index.d.ts</code> — declares
+<code>api: unknown</code> on <code>Window</code>.</li>
+<li><code>src/renderer/src/lib/capture-stub.ts</code> — the stub A will
+swap once you merge.</li>
+<li><code>docs/decisions/trpc-bridge.md</code> — the merged decision:
+hand-roll a thin tRPC v11 link over IPC, NOT
+<code>electron-trpc</code>.</li>
+</ul>
+<p>Sanity-check the toolchain runs before you add anything:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test</span></code></pre></div>
+<h3
+id="install-trpcserver-v11--zod--exact-pinned-and-as-dependencies-not-devdependencies">Install
+@trpc/server v11 + zod — EXACT-pinned, and as dependencies (not
+devDependencies)</h3>
+<p>The hand-rolled link needs the tRPC <strong>server</strong> (router +
+caller) in main and <strong>zod</strong> for input validation. We do NOT
+install <code>electron-trpc</code> (per
+<code>docs/decisions/trpc-bridge.md</code>). We also do NOT install
+<code>@trpc/client</code> — the whole point of hand-rolling is that the
+renderer talks to a tiny client <em>you</em> write over IPC, not the
+HTTP/link client.</p>
+<p>CRITICAL gotcha specific to this repo:
+<code>electron.vite.config.ts</code> runs
+<code>externalizeDepsPlugin()</code> for both <code>main</code> and
+<code>preload</code>. That plugin externalizes everything in
+<code>dependencies</code> and bundles nothing from
+<code>devDependencies</code> for the main/preload bundles. So
+<code>@trpc/server</code> and <code>zod</code> MUST go in
+<code>dependencies</code> (so they resolve from
+<code>node_modules</code> at runtime in main), NOT
+<code>devDependencies</code>. Every other package in this repo's
+<code>dependencies</code> block is unprefixed/exact — match that.</p>
+<p>Use <code>--save-exact</code> and the <code>-E</code> is implied by
+<code>.npmrc</code>? No — pin explicitly to be safe (the repo's
+<code>.npmrc</code> has <code>shamefully-hoist=true</code> and
+<code>strict-peer-dependencies=false</code>, neither of which pins
+versions):</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> @trpc/server@11.6.0 zod@3.25.76</span></code></pre></div>
+<p>Then open <code>package.json</code> and confirm both landed under
+<code>"dependencies"</code> with NO <code>^</code> or
+<code>~</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;@trpc/server&quot;</span><span class="er">:</span> <span class="st">&quot;11.6.0&quot;</span><span class="er">,</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;zod&quot;</span><span class="er">:</span> <span class="st">&quot;3.25.76&quot;</span><span class="er">,</span></span></code></pre></div>
+<p>If pnpm picked a newer patch, that's fine — just make sure the saved
+value has no range prefix. This satisfies the PR-template checklist line
+"pinned to an exact version."</p>
+<h3
+id="define-the-approuter-in-srcmaintrpc-capturestart-mutation--capturestatus-query">Define
+the appRouter in src/main/trpc/ (capture.start mutation + capture.status
+query)</h3>
+<p>Create the tRPC init and the router. Keep <code>t</code> (the tRPC
+instance) in its own file so other routers can reuse
+<code>t.router</code> / <code>t.procedure</code> later.</p>
+<p><code>src/main/trpc/trpc.ts</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { initTRPC } <span class="im">from</span> <span class="st">&#39;@trpc/server&#39;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">// One tRPC instance for the whole main process. No context yet (we&#39;ll add</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">// auth/session context later); the empty object keeps the type honest.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> t <span class="op">=</span> initTRPC<span class="op">.</span><span class="fu">context</span><span class="op">&lt;</span><span class="dt">object</span><span class="op">&gt;</span>()<span class="op">.</span><span class="fu">create</span>()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> router <span class="op">=</span> t<span class="op">.</span><span class="at">router</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> publicProcedure <span class="op">=</span> t<span class="op">.</span><span class="at">procedure</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> createCallerFactory <span class="op">=</span> t<span class="op">.</span><span class="at">createCallerFactory</span></span></code></pre></div>
+<p><code>src/main/trpc/capture.ts</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { z } <span class="im">from</span> <span class="st">&#39;zod&#39;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { router<span class="op">,</span> publicProcedure } <span class="im">from</span> <span class="st">&#39;./trpc&#39;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Tracks whether a capture session is active. In-memory for W2; the real</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">// capture engine lands later and will own this.</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> capturing <span class="op">=</span> <span class="kw">false</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> captureRouter <span class="op">=</span> <span class="fu">router</span>({</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// MUTATION — logs in MAIN, returns {ok:true}</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  start<span class="op">:</span> publicProcedure</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ reason<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">optional</span>() })<span class="op">.</span><span class="fu">optional</span>())</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(({ input }) <span class="kw">=&gt;</span> {</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>      capturing <span class="op">=</span> <span class="kw">true</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>      <span class="co">// This console.log runs in the MAIN process =&gt; shows in the pnpm dev terminal.</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;[capture.start] capture started&#39;</span><span class="op">,</span> input <span class="op">??</span> {})</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span> }</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">// QUERY — returns a boolean</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  status<span class="op">:</span> publicProcedure<span class="op">.</span><span class="fu">query</span>(()<span class="op">:</span> <span class="dt">boolean</span> <span class="kw">=&gt;</span> capturing)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p><code>src/main/trpc/router.ts</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { router } <span class="im">from</span> <span class="st">&#39;./trpc&#39;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { captureRouter } <span class="im">from</span> <span class="st">&#39;./capture&#39;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> appRouter <span class="op">=</span> <span class="fu">router</span>({</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  capture<span class="op">:</span> captureRouter</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">// The renderer imports ONLY this type (never the runtime router).</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AppRouter <span class="op">=</span> <span class="kw">typeof</span> appRouter</span></code></pre></div>
+<p>Why <code>as const</code> on <code>ok</code>: it makes the return
+type <code>{ ok: true }</code> not <code>{ ok: boolean }</code>, so
+callers get a precise type. Why an optional input on <code>start</code>:
+A's button currently calls with no args, so an optional input keeps the
+call ergonomic while still validating if something is passed.</p>
+<h3
+id="wire-the-ipc-transport-by-hand-one-ipcmainhandle-channel-in-main-that-drives-a-trpc-caller">Wire
+the IPC transport by hand: ONE ipcMain.handle channel in main that
+drives a tRPC caller</h3>
+<p>The hand-rolled transport is one IPC channel. The renderer sends
+<code>{ path, type, input }</code>; main looks the procedure up via a
+tRPC <strong>caller</strong> and returns the result. Using
+<code>createCallerFactory</code> (not raw router internals) means zod
+validation and the procedure resolvers run exactly as tRPC intends — no
+<code>any</code>, no hand-parsing of the router tree.</p>
+<p><code>src/main/trpc/ipc.ts</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { ipcMain } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { createCallerFactory } <span class="im">from</span> <span class="st">&#39;./trpc&#39;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { appRouter } <span class="im">from</span> <span class="st">&#39;./router&#39;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Single, well-known channel name. Keep it in one place so preload + main agree.</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> TRPC_IPC_CHANNEL <span class="op">=</span> <span class="st">&#39;trpc&#39;</span> <span class="im">as</span> <span class="kw">const</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">interface</span> TrpcIpcRequest {</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  path<span class="op">:</span> <span class="dt">string</span> <span class="co">// e.g. &#39;capture.start&#39;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  type<span class="op">:</span> <span class="st">&#39;query&#39;</span> <span class="op">|</span> <span class="st">&#39;mutation&#39;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  input<span class="op">:</span> <span class="dt">unknown</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> TrpcIpcResponse <span class="op">=</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> { ok<span class="op">:</span> <span class="kw">true</span><span class="op">;</span> result<span class="op">:</span> <span class="dt">unknown</span> }</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> { ok<span class="op">:</span> <span class="kw">false</span><span class="op">;</span> error<span class="op">:</span> { message<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> code<span class="op">?:</span> <span class="dt">string</span> } }</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> createCaller <span class="op">=</span> <span class="fu">createCallerFactory</span>(appRouter)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">registerTrpcIpc</span>()<span class="op">:</span> <span class="dt">void</span> {</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  ipcMain<span class="op">.</span><span class="fu">handle</span>(</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    TRPC_IPC_CHANNEL<span class="op">,</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> (_event<span class="op">,</span> req<span class="op">:</span> TrpcIpcRequest)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>TrpcIpcResponse<span class="op">&gt;</span> <span class="kw">=&gt;</span> {</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>      <span class="cf">try</span> {</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Empty context for now; later this is where session/auth goes.</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> caller <span class="op">=</span> <span class="fu">createCaller</span>({})</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Walk the dotted path to the procedure fn on the caller.</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> segments <span class="op">=</span> req<span class="op">.</span><span class="at">path</span><span class="op">.</span><span class="fu">split</span>(<span class="st">&#39;.&#39;</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> target<span class="op">:</span> <span class="dt">unknown</span> <span class="op">=</span> caller</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (<span class="kw">const</span> seg <span class="kw">of</span> segments) {</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>          target <span class="op">=</span> (target <span class="im">as</span> <span class="bu">Record</span><span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> <span class="dt">unknown</span><span class="op">&gt;</span>)[seg]</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="kw">typeof</span> target <span class="op">!==</span> <span class="st">&#39;function&#39;</span>) {</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>          <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="vs">`Unknown procedure: </span><span class="sc">${</span>req<span class="op">.</span><span class="at">path</span><span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> (target <span class="im">as</span> (input<span class="op">:</span> <span class="dt">unknown</span>) <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">unknown</span><span class="op">&gt;</span>)(req<span class="op">.</span><span class="at">input</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> result }</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">catch</span> (err) {</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> message <span class="op">=</span> err <span class="kw">instanceof</span> <span class="bu">Error</span> <span class="op">?</span> err<span class="op">.</span><span class="at">message</span> <span class="op">:</span> <span class="st">&#39;Unknown tRPC IPC error&#39;</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">false</span><span class="op">,</span> error<span class="op">:</span> { message } }</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Register it in <code>src/main/index.ts</code> inside
+<code>app.whenReady().then(...)</code>, <strong>before</strong>
+<code>createWindow()</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { registerTrpcIpc } <span class="im">from</span> <span class="st">&#39;./trpc/ipc&#39;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">// ...</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">whenReady</span>()<span class="op">.</span><span class="fu">then</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  electronApp<span class="op">.</span><span class="fu">setAppUserModelId</span>(<span class="st">&#39;com.onlyworks.v2scaffold&#39;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">registerTrpcIpc</span>()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  app<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;browser-window-created&#39;</span><span class="op">,</span> (_<span class="op">,</span> <span class="bu">window</span>) <span class="kw">=&gt;</span> {</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    optimizer<span class="op">.</span><span class="fu">watchWindowShortcuts</span>(<span class="bu">window</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">createWindow</span>()</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...rest unchanged</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p><strong>Preload — expose a tiny typed invoker over contextBridge.
+NEVER put raw <code>ipcRenderer</code> on <code>window</code>.</strong>
+Replace <code>const api = {}</code> in
+<code>src/preload/index.ts</code>:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { contextBridge<span class="op">,</span> ipcRenderer } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { electronAPI } <span class="im">from</span> <span class="st">&#39;@electron-toolkit/preload&#39;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Hand-rolled tRPC-over-IPC bridge. Only this narrow function crosses the</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">// contextBridge — ipcRenderer itself is NEVER exposed to the renderer.</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> TRPC_IPC_CHANNEL <span class="op">=</span> <span class="st">&#39;trpc&#39;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> trpcBridge <span class="op">=</span> {</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  request<span class="op">:</span> (req<span class="op">:</span> { path<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> type<span class="op">:</span> <span class="st">&#39;query&#39;</span> <span class="op">|</span> <span class="st">&#39;mutation&#39;</span><span class="op">;</span> input<span class="op">:</span> <span class="dt">unknown</span> }) <span class="kw">=&gt;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    ipcRenderer<span class="op">.</span><span class="fu">invoke</span>(TRPC_IPC_CHANNEL<span class="op">,</span> req)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="bu">process</span><span class="op">.</span><span class="at">contextIsolated</span>) {</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    contextBridge<span class="op">.</span><span class="fu">exposeInMainWorld</span>(<span class="st">&#39;electron&#39;</span><span class="op">,</span> electronAPI)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    contextBridge<span class="op">.</span><span class="fu">exposeInMainWorld</span>(<span class="st">&#39;trpc&#39;</span><span class="op">,</span> trpcBridge)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (error) {</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(error)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">// @ts-ignore (define in dts)</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="bu">window</span><span class="op">.</span><span class="at">electron</span> <span class="op">=</span> electronAPI</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="co">// @ts-ignore (define in dts)</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="bu">window</span><span class="op">.</span><span class="at">trpc</span> <span class="op">=</span> trpcBridge</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Note I dropped the empty <code>api</code> object — nobody consumes
+it. Update <code>src/preload/index.d.ts</code> so the renderer sees the
+bridge shape:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { ElectronAPI } <span class="im">from</span> <span class="st">&#39;@electron-toolkit/preload&#39;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> TrpcBridge {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  request<span class="op">:</span> (req<span class="op">:</span> {</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    path<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    type<span class="op">:</span> <span class="st">&#39;query&#39;</span> <span class="op">|</span> <span class="st">&#39;mutation&#39;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    input<span class="op">:</span> <span class="dt">unknown</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  }) <span class="kw">=&gt;</span> <span class="bu">Promise</span><span class="op">&lt;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> { ok<span class="op">:</span> <span class="kw">true</span><span class="op">;</span> result<span class="op">:</span> <span class="dt">unknown</span> }</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> { ok<span class="op">:</span> <span class="kw">false</span><span class="op">;</span> error<span class="op">:</span> { message<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> code<span class="op">?:</span> <span class="dt">string</span> } }</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="kw">declare</span> <span class="bu">global</span> {</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">interface</span> <span class="bu">Window</span> {</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    electron<span class="op">:</span> ElectronAPI</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    trpc<span class="op">:</span> TrpcBridge</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Renderer — a typed client that imports ONLY the
+type.</strong> This is where the typing magic happens:
+<code>inferRouterInputs</code> / <code>inferRouterOutputs</code> from
+<code>@trpc/server</code> turn <code>AppRouter</code> into per-procedure
+input/output types, so a typo fails to compile.</p>
+<p>The renderer's <code>tsconfig.web.json</code> does NOT include
+<code>src/main</code>, but a <strong>type-only</strong>
+<code>import type</code> still resolves across the boundary because the
+file physically exists and <code>@trpc/server</code> is installed. Use a
+relative type-only import (the <code>@/</code> alias only covers
+<code>src/renderer/src</code>, so use a relative
+<code>../../../main/...</code> path).</p>
+<p><code>src/renderer/src/lib/trpc.ts</code>:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { inferRouterInputs<span class="op">,</span> inferRouterOutputs } <span class="im">from</span> <span class="st">&#39;@trpc/server&#39;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AppRouter } <span class="im">from</span> <span class="st">&#39;../../../main/trpc/router&#39;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> RouterInputs <span class="op">=</span> inferRouterInputs<span class="op">&lt;</span>AppRouter<span class="op">&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> RouterOutputs <span class="op">=</span> inferRouterOutputs<span class="op">&lt;</span>AppRouter<span class="op">&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">call</span><span class="op">&lt;</span>T<span class="op">&gt;</span>(path<span class="op">:</span> <span class="dt">string</span><span class="op">,</span> type<span class="op">:</span> <span class="st">&#39;query&#39;</span> <span class="op">|</span> <span class="st">&#39;mutation&#39;</span><span class="op">,</span> input<span class="op">:</span> <span class="dt">unknown</span>)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>T<span class="op">&gt;</span> {</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="bu">window</span><span class="op">.</span><span class="at">trpc</span><span class="op">.</span><span class="fu">request</span>({ path<span class="op">,</span> <span class="kw">type</span><span class="op">,</span> input })</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>res<span class="op">.</span><span class="at">ok</span>) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(res<span class="op">.</span><span class="at">error</span><span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res<span class="op">.</span><span class="at">result</span> <span class="im">as</span> T</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Typed facade. Add one line per procedure — see docs/HOW-TO-ADD-PROCEDURE.md.</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> trpc <span class="op">=</span> {</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  capture<span class="op">:</span> {</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    start<span class="op">:</span> (input<span class="op">?:</span> RouterInputs[<span class="st">&#39;capture&#39;</span>][<span class="st">&#39;start&#39;</span>]) <span class="kw">=&gt;</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">call</span><span class="op">&lt;</span>RouterOutputs[<span class="st">&#39;capture&#39;</span>][<span class="st">&#39;start&#39;</span>]<span class="op">&gt;</span>(<span class="st">&#39;capture.start&#39;</span><span class="op">,</span> <span class="st">&#39;mutation&#39;</span><span class="op">,</span> input)<span class="op">,</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    status<span class="op">:</span> () <span class="kw">=&gt;</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">call</span><span class="op">&lt;</span>RouterOutputs[<span class="st">&#39;capture&#39;</span>][<span class="st">&#39;status&#39;</span>]<span class="op">&gt;</span>(<span class="st">&#39;capture.status&#39;</span><span class="op">,</span> <span class="st">&#39;query&#39;</span><span class="op">,</span> <span class="kw">undefined</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Because the return types are derived from <code>AppRouter</code>,
+<code>trpc.capture.start()</code> resolves to <code>{ ok: true }</code>
+and <code>trpc.capture.status()</code> to <code>boolean</code> — fully
+typed, no <code>any</code>.</p>
+<h3
+id="set-the-browserwindow-security-flags-explicitly-and-explain-why">Set
+the BrowserWindow security flags EXPLICITLY and explain why</h3>
+<p>In <code>src/main/index.ts</code>, make the security posture explicit
+in <code>webPreferences</code> (currently it only sets
+<code>sandbox: false</code>):</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> mainWindow <span class="op">=</span> <span class="kw">new</span> <span class="fu">BrowserWindow</span>({</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  width<span class="op">:</span> <span class="dv">1100</span><span class="op">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  height<span class="op">:</span> <span class="dv">720</span><span class="op">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  show<span class="op">:</span> <span class="kw">false</span><span class="op">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  autoHideMenuBar<span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  webPreferences<span class="op">:</span> {</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    preload<span class="op">:</span> <span class="fu">join</span>(<span class="bu">__dirname</span><span class="op">,</span> <span class="st">&#39;../preload/index.js&#39;</span>)<span class="op">,</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    contextIsolation<span class="op">:</span> <span class="kw">true</span><span class="op">,</span>   <span class="co">// renderer JS cannot reach preload/Node internals</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    nodeIntegration<span class="op">:</span> <span class="kw">false</span><span class="op">,</span>   <span class="co">// no Node APIs (require/process) in the renderer</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    sandbox<span class="op">:</span> <span class="kw">false</span>            <span class="co">// keep: preload uses @electron-toolkit/preload (Node)</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Why each one:</p>
+<ul>
+<li><strong>contextIsolation: true</strong> — the renderer's window and
+the preload run in separate JS contexts. The ONLY things the renderer
+can touch are what you explicitly
+<code>contextBridge.exposeInMainWorld</code>. This is what makes
+exposing just <code>window.trpc.request</code> safe and prevents the
+renderer from grabbing <code>ipcRenderer</code>. (true is the Electron
+default since v12, but the decision doc and our security review want it
+stated, not assumed.)</li>
+<li><strong>nodeIntegration: false</strong> — the renderer cannot
+<code>require('fs')</code> or touch <code>process</code>. All privileged
+work happens in main, reached only through your one IPC channel.</li>
+<li><strong>sandbox: false</strong> — left as-is. The preload imports
+<code>@electron-toolkit/preload</code>/<code>@electron-toolkit/utils</code>,
+which use Node; a full sandbox would block that.
+<code>sandbox: false</code> does NOT undo contextIsolation — they're
+independent. Note this trade-off in the PR's "Why" section so the
+security reviewer sees it was deliberate.</li>
+</ul>
+<p>Do NOT flip <code>contextIsolation</code> to false to "make
+types/imports work" — if something won't import, the import chain is
+wrong (fix that), not the security flag.</p>
+<h3 id="write-docshow-to-add-proceduremd-1-page">Write
+docs/HOW-TO-ADD-PROCEDURE.md (1 page)</h3>
+<p>Create <code>docs/HOW-TO-ADD-PROCEDURE.md</code> so A and C can add
+procedures without reading the transport code:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode md"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># How to add a tRPC procedure</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>The transport is hand-rolled tRPC v11 over one Electron IPC channel</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>(<span class="in">`src/main/trpc/ipc.ts`</span>). You almost never touch the transport — you add a</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>procedure to a router and one typed line in the renderer facade.</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1. Add the procedure (main)</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Edit the relevant router in <span class="in">`src/main/trpc/`</span> (e.g. <span class="in">`capture.ts`</span>):</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="in">```ts</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>rename<span class="op">:</span> publicProcedure</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ id<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">,</span> name<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>() }))</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">mutation</span>(({ input }) <span class="kw">=&gt;</span> {</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// runs in MAIN — console.log shows in the pnpm dev terminal</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span> }</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>Use <span class="in">`.query(...)`</span> for reads, <span class="in">`.mutation(...)`</span> for writes. Always validate</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>input with <span class="in">`zod`</span>. If it&#39;s a new router, create it and mount it in</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="in">`src/main/trpc/router.ts`</span> under <span class="in">`appRouter`</span>.</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Add one typed line (renderer)</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>In <span class="in">`src/renderer/src/lib/trpc.ts`</span>, add a method that mirrors the path:</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="in">```ts</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>rename<span class="op">:</span> (input<span class="op">:</span> RouterInputs[<span class="st">&#39;capture&#39;</span>][<span class="st">&#39;rename&#39;</span>]) <span class="kw">=&gt;</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">call</span><span class="op">&lt;</span>RouterOutputs[<span class="st">&#39;capture&#39;</span>][<span class="st">&#39;rename&#39;</span>]<span class="op">&gt;</span>(<span class="st">&#39;capture.rename&#39;</span><span class="op">,</span> <span class="st">&#39;mutation&#39;</span><span class="op">,</span> input)<span class="op">,</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>The input/output types come from <span class="in">`AppRouter`</span>, so a typo&#39;d field fails to compile.</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Call it</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a><span class="in">```ts</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { trpc } <span class="im">from</span> <span class="st">&#39;@/lib/trpc&#39;</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> trpc<span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="fu">rename</span>({ id<span class="op">:</span> <span class="st">&#39;a&#39;</span><span class="op">,</span> name<span class="op">:</span> <span class="st">&#39;b&#39;</span> })</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rules</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Never expose <span class="in">`ipcRenderer`</span> on <span class="in">`window`</span> — only <span class="in">`window.trpc.request`</span>.</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Never import the runtime router into the renderer — <span class="in">`import type { AppRouter }`</span> only.</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No <span class="in">`any`</span> / <span class="in">`as unknown as`</span>. If types won&#39;t line up, the import chain is wrong.</span></code></pre></div>
+<h3
+id="measure-round-trip-latency-with-performancenow-and-record-the-number">Measure
+round-trip latency with performance.now() and record the number</h3>
+<p>Add a throwaway timing block to prove the wire works and to capture
+the ms number for the PR (ceiling is 60ms). Put it in the existing
+Status route handler so you can click it.</p>
+<p>In <code>src/renderer/src/routes/status.tsx</code>, swap the stub
+call for the real client wrapped in timing. Replace the
+<code>startCaptureStub</code> import/usage:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { trpc } <span class="im">from</span> <span class="st">&#39;@/lib/trpc&#39;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">startCaptureTimed</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">void</span><span class="op">&gt;</span> {</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> t0 <span class="op">=</span> <span class="bu">performance</span><span class="op">.</span><span class="fu">now</span>()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> trpc<span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="fu">start</span>({ reason<span class="op">:</span> <span class="st">&#39;status-button&#39;</span> })</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> status <span class="op">=</span> <span class="cf">await</span> trpc<span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="fu">status</span>()</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> ms <span class="op">=</span> <span class="bu">performance</span><span class="op">.</span><span class="fu">now</span>() <span class="op">-</span> t0</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`[trpc round-trip] start+status = </span><span class="sc">${</span>ms<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs">ms`</span><span class="op">,</span> res<span class="op">,</span> status)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>and wire the button
+<code>onClick={() =&gt; void startCaptureTimed()}</code>.</p>
+<p>Run it:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> dev</span></code></pre></div>
+<p>Click "Start capture". You should see, in the <strong>pnpm dev
+terminal</strong> (main): <code>[capture.start] capture started</code>.
+In the <strong>renderer devtools console</strong>:
+<code>[trpc round-trip] start+status = X.Xms</code>. Record that number
+in the PR. A single round trip should be ~1-5ms locally; if you log
+per-call you'll see each well under the 60ms ceiling. (Remove or comment
+the timing console.log before final commit if you want a clean tree, but
+keep the measured number in the PR description — the PR checklist flags
+leftover console.log.)</p>
+<h3 id="verify-the-done-criteria-typecheck-then-open-the-pr">Verify the
+done-criteria, typecheck, then open the PR</h3>
+<p>Run the gates the repo enforces (<code>simple-git-hooks</code>
+pre-push runs these too):</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test</span></code></pre></div>
+<p>Manually confirm each done-when:</p>
+<ol type="1">
+<li>Click "Start capture" -&gt; <code>[capture.start]</code> logs in the
+<strong>main</strong> terminal. ✓ (proves mutation logs to main)</li>
+<li>Renderer console shows the latency line and <code>status</code> is
+<code>true</code> after start. ✓ (proves query + mutation both work +
+latency)</li>
+<li>Break a type on purpose to prove the import chain is real: in
+<code>status.tsx</code> change
+<code>trpc.capture.start({ reason: 'x' })</code> to
+<code>trpc.capture.start({ resaon: 'x' })</code>. Run
+<code>pnpm typecheck</code> — it MUST fail to compile. Revert it. ✓</li>
+</ol>
+<p>Commit and push:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add <span class="at">-A</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat(ipc): hand-rolled tRPC v11 over Electron IPC (capture.start/status)&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin lihan/trpc-ipc-bridge</span></code></pre></div>
+<p>Open the PR (fill the template: What/Why/How tested; note the latency
+number, the two new pinned deps and that they're in
+<code>dependencies</code> because of <code>externalizeDepsPlugin</code>,
+and the explicit security flags):</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> pr create <span class="at">-R</span> OnlyWorksCodeHub/onlyworks_desktop_v2 <span class="dt">\</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--base</span> main <span class="at">--head</span> lihan/trpc-ipc-bridge <span class="dt">\</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--title</span> <span class="st">&quot;feat(ipc): hand-rolled tRPC-over-IPC bridge (capture.start + capture.status)&quot;</span> <span class="dt">\</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--body</span> <span class="st">&quot;## What\nHand-rolled tRPC v11 link over one Electron IPC channel. Adds capture.start (mutation, logs in main, returns {ok:true}) and capture.status (query -&gt; boolean). Renderer gets a fully typed client via import-type AppRouter.\n\n## Why\nPer docs/decisions/trpc-bridge.md (hand-roll, not electron-trpc). Unblocks A and C to call typed procedures.\n\n## How tested\npnpm dev: clicking Start capture logs [capture.start] in the main terminal; renderer round-trip start+status measured at &lt;X&gt;ms (ceiling 60ms). A typo&#39;d field fails pnpm typecheck. pnpm typecheck &amp;&amp; pnpm test green.\n\nSecurity: contextIsolation:true, nodeIntegration:false set explicitly; sandbox stays false (preload needs Node). Only window.trpc.request crosses contextBridge; raw ipcRenderer is never exposed.\n\nDeps: @trpc/server + zod, exact-pinned, in dependencies (externalizeDepsPlugin externalizes deps for the main bundle).&quot;</span></span></code></pre></div>
+<p>Then tell A in Discord #swe-team: the moment this merges, swap
+<code>src/renderer/src/lib/capture-stub.ts</code> for
+<code>@/lib/trpc</code> — replace <code>startCaptureStub()</code> with
+<code>trpc.capture.start()</code>; the stub file can be deleted.
+(Standup is Tue/Thu 14:30, demo Thu 19:00 — target a merge before Thu
+demo.)</p>
+<p><strong>Watch out for</strong></p>
+<ul>
+<li>Raw ipcRenderer leaking to the renderer: NEVER do
+<code>contextBridge.exposeInMainWorld('ipcRenderer', ipcRenderer)</code>
+or put it on <code>window</code>. Expose only the narrow
+<code>trpc.request</code> function. If a teammate needs a new
+capability, add a procedure, not a new exposed Electron primitive.</li>
+<li>Turning off contextIsolation to 'make it work': if the renderer
+can't see <code>window.trpc</code> or a type won't import, the bug is in
+your exposeInMainWorld name / d.ts / import path — fix that. Flipping
+contextIsolation:false defeats the entire security boundary and will be
+rejected in review.</li>
+<li>Using <code>any</code> or <code>as unknown as</code> to force the
+renderer types: that's the symptom of a broken import chain. The
+renderer must <code>import type { AppRouter }</code> (type-only) from
+src/main/trpc/router and derive types via inferRouterInputs/Outputs. If
+you reach for <code>as unknown as</code>, your AppRouter import is
+wrong.</li>
+<li>Putting @trpc/server / zod in devDependencies:
+electron.vite.config.ts uses externalizeDepsPlugin() for main+preload,
+which externalizes <code>dependencies</code> and bundles nothing from
+devDependencies into the main bundle — main would fail to resolve
+@trpc/server at runtime. They MUST be in <code>dependencies</code>.</li>
+<li>Unpinned deps: install with <code>-E</code> and verify package.json
+shows <code>11.6.0</code> / <code>3.25.76</code> with no
+<code>^</code>/<code>~</code>. The PR checklist explicitly requires
+exact-pinned new deps.</li>
+<li>Importing the runtime appRouter (value) into the renderer instead of
+the type: that drags Node-only tRPC server code into the browser bundle.
+Use <code>import type</code> exclusively; the renderer only ever sends
+strings over IPC.</li>
+<li>Registering ipcMain.handle after createWindow or twice: register
+once, before the window loads, or early renderer calls race the handler
+/ you get 'second handler for trpc' errors on re-register.</li>
+</ul>
+<p><strong>Done when all of these are true</strong></p>
+<ul>
+<li>Clicking 'Start capture' in <code>pnpm dev</code> prints
+<code>[capture.start] capture started</code> in the MAIN process
+terminal (not just devtools).</li>
+<li>A typo'd procedure field in the renderer (e.g.
+<code>{ resaon: 'x' }</code>) fails <code>pnpm typecheck</code> —
+proving the AppRouter type-only import chain is real and uses no
+<code>any</code>/<code>as unknown as</code>.</li>
+<li>Both procedures work end to end: <code>capture.start</code>
+(mutation) returns <code>{ ok: true }</code> and
+<code>capture.status</code> (query) returns a boolean that flips to
+<code>true</code> after start.</li>
+<li>Round-trip latency measured with <code>performance.now()</code> in
+the renderer is recorded in the PR and is under the 60ms ceiling.</li>
+<li><code>@trpc/server</code> and <code>zod</code> are exact-pinned in
+<code>dependencies</code> (no <code>^</code>/<code>~</code>);
+<code>electron-trpc</code> is NOT installed.</li>
+<li>BrowserWindow webPreferences explicitly sets contextIsolation:true,
+nodeIntegration:false, sandbox:false; only
+<code>window.trpc.request</code> is exposed via contextBridge (no raw
+ipcRenderer on window).</li>
+<li><code>docs/HOW-TO-ADD-PROCEDURE.md</code> exists and PR is open
+against main; A is told the capture-stub.ts swap can happen the moment
+it merges.</li>
+</ul>
+<p><strong>Resources</strong></p>
+<ul>
+<li><a href="docs/v2-stack/trpc.html">Internal: hand-rolled
+tRPC-over-IPC bridge notes</a></li>
+<li><a href="docs/v2-stack/electron.html">Internal: Electron
+main/preload/renderer + contextBridge</a></li>
+<li><a href="docs/v2-stack/electron-vite.html">Internal: electron-vite
+build (externalizeDepsPlugin, deps vs devDeps)</a></li>
+<li><a href="https://trpc.io/docs/server/routers">tRPC v11 server:
+routers, createCallerFactory, inferRouterInputs/Outputs</a></li>
+<li><a
+href="https://www.electronjs.org/docs/latest/api/context-bridge">Electron
+contextBridge API (exposeInMainWorld)</a></li>
+<li><a href="https://zod.dev">Zod (input validation)</a></li>
+</ul>
+<hr />
+<h2 id="jacqueline--group-a--frontend">Jacqueline — Group A —
+Frontend</h2>
+<p><strong>Goal —</strong> By next meeting you will have the shared
+contracts back on main and the Status route firing the real typed
+capture.start mutation with working pending/success/error UI, a live
+capture.status query value rendered, and a passing integration test
+against a mocked tRPC client.</p>
+<h3
+id="1-recover-the-contract-files-out-of-the-closed-pr-10-do-not-re-land-the-whole-1713-line-pr">1.
+Recover the contract files out of the closed PR #10 (do NOT re-land the
+whole 1713-line PR)</h3>
+<p>PR #10 is CLOSED and its branch is deleted, so you cannot
+<code>git checkout</code> the branch. But the patches are still readable
+through the GitHub API. You only want six tiny files, not the 60-file
+refactor in that PR.</p>
+<p>From the repo root, pull every file patch from PR #10 into one JSON
+blob, then extract just the contract/constant files:</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># one JSON file with every changed-file patch from the closed PR</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> api repos/OnlyWorksCodeHub/onlyworks_desktop_v2/pulls/10/files <span class="at">--paginate</span> <span class="op">&gt;</span> /tmp/pr10files.json</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># sanity-check the patch for one file before reconstructing</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ex">jq</span> <span class="at">-r</span> <span class="st">&#39;.[] | select(.filename==&quot;src/shared/contracts/capture.contract.ts&quot;) | .patch&#39;</span> /tmp/pr10files.json</span></code></pre></div>
+<p>These files are all brand-new in PR #10
+(<code>@@ -0,0 +1,N @@</code>), so each patch line is the file body
+prefixed with a single <code>+</code>. Reconstruct them by stripping the
+diff header and the leading <code>+</code>:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">recover ()</span> <span class="kw">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># $1 = filename in the PR</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">jq</span> <span class="at">-r</span> <span class="at">--arg</span> f <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span> <span class="st">&#39;.[] | select(.filename==$f) | .patch&#39;</span> /tmp/pr10files.json <span class="dt">\</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s/^+//&#39;</span> <span class="op">&gt;</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">.tmp&quot;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
+<p>You want EXACTLY these five (the sixth,
+<code>interfaces/trpc-client.ts</code>, is a Group B placeholder — leave
+it for Lihan):</p>
+<ul>
+<li><code>src/shared/types/api-envelope.ts</code></li>
+<li><code>src/shared/contracts/capture.contract.ts</code></li>
+<li><code>src/shared/contracts/auth.contract.ts</code></li>
+<li><code>src/shared/contracts/index.ts</code></li>
+<li><code>src/shared/constants/procedure-names.ts</code></li>
+</ul>
+<p>Easiest reliable path: create the directories and paste the bodies in
+by hand from the patches (they are short and you have them above), so
+you do not accidentally drag in anything else. Final intended
+contents:</p>
+<p><code>src/shared/types/api-envelope.ts</code></p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">/** [OWNER: GroupA] Unified API response envelope for all tRPC procedures. */</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> ApiSuccess<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">=</span> { ok<span class="op">:</span> <span class="kw">true</span><span class="op">;</span> data<span class="op">:</span> T<span class="op">;</span> meta<span class="op">?:</span> <span class="bu">Record</span><span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> <span class="dt">unknown</span><span class="op">&gt;</span> }</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> ApiError <span class="op">=</span> { ok<span class="op">:</span> <span class="kw">false</span><span class="op">;</span> code<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> message<span class="op">:</span> <span class="dt">string</span> }</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> ApiResult<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">=</span> ApiSuccess<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">|</span> ApiError</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">isApiSuccess</span><span class="op">&lt;</span>T<span class="op">&gt;</span>(result<span class="op">:</span> ApiResult<span class="op">&lt;</span>T<span class="op">&gt;</span>)<span class="op">:</span> result <span class="kw">is</span> ApiSuccess<span class="op">&lt;</span>T<span class="op">&gt;</span> {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> result<span class="op">.</span><span class="at">ok</span> <span class="op">===</span> <span class="kw">true</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><code>src/shared/contracts/capture.contract.ts</code></p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { ApiResult } <span class="im">from</span> <span class="st">&#39;@shared/types/api-envelope&#39;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureTrigger <span class="op">=</span> <span class="st">&#39;interval&#39;</span> <span class="op">|</span> <span class="st">&#39;click&#39;</span> <span class="op">|</span> <span class="st">&#39;enter&#39;</span> <span class="op">|</span> <span class="st">&#39;clipboard&#39;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStartInput <span class="op">=</span> <span class="kw">void</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStartOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ started<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStatusInput <span class="op">=</span> <span class="kw">void</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStatusOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ running<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureFrameEvent <span class="op">=</span> { id<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> timestamp<span class="op">:</span> <span class="dt">number</span><span class="op">;</span> trigger<span class="op">:</span> CaptureTrigger }</span></code></pre></div>
+<p>(plus <code>auth.contract.ts</code>, <code>contracts/index.ts</code>,
+<code>constants/procedure-names.ts</code> verbatim from the PR patches
+above.)</p>
+<h3
+id="2-add-the-shared-path-alias--this-is-the-trap-that-will-break-your-build-if-you-skip-it">2.
+Add the @shared path alias — this is the trap that will break your build
+if you skip it</h3>
+<p>The recovered contracts import from
+<code>@shared/types/api-envelope</code>, but on <code>main</code> that
+alias does NOT exist anywhere yet. The only alias today is
+<code>@/*</code> → <code>src/renderer/src/*</code>, which cannot reach
+<code>src/shared</code> (it is outside the renderer). If you commit the
+contracts without this, <code>pnpm typecheck</code>,
+<code>pnpm build</code>, AND <code>pnpm test</code> all fail to resolve
+<code>@shared</code>. You must add it in FOUR places so the
+type-checker, the renderer bundler, and Vitest all agree.</p>
+<p>A) <code>tsconfig.web.json</code> — add to
+<code>compilerOptions.paths</code>:</p>
+<pre class="jsonc"><code>&quot;paths&quot;: {
+  &quot;@/*&quot;: [&quot;src/renderer/src/*&quot;],
+  &quot;@shared/*&quot;: [&quot;src/shared/*&quot;]
+}</code></pre>
+<p>Also make sure <code>src/shared</code> is compiled — extend
+<code>include</code>:</p>
+<pre class="jsonc"><code>&quot;include&quot;: [
+  &quot;src/renderer/src/env.d.ts&quot;,
+  &quot;src/renderer/src/**/*&quot;,
+  &quot;src/renderer/src/**/*.tsx&quot;,
+  &quot;src/preload/*.d.ts&quot;,
+  &quot;src/shared/**/*&quot;
+]</code></pre>
+<p>B) <code>tsconfig.json</code> (root) — mirror the alias in
+<code>compilerOptions.paths</code> so editor go-to-def works:</p>
+<pre class="jsonc"><code>&quot;paths&quot;: {
+  &quot;@/*&quot;: [&quot;src/renderer/src/*&quot;],
+  &quot;@shared/*&quot;: [&quot;src/shared/*&quot;]
+}</code></pre>
+<p>C) <code>electron.vite.config.ts</code> — add to
+<code>renderer.resolve.alias</code>:</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { resolve } <span class="im">from</span> <span class="st">&#39;path&#39;</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co">// ...</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>renderer<span class="op">:</span> {</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  resolve<span class="op">:</span> {</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    alias<span class="op">:</span> {</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;@&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="st">&#39;src/renderer/src&#39;</span>)<span class="op">,</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;@shared&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="st">&#39;src/shared&#39;</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  plugins<span class="op">:</span> [<span class="fu">react</span>()]</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>D) <code>vitest.config.ts</code> — add to
+<code>resolve.alias</code>:</p>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>resolve<span class="op">:</span> {</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  alias<span class="op">:</span> {</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;@&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="bu">__dirname</span><span class="op">,</span> <span class="st">&#39;src/renderer/src&#39;</span>)<span class="op">,</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;@shared&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="bu">__dirname</span><span class="op">,</span> <span class="st">&#39;src/shared&#39;</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Then branch, add ONLY these files, and open a small clean PR:</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feat/relan-shared-contracts</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add src/shared tsconfig.json tsconfig.web.json electron.vite.config.ts vitest.config.ts</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test   <span class="co"># both must be green before you push</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&#39;feat(shared): re-land contracts layer + @shared alias (from closed #10)&#39;</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin feat/relan-shared-contracts</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> pr create <span class="at">-R</span> OnlyWorksCodeHub/onlyworks_desktop_v2 <span class="at">--fill</span></span></code></pre></div>
+<p>Keep the PR to just <code>src/shared/**</code> + the four config
+files. Do not pull in the routes/pages/containers refactor from #10 —
+that is a separate, larger conversation.</p>
+<h3
+id="3-after-lihans-bridge-merges-replace-the-stub-with-the-real-typed-client">3.
+After Lihan's bridge merges: replace the stub with the real typed
+client</h3>
+<p>Lihan's hand-rolled tRPC-v11-over-IPC bridge exposes a typed client
+on <code>window</code> through preload (today
+<code>src/preload/index.d.ts</code> types <code>window.api</code> as
+<code>unknown</code> — that becomes the typed client). Confirm with
+Lihan the exact accessor; the agreed shape is a typed object whose
+methods return the contract Output types, e.g.
+<code>window.api.capture.start()</code> →
+<code>Promise&lt;CaptureStartOutput&gt;</code> and
+<code>window.api.capture.status()</code> →
+<code>Promise&lt;CaptureStatusOutput&gt;</code>.</p>
+<p>Replace the body of <code>src/renderer/src/lib/capture-stub.ts</code>
+(keep the same exported function name so the rest of the app and the
+existing test keep compiling — you will rename it cleanly afterwards).
+Real client wrapper:</p>
+<p><code>src/renderer/src/lib/capture-client.ts</code> (new, replaces
+capture-stub.ts):</p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> {</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  CaptureStartOutput<span class="op">,</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  CaptureStatusOutput</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">&#39;@shared/contracts&#39;</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { isApiSuccess } <span class="im">from</span> <span class="st">&#39;@shared/types/api-envelope&#39;</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">/** Thin renderer-side wrapper over Lihan&#39;s typed tRPC-over-IPC client. */</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">startCapture</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>{ started<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span> {</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res<span class="op">:</span> CaptureStartOutput <span class="op">=</span> <span class="cf">await</span> <span class="bu">window</span><span class="op">.</span><span class="at">api</span><span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="at">start</span>()</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isApiSuccess</span>(res)) {</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Throw on the envelope error so TanStack Query routes it to onError.</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(res<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res<span class="op">.</span><span class="at">data</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">getCaptureStatus</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>{ running<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span> {</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res<span class="op">:</span> CaptureStatusOutput <span class="op">=</span> <span class="cf">await</span> <span class="bu">window</span><span class="op">.</span><span class="at">api</span><span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="at">status</span>()</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isApiSuccess</span>(res)) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(res<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res<span class="op">.</span><span class="at">data</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Note we unwrap the <code>ApiResult</code> envelope here and THROW on
+<code>ok: false</code>. That is deliberate: TanStack Query treats a
+thrown error as the error state, which is exactly what drives your error
+Dialog. Returning the raw envelope and reading <code>.ok</code> in the
+component would force you to hand-roll error UI and is the 'faking
+success not tied to the real return' pitfall. Delete
+<code>capture-stub.ts</code> once nothing imports it.</p>
+<h3
+id="4-wire-capturestart-through-usemutation-and-render-pending--success--error-in-statustsx">4.
+Wire capture.start through useMutation and render pending / success /
+error in status.tsx</h3>
+<p>Rewrite <code>src/renderer/src/routes/status.tsx</code>.
+<code>App.tsx</code> already mounts <code>QueryClientProvider</code>, so
+hooks work with no extra setup. Use <code>useMutation</code> for the
+write (start), inline text for success, and a shadcn <code>Dialog</code>
+for errors ONLY (per the spec — do not use the Dialog for success).</p>
+<pre class="tsx"><code>import { createRoute } from &#39;@tanstack/react-router&#39;
+import { useMutation } from &#39;@tanstack/react-query&#39;
+import { Button } from &#39;@/components/ui/button&#39;
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from &#39;@/components/ui/dialog&#39;
+import { startCapture } from &#39;@/lib/capture-client&#39;
+import { rootRoute } from &#39;./root&#39;
+
+export function StatusPage(): JSX.Element {
+  const start = useMutation({ mutationFn: startCapture })
+
+  return (
+    &lt;section&gt;
+      &lt;h1 className=&quot;text-2xl font-semibold tracking-tight&quot;&gt;Status&lt;/h1&gt;
+      &lt;p className=&quot;mt-2 text-sm text-muted-foreground&quot;&gt;
+        Start a capture session.
+      &lt;/p&gt;
+
+      &lt;Button
+        type=&quot;button&quot;
+        className=&quot;mt-4&quot;
+        disabled={start.isPending}
+        onClick={() =&gt; start.mutate()}
+      &gt;
+        {start.isPending ? &#39;Starting…&#39; : &#39;Start capture&#39;}
+      &lt;/Button&gt;
+
+      {start.isSuccess &amp;&amp; (
+        &lt;p role=&quot;status&quot; className=&quot;mt-3 text-sm text-green-600&quot;&gt;
+          Capture {start.data.started ? &#39;started&#39; : &#39;not started&#39;}.
+        &lt;/p&gt;
+      )}
+
+      {/* Errors ONLY get a Dialog. Open it whenever the mutation is in error. */}
+      &lt;Dialog open={start.isError} onOpenChange={() =&gt; start.reset()}&gt;
+        &lt;DialogContent&gt;
+          &lt;DialogHeader&gt;
+            &lt;DialogTitle&gt;Couldn&#39;t start capture&lt;/DialogTitle&gt;
+            &lt;DialogDescription&gt;
+              {start.error instanceof Error ? start.error.message : &#39;Unknown error&#39;}
+            &lt;/DialogDescription&gt;
+          &lt;/DialogHeader&gt;
+        &lt;/DialogContent&gt;
+      &lt;/Dialog&gt;
+    &lt;/section&gt;
+  )
+}
+
+export const statusRoute = createRoute({
+  getParentRoute: () =&gt; rootRoute,
+  path: &#39;/&#39;,
+  component: StatusPage
+})</code></pre>
+<p>Three states, all driven by the real return: <code>isPending</code>
+disables + relabels the Button; <code>isSuccess</code> reads
+<code>start.data.started</code> (the real
+<code>{ started: boolean }</code> from the contract);
+<code>isError</code> opens the Dialog with the real error message.
+<code>start.reset()</code> on close clears the error so the Dialog can
+re-open on the next failure.</p>
+<h3 id="5-add-one-usequery-for-capturestatus-and-render-its-value">5.
+Add one useQuery for capture.status and render its value</h3>
+<p>capture.status is a trivial read, so it belongs in
+<code>useQuery</code>, NOT a mutation, NOT useEffect+fetch, and NOT
+Zustand. Add it to the same <code>StatusPage</code> component:</p>
+<pre class="tsx"><code>import { useQuery, useMutation } from &#39;@tanstack/react-query&#39;
+import { getCaptureStatus } from &#39;@/lib/capture-client&#39;
+// ...inside StatusPage, above the return:
+const status = useQuery({
+  queryKey: [&#39;capture&#39;, &#39;status&#39;],
+  queryFn: getCaptureStatus
+})</code></pre>
+<p>Render the value (handle loading so you don't read undefined):</p>
+<pre class="tsx"><code>&lt;p className=&quot;mt-3 text-sm text-muted-foreground&quot;&gt;
+  Capture is{&#39; &#39;}
+  {status.isPending
+    ? &#39;…&#39;
+    : status.data?.running
+      ? &#39;running&#39;
+      : &#39;idle&#39;}
+&lt;/p&gt;</code></pre>
+<p>Why a query and not Zustand: server-owned state (is capture running)
+must live in the Query cache so it can refetch/invalidate. Storing it in
+<code>src/renderer/src/store/ui.ts</code> would duplicate the source of
+truth and go stale. Keep Zustand for UI-only flags (e.g. the dev-gallery
+toggle). Bonus once both are wired: after a successful start, invalidate
+the status query so it reflects reality —</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useQueryClient } <span class="im">from</span> <span class="st">&#39;@tanstack/react-query&#39;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> qc <span class="op">=</span> <span class="fu">useQueryClient</span>()</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> start <span class="op">=</span> <span class="fu">useMutation</span>({</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  mutationFn<span class="op">:</span> startCapture<span class="op">,</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  onSuccess<span class="op">:</span> () <span class="kw">=&gt;</span> qc<span class="op">.</span><span class="fu">invalidateQueries</span>({ queryKey<span class="op">:</span> [<span class="st">&#39;capture&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>] })</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<h3
+id="6-prove-end-to-end-type-safety-by-renaming-a-field-in-lihans-procedure">6.
+Prove end-to-end type safety by renaming a field in Lihan's
+procedure</h3>
+<p>This is the acceptance demo for 'types flow'. In
+<code>src/shared/contracts/capture.contract.ts</code>, temporarily
+rename the output field:</p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">// was: export type CaptureStartOutput = ApiResult&lt;{ started: boolean }&gt;</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStartOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ didStart<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span></span></code></pre></div>
+<p>Then run:</p>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck</span></code></pre></div>
+<p>The renderer must FAIL to compile, pointing at
+<code>src/renderer/src/routes/status.tsx</code> where you read
+<code>start.data.started</code>:</p>
+<pre><code>Property &#39;started&#39; does not exist on type &#39;{ didStart: boolean }&#39;.</code></pre>
+<p>and at <code>capture-client.ts</code>'s <code>return res.data</code>
+if you annotated the wrapper's return as
+<code>{ started: boolean }</code>. That red is the proof: a one-line
+change in the shared contract breaks the consumer at compile time, with
+zero runtime testing. Screenshot the failing <code>tsc</code> output for
+the Thursday demo, then REVERT the rename (<code>started</code> is the
+real field) so <code>main</code> stays green.</p>
+<h3
+id="7-write-the-vitest-integration-test-against-a-mocked-trpc-client">7.
+Write the Vitest integration test against a MOCKED tRPC client</h3>
+<p>The current test <code>src/renderer/src/routes/status.test.tsx</code>
+spies on <code>startCaptureStub</code>, which no longer exists after
+step 3. Replace it with a test that mounts the real
+<code>StatusPage</code> inside a real <code>QueryClientProvider</code>
+and mocks the typed client at the <code>window.api</code> boundary, then
+asserts the button toggles a visible status result.</p>
+<p><code>src/renderer/src/routes/status.test.tsx</code>:</p>
+<pre class="tsx"><code>import { render, screen, waitFor } from &#39;@testing-library/react&#39;
+import userEvent from &#39;@testing-library/user-event&#39;
+import { QueryClient, QueryClientProvider } from &#39;@tanstack/react-query&#39;
+import { afterEach, beforeEach, describe, expect, it, vi } from &#39;vitest&#39;
+import { StatusPage } from &#39;./status&#39;
+
+function renderWithQuery(ui: React.ReactElement) {
+  // No retries so onError fires immediately in tests.
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+  })
+  return render(&lt;QueryClientProvider client={qc}&gt;{ui}&lt;/QueryClientProvider&gt;)
+}
+
+beforeEach(() =&gt; {
+  // Mock Lihan&#39;s typed client. Returns the real ApiResult envelope shape.
+  ;(window as unknown as { api: unknown }).api = {
+    capture: {
+      start: vi.fn().mockResolvedValue({ ok: true, data: { started: true } }),
+      status: vi.fn().mockResolvedValue({ ok: true, data: { running: false } })
+    }
+  }
+})
+afterEach(() =&gt; vi.restoreAllMocks())
+
+describe(&#39;StatusPage&#39;, () =&gt; {
+  it(&#39;starts capture and shows a success result&#39;, async () =&gt; {
+    const user = userEvent.setup()
+    renderWithQuery(&lt;StatusPage /&gt;)
+
+    await user.click(screen.getByRole(&#39;button&#39;, { name: &#39;Start capture&#39; }))
+
+    // success state renders the real returned value
+    await waitFor(() =&gt;
+      expect(screen.getByRole(&#39;status&#39;)).toHaveTextContent(/capture started/i)
+    )
+  })
+
+  it(&#39;opens the error Dialog when the call returns an error envelope&#39;, async () =&gt; {
+    ;(window as unknown as { api: { capture: { start: ReturnType&lt;typeof vi.fn&gt; } } }).api
+      .capture.start.mockResolvedValue({ ok: false, code: &#39;E_PERM&#39;, message: &#39;No permission&#39; })
+    const user = userEvent.setup()
+    renderWithQuery(&lt;StatusPage /&gt;)
+
+    await user.click(screen.getByRole(&#39;button&#39;, { name: &#39;Start capture&#39; }))
+    await waitFor(() =&gt;
+      expect(screen.getByText(&#39;No permission&#39;)).toBeInTheDocument()
+    )
+  })
+})</code></pre>
+<p>Run <code>pnpm test</code>. The first test proves the button toggles
+a real status result; the second proves the error envelope routes to the
+Dialog. <code>jest-dom</code> matchers (<code>toHaveTextContent</code>,
+<code>toBeInTheDocument</code>) are already wired via
+<code>src/renderer/src/test/setup.ts</code>.</p>
+<h3
+id="8-thursday-pair-with-yingzhu-so-her-signin-views-render-in-your-app-shell-reusing-your-shadcn-primitives">8.
+Thursday: pair with Yingzhu so her signin views render in your app shell
+reusing your shadcn primitives</h3>
+<p>On Thursday, sit with Yingzhu (Group C, auth). Goal: her
+signin/magic-link views mount inside YOUR app shell and reuse the
+EXISTING shadcn primitives — <code>Button</code>, <code>Input</code>,
+<code>Card</code>, <code>Dialog</code> — instead of her adding new
+component variants. Concrete moves:</p>
+<ul>
+<li>She imports from your barrel paths:
+<code>@/components/ui/input</code>, <code>@/components/ui/button</code>,
+<code>@/components/ui/card</code> (exports confirmed on main:
+<code>Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent</code>;
+<code>Input</code>; <code>Button</code>).</li>
+<li>Her auth procedures already have contracts you just re-landed:
+<code>AuthRequestMagicLinkInput = { email: string }</code> and
+<code>AuthRequestMagicLinkOutput = ApiResult&lt;{ sent: boolean }&gt;</code>
+in <code>src/shared/contracts/auth.contract.ts</code>. She wires
+<code>auth.requestMagicLink</code> exactly like your
+<code>capture.start</code> useMutation — same pending/success/error
+pattern, same error-Dialog. Hand her your <code>status.tsx</code> as the
+reference implementation.</li>
+<li>Do NOT customize the shadcn components yet (no editing
+<code>button.tsx</code>/<code>input.tsx</code> styling). If a view needs
+a tweak, do it with Tailwind classNames at the call site. Locking the
+primitives now keeps both your screens and hers visually consistent and
+avoids merge churn. Deliverable from the pairing: a signin Card
+rendering inside the shell with an email Input + submit Button, calling
+her real <code>auth.requestMagicLink</code> mutation, with the error
+Dialog reused from your pattern.</li>
+</ul>
+<p><strong>Watch out for</strong></p>
+<ul>
+<li>Re-landing the entire closed PR #10 (1713 lines:
+routes/pages/containers refactor, app-shell, docs). Recover ONLY the 5
+contract/envelope/constant files. The big refactor is a separate
+decision.</li>
+<li>Forgetting the @shared/* alias. It does NOT exist on main today —
+only @/* → src/renderer/src. Without adding it to tsconfig.web.json,
+tsconfig.json, electron.vite.config.ts AND vitest.config.ts,
+typecheck/build/test all fail to resolve @shared. This is the single
+most likely thing to break your contracts PR.</li>
+<li>Faking success not tied to the real return: do not hardcode a
+'Capture started' message. Read start.data.started from the real
+CaptureStartOutput, and throw on the ApiResult error branch so onError
+fires for real.</li>
+<li>Caching capture.status in Zustand. Server-owned state belongs in the
+TanStack Query cache (useQuery + queryKey ['capture','status']) so it
+can invalidate/refetch. Zustand (src/renderer/src/store/ui.ts) is
+UI-only.</li>
+<li>Using useEffect + window.api.capture.status() with local state for
+the read. Use useQuery — you lose caching, dedup, refetch, and
+loading/error states otherwise.</li>
+<li>Putting the success message in the shadcn Dialog. Per spec the
+Dialog is for ERRORS ONLY; success is inline/toast.</li>
+<li>Customizing shadcn components early (editing button.tsx/input.tsx).
+Keep them stock; restyle via Tailwind classNames at the call site so
+Yingzhu's views stay consistent with yours.</li>
+<li>In tests, leaving retry on: set retry:false on the test QueryClient
+or the error Dialog assertion races against retries.</li>
+<li>Leaving the renamed contract field (didStart) committed after the
+step-6 proof. Revert it — started is the real field name.</li>
+</ul>
+<p><strong>Done when all of these are true</strong></p>
+<ul>
+<li>src/shared/{types/api-envelope.ts, contracts/capture.contract.ts,
+contracts/auth.contract.ts, contracts/index.ts,
+constants/procedure-names.ts} are merged to main and the @shared/* alias
+resolves in typecheck, build, and test.</li>
+<li>Clicking Start capture in status.tsx disables the Button while
+isPending, shows an inline success message from the REAL
+CaptureStartOutput data on success, and opens a shadcn Dialog on a real
+error envelope.</li>
+<li>A useQuery for capture.status renders a live value (running/idle) on
+the Status page.</li>
+<li>pnpm test passes: the integration test mounts StatusPage with a
+MOCKED window.api client and asserts the button toggles a visible status
+result, plus the error-Dialog case.</li>
+<li>pnpm typecheck is green on main, and you have a screenshot proving
+the renderer fails to compile when a contract field is renamed (then
+reverted).</li>
+</ul>
+<p><strong>Resources</strong></p>
+<ul>
+<li><a href="docs/v2-stack/trpc.html">Internal: tRPC bridge stack notes
+(hand-rolled v11-over-IPC, the merged decision)</a></li>
+<li><a href="docs/v2-stack/tanstack-query.html">Internal: TanStack Query
+stack notes (useMutation/useQuery patterns)</a></li>
+<li><a href="docs/v2-stack/shadcn-ui.html">Internal: shadcn/ui stack
+notes (Button/Input/Card/Dialog primitives)</a></li>
+<li><a href="docs/v2-stack/vitest.html">Internal: Vitest + Testing
+Library stack notes</a></li>
+<li><a href="https://tanstack.com/query/latest">TanStack Query official
+docs (mutations, queries, invalidation)</a></li>
+<li><a
+href="https://www.electronjs.org/docs/latest/api/context-bridge">Electron
+contextBridge (how the preload-exposed typed client reaches
+window)</a></li>
+</ul>
+<hr />
+<h2 id="yingzhu--group-c--auth">Yingzhu — Group C — Auth</h2>
+<p><strong>Goal —</strong> By next meeting you'll have real OS-encrypted
+token storage, the three auth procedures (requestMagicLink / status /
+signOut) on Lihan's tRPC bridge, and the three sign-in views — so a live
+Mail-link click signs the app in, quit-and-relaunch stays signed in,
+sleep/wake refreshes silently, and sign-out wipes the token (which is
+gibberish on disk).</p>
+<h3
+id="branch--add-the-four-missing-deps-exact-pinned-then-sanity-build">Branch
++ add the four missing deps (exact-pinned), then sanity-build</h3>
+<p>Start from a clean <code>main</code>. None of
+<code>electron-store</code>, <code>zod</code>,
+<code>react-hook-form</code>, or the tRPC packages are in
+<code>package.json</code> yet — confirmed by reading it on
+<code>main</code>. Add them EXACT-pinned (no <code>^</code>), matching
+the repo convention.</p>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout main <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> w2/groupC/auth-secure-storage</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># main-process deps</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> electron-store@10.0.0</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> zod@3.23.8</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co"># tRPC v11 core (Lihan&#39;s bridge is a hand-rolled link over IPC, NOT electron-trpc)</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> @trpc/server@11.0.0 @trpc/client@11.0.0</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co"># renderer form deps</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> react-hook-form@7.53.0 @hookform/resolvers@3.9.0</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test   <span class="co"># must be green before you write a line of feature code</span></span></code></pre></div>
+<p>Note <code>pnpm</code> will pick the latest patch if a pin is
+unavailable; if so, pin to whatever it resolved and commit the exact
+<code>pnpm-lock.yaml</code>. <code>safeStorage</code> and
+<code>powerMonitor</code> ship inside <code>electron</code> (33.4.11,
+already installed) — no extra dep.</p>
+<p>Why a branch and not main: pitfall list says do NOT ship one giant
+PR. You'll cut this into ~3 PRs (types+storage,
+procedures+deep-link+wake, views+tests). Keep each under review-able
+size.</p>
+<h3 id="step-1--extend-the-token-type-with-absolute-expiry--scope">Step
+1 — Extend the token type with absolute expiry + scope</h3>
+<p><code>src/main/types/auth.ts</code> today is ONLY
+<code>access_token / refresh_token / token_type?</code> — it is missing
+expiry and scope, which every later step depends on. Replace the whole
+file:</p>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/types/auth.ts</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthTokens <span class="op">=</span> {</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  access_token<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  refresh_token<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  token_type<span class="op">?:</span> <span class="dt">string</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">/** Absolute wall-clock expiry in ms since epoch (Date.now()-comparable). NOT a duration. */</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  expires_at<span class="op">:</span> <span class="dt">number</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">/** Space-delimited OAuth scopes granted by the backend, e.g. &#39;capture read&#39;. */</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  scope<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="co">/** What the renderer is allowed to see. NEVER includes raw tokens. */</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthStatus <span class="op">=</span> {</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  signedIn<span class="op">:</span> <span class="dt">boolean</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  email<span class="op">?:</span> <span class="dt">string</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Key decision: store <code>expires_at</code> as ABSOLUTE ms, not a
+<code>expires_in</code> duration. The backend hands you a duration (e.g.
+<code>expires_in: 3600</code>); convert ONCE at capture time:
+<code>expires_at = Date.now() + expires_in * 1000</code>. Do NOT invent
+the number — read <code>expires_in</code> (and <code>scope</code>) from
+the backend's token response. If you store a duration you can't tell
+across a sleep whether it's stale.</p>
+<h3
+id="step-2--encrypted-storage-module-electron-store--safestorage">Step 2
+— Encrypted storage module (electron-store + safeStorage)</h3>
+<p>Create <code>src/main/services/token-store.ts</code>.
+<code>electron-store</code> holds a JSON file; <code>safeStorage</code>
+encrypts the token BYTES with a key that lives in the OS keychain
+(Keychain on macOS / DPAPI on Windows). You never write a raw key to
+disk — that's the hard-stop pitfall.</p>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/services/token-store.ts</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { safeStorage } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Store <span class="im">from</span> <span class="st">&#39;electron-store&#39;</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthTokens } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> Schema <span class="op">=</span> { authBlob<span class="op">?:</span> <span class="dt">string</span> } <span class="co">// base64 of safeStorage-encrypted JSON</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> store <span class="op">=</span> <span class="kw">new</span> <span class="fu">Store</span><span class="op">&lt;</span>Schema<span class="op">&gt;</span>({ name<span class="op">:</span> <span class="st">&#39;config&#39;</span> }) <span class="co">// -&gt; .../&lt;app&gt;/config.json</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">saveTokens</span>(tokens<span class="op">:</span> AuthTokens)<span class="op">:</span> <span class="dt">void</span> {</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>safeStorage<span class="op">.</span><span class="fu">isEncryptionAvailable</span>()) {</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No OS keychain backing =&gt; refuse rather than write plaintext.</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">&#39;OS secure storage unavailable; refusing to persist tokens&#39;</span>)</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> json <span class="op">=</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(tokens)</span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> encrypted <span class="op">=</span> safeStorage<span class="op">.</span><span class="fu">encryptString</span>(json) <span class="co">// Buffer of ciphertext</span></span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  store<span class="op">.</span><span class="fu">set</span>(<span class="st">&#39;authBlob&#39;</span><span class="op">,</span> encrypted<span class="op">.</span><span class="fu">toString</span>(<span class="st">&#39;base64&#39;</span>))</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">loadTokens</span>()<span class="op">:</span> AuthTokens <span class="op">|</span> <span class="dt">null</span> {</span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> blob <span class="op">=</span> store<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;authBlob&#39;</span>)</span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>blob) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>safeStorage<span class="op">.</span><span class="fu">isEncryptionAvailable</span>()) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> buf <span class="op">=</span> <span class="bu">Buffer</span><span class="op">.</span><span class="fu">from</span>(blob<span class="op">,</span> <span class="st">&#39;base64&#39;</span>)</span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> json <span class="op">=</span> safeStorage<span class="op">.</span><span class="fu">decryptString</span>(buf)</span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(json) <span class="im">as</span> AuthTokens</span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> {</span>
+<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">clearTokens</span>() <span class="co">// corrupt/foreign blob -&gt; drop it, force re-auth</span></span>
+<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb41-30"><a href="#cb41-30" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb41-31"><a href="#cb41-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb41-32"><a href="#cb41-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-33"><a href="#cb41-33" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">clearTokens</span>()<span class="op">:</span> <span class="dt">void</span> {</span>
+<span id="cb41-34"><a href="#cb41-34" aria-hidden="true" tabindex="-1"></a>  store<span class="op">.</span><span class="fu">delete</span>(<span class="st">&#39;authBlob&#39;</span>)</span>
+<span id="cb41-35"><a href="#cb41-35" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Verify the on-disk file is gibberish (NOT readable JSON):</p>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/Library/Application Support/onlyworks-desktop-v2/config.json&quot;</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># =&gt; {&quot;authBlob&quot;:&quot;BASE64GIBBERISH...&quot;}  -- no access_token visible anywhere</span></span></code></pre></div>
+<p>The app name comes from <code>package.json</code> <code>name</code>
+(<code>onlyworks-desktop-v2</code>). <code>safeStorage</code> only works
+after <code>app.whenReady()</code>, so never call save/load at module
+top-level — call them from inside procedures/handlers.</p>
+<p>Replace the in-memory <code>src/main/config/config-manager.ts</code>
+Map for tokens specifically with this module; leave config-manager for
+non-secret prefs if other groups use it.</p>
+<h3
+id="step-3--backend-auth-service-the-real-logic-behind-the-procedures">Step
+3 — backend-auth service: the real logic behind the procedures</h3>
+<p><code>src/main/services/backend-auth.ts</code> is a stub returning
+<code>isAuthenticated:()=&gt;false</code>. Replace it with the real
+service the procedures call. This is where refresh + expiry logic lives
+(Step 5 reuses it).</p>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/services/backend-auth.ts</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { saveTokens<span class="op">,</span> loadTokens<span class="op">,</span> clearTokens } <span class="im">from</span> <span class="st">&#39;./token-store&#39;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthTokens<span class="op">,</span> AuthStatus } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> BACKEND <span class="op">=</span> <span class="st">&#39;https://api.onlyworks.example&#39;</span> <span class="co">// pull real base URL from config, do not guess</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">requestMagicLink</span>(email<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">void</span><span class="op">&gt;</span> {</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`</span><span class="sc">${</span>BACKEND<span class="sc">}</span><span class="vs">/auth/magic-link`</span><span class="op">,</span> {</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    method<span class="op">:</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    headers<span class="op">:</span> { <span class="st">&#39;content-type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> }<span class="op">,</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    body<span class="op">:</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>({ email })</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>res<span class="op">.</span><span class="at">ok</span>) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="vs">`magic-link request failed: </span><span class="sc">${</span>res<span class="op">.</span><span class="at">status</span><span class="sc">}</span><span class="vs">`</span>)</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a><span class="co">/** Called by the deep-link handler (Step 4) once tokens come back from the backend. */</span></span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">captureTokens</span>(raw<span class="op">:</span> {</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>  access_token<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> refresh_token<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> token_type<span class="op">?:</span> <span class="dt">string</span></span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>  expires_in<span class="op">:</span> <span class="dt">number</span><span class="op">;</span> scope<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>})<span class="op">:</span> <span class="dt">void</span> {</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tokens<span class="op">:</span> AuthTokens <span class="op">=</span> {</span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>    access_token<span class="op">:</span> raw<span class="op">.</span><span class="at">access_token</span><span class="op">,</span></span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>    refresh_token<span class="op">:</span> raw<span class="op">.</span><span class="at">refresh_token</span><span class="op">,</span></span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>    token_type<span class="op">:</span> raw<span class="op">.</span><span class="at">token_type</span><span class="op">,</span></span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>    expires_at<span class="op">:</span> <span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">+</span> raw<span class="op">.</span><span class="at">expires_in</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">,</span> <span class="co">// duration -&gt; absolute, ONCE</span></span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>    scope<span class="op">:</span> raw<span class="op">.</span><span class="at">scope</span></span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveTokens</span>(tokens)</span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-31"><a href="#cb43-31" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">refresh</span>(tokens<span class="op">:</span> AuthTokens)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthTokens <span class="op">|</span> <span class="dt">null</span><span class="op">&gt;</span> {</span>
+<span id="cb43-32"><a href="#cb43-32" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`</span><span class="sc">${</span>BACKEND<span class="sc">}</span><span class="vs">/auth/refresh`</span><span class="op">,</span> {</span>
+<span id="cb43-33"><a href="#cb43-33" aria-hidden="true" tabindex="-1"></a>    method<span class="op">:</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span></span>
+<span id="cb43-34"><a href="#cb43-34" aria-hidden="true" tabindex="-1"></a>    headers<span class="op">:</span> { <span class="st">&#39;content-type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> }<span class="op">,</span></span>
+<span id="cb43-35"><a href="#cb43-35" aria-hidden="true" tabindex="-1"></a>    body<span class="op">:</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>({ refresh_token<span class="op">:</span> tokens<span class="op">.</span><span class="at">refresh_token</span> })</span>
+<span id="cb43-36"><a href="#cb43-36" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb43-37"><a href="#cb43-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>res<span class="op">.</span><span class="at">ok</span>) { <span class="fu">clearTokens</span>()<span class="op">;</span> <span class="cf">return</span> <span class="kw">null</span> }</span>
+<span id="cb43-38"><a href="#cb43-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> raw <span class="op">=</span> <span class="cf">await</span> res<span class="op">.</span><span class="fu">json</span>()</span>
+<span id="cb43-39"><a href="#cb43-39" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> next<span class="op">:</span> AuthTokens <span class="op">=</span> {</span>
+<span id="cb43-40"><a href="#cb43-40" aria-hidden="true" tabindex="-1"></a>    access_token<span class="op">:</span> raw<span class="op">.</span><span class="at">access_token</span><span class="op">,</span></span>
+<span id="cb43-41"><a href="#cb43-41" aria-hidden="true" tabindex="-1"></a>    refresh_token<span class="op">:</span> raw<span class="op">.</span><span class="at">refresh_token</span> <span class="op">??</span> tokens<span class="op">.</span><span class="at">refresh_token</span><span class="op">,</span></span>
+<span id="cb43-42"><a href="#cb43-42" aria-hidden="true" tabindex="-1"></a>    token_type<span class="op">:</span> raw<span class="op">.</span><span class="at">token_type</span> <span class="op">??</span> tokens<span class="op">.</span><span class="at">token_type</span><span class="op">,</span></span>
+<span id="cb43-43"><a href="#cb43-43" aria-hidden="true" tabindex="-1"></a>    expires_at<span class="op">:</span> <span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">+</span> raw<span class="op">.</span><span class="at">expires_in</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">,</span></span>
+<span id="cb43-44"><a href="#cb43-44" aria-hidden="true" tabindex="-1"></a>    scope<span class="op">:</span> raw<span class="op">.</span><span class="at">scope</span> <span class="op">??</span> tokens<span class="op">.</span><span class="at">scope</span></span>
+<span id="cb43-45"><a href="#cb43-45" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb43-46"><a href="#cb43-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveTokens</span>(next)</span>
+<span id="cb43-47"><a href="#cb43-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> next</span>
+<span id="cb43-48"><a href="#cb43-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-49"><a href="#cb43-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-50"><a href="#cb43-50" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SKEW_MS <span class="op">=</span> <span class="dv">60_000</span> <span class="co">// refresh a minute early to avoid edge-of-expiry 401s</span></span>
+<span id="cb43-51"><a href="#cb43-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-52"><a href="#cb43-52" aria-hidden="true" tabindex="-1"></a><span class="co">/** Returns a valid access token, refreshing on demand. null if signed out. */</span></span>
+<span id="cb43-53"><a href="#cb43-53" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">getValidAccessToken</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">string</span> <span class="op">|</span> <span class="dt">null</span><span class="op">&gt;</span> {</span>
+<span id="cb43-54"><a href="#cb43-54" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> tokens <span class="op">=</span> <span class="fu">loadTokens</span>()</span>
+<span id="cb43-55"><a href="#cb43-55" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>tokens) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb43-56"><a href="#cb43-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">&gt;=</span> tokens<span class="op">.</span><span class="at">expires_at</span> <span class="op">-</span> SKEW_MS) {</span>
+<span id="cb43-57"><a href="#cb43-57" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> <span class="cf">await</span> <span class="fu">refresh</span>(tokens)</span>
+<span id="cb43-58"><a href="#cb43-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>tokens) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb43-59"><a href="#cb43-59" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb43-60"><a href="#cb43-60" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> tokens<span class="op">.</span><span class="at">access_token</span></span>
+<span id="cb43-61"><a href="#cb43-61" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-62"><a href="#cb43-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-63"><a href="#cb43-63" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">status</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthStatus<span class="op">&gt;</span> {</span>
+<span id="cb43-64"><a href="#cb43-64" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> token <span class="op">=</span> <span class="cf">await</span> <span class="fu">getValidAccessToken</span>()</span>
+<span id="cb43-65"><a href="#cb43-65" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>token) <span class="cf">return</span> { signedIn<span class="op">:</span> <span class="kw">false</span> }</span>
+<span id="cb43-66"><a href="#cb43-66" aria-hidden="true" tabindex="-1"></a>  <span class="co">// email comes from your own captured profile / a /me call; never decode tokens client-side blindly</span></span>
+<span id="cb43-67"><a href="#cb43-67" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tokens <span class="op">=</span> <span class="fu">loadTokens</span>()</span>
+<span id="cb43-68"><a href="#cb43-68" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> { signedIn<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> email<span class="op">:</span> <span class="fu">extractEmail</span>(tokens) }</span>
+<span id="cb43-69"><a href="#cb43-69" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-70"><a href="#cb43-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-71"><a href="#cb43-71" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">signOut</span>()<span class="op">:</span> <span class="dt">void</span> {</span>
+<span id="cb43-72"><a href="#cb43-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clearTokens</span>()</span>
+<span id="cb43-73"><a href="#cb43-73" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-74"><a href="#cb43-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-75"><a href="#cb43-75" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">extractEmail</span>(_t<span class="op">:</span> AuthTokens <span class="op">|</span> <span class="dt">null</span>)<span class="op">:</span> <span class="dt">string</span> <span class="op">|</span> <span class="dt">undefined</span> {</span>
+<span id="cb43-76"><a href="#cb43-76" aria-hidden="true" tabindex="-1"></a>  <span class="co">// </span><span class="al">TODO</span><span class="co">: store email alongside tokens at capture time, or call GET /me.</span></span>
+<span id="cb43-77"><a href="#cb43-77" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">undefined</span></span>
+<span id="cb43-78"><a href="#cb43-78" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Store the user's email at capture time (add it to the persisted blob)
+rather than parsing the JWT — simpler and avoids a JWT dep this
+week.</p>
+<h3 id="step-4--the-three-procedures-on-lihans-trpc-bridge">Step 4 — The
+three procedures on Lihan's tRPC bridge</h3>
+<p>IMPORTANT current state: Lihan's PR #12 merged the bridge DECISION
+doc (<code>docs/decisions/trpc-bridge.md</code>) but the actual bridge
+MODULE is not in <code>main</code> yet (no <code>src/main/trpc/</code>).
+Group A's <code>capture-stub.ts</code> even says "swap this file for the
+real client once Group B lands the bridge." So coordinate in Discord
+#swe-team: if Lihan's <code>appRouter</code> exists on a branch, import
+and extend it; if not, scaffold a minimal router yourself behind the
+same shape so you're not blocked. Either way the renderer calls a typed
+client, never IPC directly.</p>
+<p>Create <code>src/main/trpc/auth.router.ts</code>:</p>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/trpc/auth.router.ts</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { initTRPC } <span class="im">from</span> <span class="st">&#39;@trpc/server&#39;</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { z } <span class="im">from</span> <span class="st">&#39;zod&#39;</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="op">*</span> <span class="im">as</span> auth <span class="im">from</span> <span class="st">&#39;../services/backend-auth&#39;</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthStatus } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> t <span class="op">=</span> initTRPC<span class="op">.</span><span class="fu">create</span>()</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> router <span class="op">=</span> t<span class="op">.</span><span class="at">router</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> publicProcedure <span class="op">=</span> t<span class="op">.</span><span class="at">procedure</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> authRouter <span class="op">=</span> <span class="fu">router</span>({</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>  requestMagicLink<span class="op">:</span> publicProcedure</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ email<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">email</span>() }))</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(<span class="kw">async</span> ({ input }) <span class="kw">=&gt;</span> {</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">await</span> auth<span class="op">.</span><span class="fu">requestMagicLink</span>(input<span class="op">.</span><span class="at">email</span>)</span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span> }</span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>  status<span class="op">:</span> publicProcedure</span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">query</span>(<span class="kw">async</span> ()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthStatus<span class="op">&gt;</span> <span class="kw">=&gt;</span> auth<span class="op">.</span><span class="fu">status</span>())<span class="op">,</span></span>
+<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>  signOut<span class="op">:</span> publicProcedure</span>
+<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(<span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a>      auth<span class="op">.</span><span class="fu">signOut</span>()</span>
+<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span> }</span>
+<span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Merge into the app router (create
+<code>src/main/trpc/app.router.ts</code> if Lihan hasn't):</p>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { router } <span class="im">from</span> <span class="st">&#39;./auth.router&#39;</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { authRouter } <span class="im">from</span> <span class="st">&#39;./auth.router&#39;</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> appRouter <span class="op">=</span> <span class="fu">router</span>({ auth<span class="op">:</span> authRouter })</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AppRouter <span class="op">=</span> <span class="kw">typeof</span> appRouter</span></code></pre></div>
+<p>The <code>auth.</code> namespace gives you
+<code>auth.requestMagicLink</code>, <code>auth.status</code>,
+<code>auth.signOut</code> exactly as specced. The renderer NEVER touches
+raw tokens — procedures only ever return
+<code>{ signedIn, email? }</code> or <code>{ ok }</code>. Zod validates
+the email at the boundary; an invalid address is rejected before it
+reaches <code>fetch</code>.</p>
+<h3 id="step-5--onlyworks-deep-link-to-capture-tokens">Step 5 —
+onlyworks:// deep link to capture tokens</h3>
+<p>Register the protocol inside <code>app.whenReady()</code> in
+<code>src/main/index.ts</code> (currently there's no deep-link handling
+at all). The backend's magic-link email opens
+<code>onlyworks://auth?access_token=...&amp;refresh_token=...&amp;expires_in=...&amp;scope=...</code>.</p>
+<p>In <code>src/main/index.ts</code>, inside the existing
+<code>app.whenReady().then(() =&gt; { ... })</code>:</p>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { app<span class="op">,</span> powerMonitor } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { captureTokens<span class="op">,</span> getValidAccessToken } <span class="im">from</span> <span class="st">&#39;./services/backend-auth&#39;</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">handleDeepLink</span>(url<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="dt">void</span> {</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> parsed <span class="op">=</span> <span class="kw">new</span> <span class="fu">URL</span>(url)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (parsed<span class="op">.</span><span class="at">host</span> <span class="op">!==</span> <span class="st">&#39;auth&#39;</span> <span class="op">&amp;&amp;</span> parsed<span class="op">.</span><span class="at">pathname</span> <span class="op">!==</span> <span class="st">&#39;//auth&#39;</span>) <span class="cf">return</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> q <span class="op">=</span> parsed<span class="op">.</span><span class="at">searchParams</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> access_token <span class="op">=</span> q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;access_token&#39;</span>)</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> refresh_token <span class="op">=</span> q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;refresh_token&#39;</span>)</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> expires_in <span class="op">=</span> <span class="bu">Number</span>(q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;expires_in&#39;</span>))</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> scope <span class="op">=</span> q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;scope&#39;</span>) <span class="op">??</span> <span class="st">&#39;&#39;</span></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>access_token <span class="op">||</span> <span class="op">!</span>refresh_token <span class="op">||</span> <span class="op">!</span><span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(expires_in)) <span class="cf">return</span></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">,</span> refresh_token<span class="op">,</span> expires_in<span class="op">,</span> scope })</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Register + wire the OS events (still inside
+<code>whenReady</code>):</p>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">setAsDefaultProtocolClient</span>(<span class="st">&#39;onlyworks&#39;</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="co">// macOS: cold or warm launch from a link fires &#39;open-url&#39;</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;open-url&#39;</span><span class="op">,</span> (<span class="bu">event</span><span class="op">,</span> url) <span class="kw">=&gt;</span> {</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">event</span><span class="op">.</span><span class="fu">preventDefault</span>()</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">handleDeepLink</span>(url)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Windows differs: there's no <code>open-url</code>. The link arrives
+as an argv on a second instance, so you need single-instance +
+<code>second-instance</code>:</p>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> gotLock <span class="op">=</span> app<span class="op">.</span><span class="fu">requestSingleInstanceLock</span>()</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="op">!</span>gotLock) app<span class="op">.</span><span class="fu">quit</span>()</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span> {</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  app<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;second-instance&#39;</span><span class="op">,</span> (_e<span class="op">,</span> argv) <span class="kw">=&gt;</span> {</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> link <span class="op">=</span> argv<span class="op">.</span><span class="fu">find</span>((a) <span class="kw">=&gt;</span> a<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">&#39;onlyworks://&#39;</span>))</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (link) <span class="fu">handleDeepLink</span>(link)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>For <code>pnpm dev</code> on macOS, protocol registration points at
+the Electron binary, so test the click-to-sign-in flow against a
+packaged build; in dev you can simulate by calling
+<code>handleDeepLink('onlyworks://auth?...')</code> from a temporary
+devtools hook. After capture, the renderer's <code>auth.status</code>
+poll (Step 6) flips to signed-in on its next tick — no manual
+refresh.</p>
+<h3 id="step-5b--sleepwake-silent-refresh-via-powermonitor">Step 5b —
+Sleep/wake silent refresh via powerMonitor</h3>
+<p>On sleep the wall clock jumps forward, so a token that looked fresh
+can be expired on resume. Do NOT trust a bare timer that 'slept through'
+the expiry, and do NOT let every queued call 401 then cascade-refresh.
+Instead, on <code>resume</code>, recompute
+now-vs-<code>expires_at</code> and refresh proactively.</p>
+<p>Still inside <code>app.whenReady()</code> in
+<code>src/main/index.ts</code>:</p>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>powerMonitor<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;resume&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Wall clock advanced during sleep; refresh ahead of the next call.</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">void</span> <span class="fu">getValidAccessToken</span>() <span class="co">// refreshes if Date.now() &gt;= expires_at - SKEW (Step 3)</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Because <code>getValidAccessToken</code> compares the absolute
+<code>expires_at</code> against a fresh <code>Date.now()</code> (not a
+duration captured before sleep), the difference is computed correctly
+across the jump. The single proactive refresh on resume means the next
+<code>auth.status</code> poll and the next real API call already have a
+valid token — no 401 storm. This is the whole reason Step 1 stores
+absolute expiry.</p>
+<h3
+id="step-6--renderer-status-as-a-tanstack-query-poll-not-a-subscription">Step
+6 — Renderer status as a TanStack Query POLL (not a subscription)</h3>
+<p><code>App.tsx</code> already wraps the tree in
+<code>QueryClientProvider</code> — confirmed. Subscriptions are a W3
+deliverable; this week <code>auth.status</code> is a polled
+<code>useQuery</code> with <code>refetchInterval</code>. Create
+<code>src/renderer/src/lib/auth-client.ts</code> calling the typed tRPC
+client (mirror Group A's stub-swap pattern), then a hook:</p>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/renderer/src/lib/use-auth.ts</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useQuery<span class="op">,</span> useMutation<span class="op">,</span> useQueryClient } <span class="im">from</span> <span class="st">&#39;@tanstack/react-query&#39;</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { trpc } <span class="im">from</span> <span class="st">&#39;./auth-client&#39;</span> <span class="co">// typed tRPC client over Lihan&#39;s IPC link</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useAuthStatus</span>() {</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">useQuery</span>({</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    queryKey<span class="op">:</span> [<span class="st">&#39;auth&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>]<span class="op">,</span></span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    queryFn<span class="op">:</span> () <span class="kw">=&gt;</span> trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="at">status</span><span class="op">.</span><span class="fu">query</span>()<span class="op">,</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    refetchInterval<span class="op">:</span> <span class="dv">10_000</span><span class="op">,</span> <span class="co">// poll; swap to a subscription in W3</span></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    refetchOnWindowFocus<span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useRequestMagicLink</span>() {</span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">useMutation</span>({</span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>    mutationFn<span class="op">:</span> (email<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="at">requestMagicLink</span><span class="op">.</span><span class="fu">mutate</span>({ email })</span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useSignOut</span>() {</span>
+<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> qc <span class="op">=</span> <span class="fu">useQueryClient</span>()</span>
+<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">useMutation</span>({</span>
+<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>    mutationFn<span class="op">:</span> () <span class="kw">=&gt;</span> trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="at">signOut</span><span class="op">.</span><span class="fu">mutate</span>()<span class="op">,</span></span>
+<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a>    onSuccess<span class="op">:</span> () <span class="kw">=&gt;</span> qc<span class="op">.</span><span class="fu">invalidateQueries</span>({ queryKey<span class="op">:</span> [<span class="st">&#39;auth&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>] })</span>
+<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>The 10s poll is what makes the Mail-click flow feel automatic: after
+the deep link captures tokens in main, the next poll returns
+<code>{ signedIn: true }</code> and the UI advances to the signed-in
+view without the user doing anything. Do NOT build a tRPC subscription
+this week — that's W3 and depends on the bridge's subscription transport
+which isn't built.</p>
+<h3
+id="step-7--the-three-sign-in-views-react-hook-form--zod-reusing-group-a-primitives">Step
+7 — The three sign-in views (react-hook-form + zod, reusing Group A
+primitives)</h3>
+<p>Reuse Group A's shadcn primitives at their real paths —
+<code>@/components/ui/input</code>, <code>@/components/ui/button</code>,
+<code>@/components/ui/card</code> (all confirmed present). Do NOT add
+new primitives. Create <code>src/renderer/src/routes/signin.tsx</code>
+with three states driven by <code>useAuthStatus()</code>.</p>
+<p>Email-entry form:</p>
+<pre class="tsx"><code>import { useForm } from &#39;react-hook-form&#39;
+import { zodResolver } from &#39;@hookform/resolvers/zod&#39;
+import { z } from &#39;zod&#39;
+import { Card, CardContent, CardHeader, CardTitle } from &#39;@/components/ui/card&#39;
+import { Input } from &#39;@/components/ui/input&#39;
+import { Button } from &#39;@/components/ui/button&#39;
+import { useRequestMagicLink } from &#39;@/lib/use-auth&#39;
+
+const schema = z.object({ email: z.string().email(&#39;Enter a valid email&#39;) })
+type Values = z.infer&lt;typeof schema&gt;
+
+function EmailEntry({ onSent }: { onSent: (email: string) =&gt; void }) {
+  const { register, handleSubmit, formState: { errors } } = useForm&lt;Values&gt;({
+    resolver: zodResolver(schema)
+  })
+  const mutation = useRequestMagicLink()
+  return (
+    &lt;Card className=&quot;mx-auto mt-20 max-w-sm&quot;&gt;
+      &lt;CardHeader&gt;&lt;CardTitle&gt;Sign in to OnlyWorks&lt;/CardTitle&gt;&lt;/CardHeader&gt;
+      &lt;CardContent&gt;
+        &lt;form onSubmit={handleSubmit(async (v) =&gt; { await mutation.mutateAsync(v.email); onSent(v.email) })}
+              className=&quot;space-y-3&quot;&gt;
+          &lt;Input type=&quot;email&quot; placeholder=&quot;you@company.com&quot; {...register(&#39;email&#39;)} /&gt;
+          {errors.email &amp;&amp; &lt;p className=&quot;text-sm text-destructive&quot;&gt;{errors.email.message}&lt;/p&gt;}
+          &lt;Button type=&quot;submit&quot; className=&quot;w-full&quot; disabled={mutation.isPending}&gt;
+            {mutation.isPending ? &#39;Sending…&#39; : &#39;Send magic link&#39;}
+          &lt;/Button&gt;
+        &lt;/form&gt;
+      &lt;/CardContent&gt;
+    &lt;/Card&gt;
+  )
+}</code></pre>
+<p>'Check your inbox' view with a 60s resend cooldown:</p>
+<pre class="tsx"><code>import { useEffect, useState } from &#39;react&#39;
+function CheckInbox({ email }: { email: string }) {
+  const [left, setLeft] = useState(60)
+  const resend = useRequestMagicLink()
+  useEffect(() =&gt; {
+    if (left &lt;= 0) return
+    const id = setTimeout(() =&gt; setLeft((n) =&gt; n - 1), 1000)
+    return () =&gt; clearTimeout(id)
+  }, [left])
+  return (
+    &lt;Card className=&quot;mx-auto mt-20 max-w-sm&quot;&gt;
+      &lt;CardHeader&gt;&lt;CardTitle&gt;Check your inbox&lt;/CardTitle&gt;&lt;/CardHeader&gt;
+      &lt;CardContent className=&quot;space-y-3&quot;&gt;
+        &lt;p className=&quot;text-sm text-muted-foreground&quot;&gt;We emailed a sign-in link to {email}.&lt;/p&gt;
+        &lt;Button variant=&quot;outline&quot; className=&quot;w-full&quot; disabled={left &gt; 0}
+                onClick={() =&gt; { resend.mutate(email); setLeft(60) }}&gt;
+          {left &gt; 0 ? `Resend in ${left}s` : &#39;Resend link&#39;}
+        &lt;/Button&gt;
+      &lt;/CardContent&gt;
+    &lt;/Card&gt;
+  )
+}</code></pre>
+<p>The signed-in view reads <code>useAuthStatus()</code> and shows a
+<code>useSignOut()</code> button. Top-level <code>SignInPage</code>
+switches: if <code>status.signedIn</code> -&gt; signed-in view; else if
+a link was sent -&gt; CheckInbox; else -&gt; EmailEntry. Register the
+route in <code>src/renderer/src/router.tsx</code> next to the existing
+<code>statusRoute</code>/<code>portfolioRoute</code>/<code>settingsRoute</code>.</p>
+<h3 id="step-8--vitest-happy-path-expiry-one-network-failure-case">Step
+8 — Vitest: happy path, expiry, one network-failure case</h3>
+<p>Vitest currently only globs <code>src/renderer/src/**</code> (see
+<code>vitest.config.ts</code> <code>include</code>). Widen it to also
+pick up main-process tests:</p>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co">// vitest.config.ts -&gt; test.include</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>include<span class="op">:</span> [<span class="st">&#39;src/**/*.{test,spec}.{ts,tsx}&#39;</span>]</span></code></pre></div>
+<p>Add the <code>@</code> alias is renderer-only, so main tests use
+relative imports. Test the token-store + refresh logic in
+<code>src/main/services/backend-auth.test.ts</code>. Mock
+<code>electron</code> (<code>safeStorage</code>,
+<code>powerMonitor</code>) and <code>electron-store</code>, and stub
+<code>fetch</code>.</p>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { describe<span class="op">,</span> it<span class="op">,</span> expect<span class="op">,</span> vi<span class="op">,</span> beforeEach } <span class="im">from</span> <span class="st">&#39;vitest&#39;</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>vi<span class="op">.</span><span class="fu">mock</span>(<span class="st">&#39;electron&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> ({</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  safeStorage<span class="op">:</span> {</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>    isEncryptionAvailable<span class="op">:</span> () <span class="kw">=&gt;</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>    encryptString<span class="op">:</span> (s<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> <span class="bu">Buffer</span><span class="op">.</span><span class="fu">from</span>(s)<span class="op">,</span>     <span class="co">// identity for the test</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    decryptString<span class="op">:</span> (b<span class="op">:</span> <span class="bu">Buffer</span>) <span class="kw">=&gt;</span> b<span class="op">.</span><span class="fu">toString</span>()</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> disk<span class="op">:</span> <span class="bu">Record</span><span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> <span class="dt">unknown</span><span class="op">&gt;</span> <span class="op">=</span> {}</span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>vi<span class="op">.</span><span class="fu">mock</span>(<span class="st">&#39;electron-store&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> ({</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">default</span><span class="op">:</span> <span class="kw">class</span> { <span class="kw">get</span>(k<span class="op">:</span> <span class="dt">string</span>){ <span class="cf">return</span> disk[k] } <span class="kw">set</span>(k<span class="op">:</span> <span class="dt">string</span><span class="op">,</span>v<span class="op">:</span> <span class="dt">unknown</span>){ disk[k]<span class="op">=</span>v } <span class="kw">delete</span>(k<span class="op">:</span> <span class="dt">string</span>){ <span class="kw">delete</span> disk[k] } }</span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { captureTokens<span class="op">,</span> getValidAccessToken<span class="op">,</span> signOut<span class="op">,</span> status } <span class="im">from</span> <span class="st">&#39;./backend-auth&#39;</span></span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a><span class="fu">beforeEach</span>(() <span class="kw">=&gt;</span> { disk <span class="op">=</span> {}<span class="op">;</span> vi<span class="op">.</span><span class="fu">restoreAllMocks</span>() })</span>
+<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">&#39;happy path: capture -&gt; valid token round-trips through encrypted storage&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">:</span> <span class="st">&#39;A&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="dv">3600</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;capture&#39;</span> })</span>
+<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(<span class="cf">await</span> <span class="fu">getValidAccessToken</span>())<span class="op">.</span><span class="fu">toBe</span>(<span class="st">&#39;A&#39;</span>)</span>
+<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>((<span class="cf">await</span> <span class="fu">status</span>())<span class="op">.</span><span class="at">signedIn</span>)<span class="op">.</span><span class="fu">toBe</span>(<span class="kw">true</span>)</span>
+<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">&#39;expiry: past-expiry token triggers a refresh&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb54-26"><a href="#cb54-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">:</span> <span class="st">&#39;OLD&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="op">-</span><span class="dv">10</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;&#39;</span> }) <span class="co">// already expired</span></span>
+<span id="cb54-27"><a href="#cb54-27" aria-hidden="true" tabindex="-1"></a>  vi<span class="op">.</span><span class="fu">stubGlobal</span>(<span class="st">&#39;fetch&#39;</span><span class="op">,</span> vi<span class="op">.</span><span class="fu">fn</span>(<span class="kw">async</span> () <span class="kw">=&gt;</span> ({</span>
+<span id="cb54-28"><a href="#cb54-28" aria-hidden="true" tabindex="-1"></a>    ok<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> json<span class="op">:</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> ({ access_token<span class="op">:</span> <span class="st">&#39;NEW&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R2&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="dv">3600</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;&#39;</span> })</span>
+<span id="cb54-29"><a href="#cb54-29" aria-hidden="true" tabindex="-1"></a>  })))</span>
+<span id="cb54-30"><a href="#cb54-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(<span class="cf">await</span> <span class="fu">getValidAccessToken</span>())<span class="op">.</span><span class="fu">toBe</span>(<span class="st">&#39;NEW&#39;</span>)</span>
+<span id="cb54-31"><a href="#cb54-31" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb54-32"><a href="#cb54-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-33"><a href="#cb54-33" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">&#39;network failure on refresh wipes token and signs out&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb54-34"><a href="#cb54-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">:</span> <span class="st">&#39;OLD&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="op">-</span><span class="dv">10</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;&#39;</span> })</span>
+<span id="cb54-35"><a href="#cb54-35" aria-hidden="true" tabindex="-1"></a>  vi<span class="op">.</span><span class="fu">stubGlobal</span>(<span class="st">&#39;fetch&#39;</span><span class="op">,</span> vi<span class="op">.</span><span class="fu">fn</span>(<span class="kw">async</span> () <span class="kw">=&gt;</span> ({ ok<span class="op">:</span> <span class="kw">false</span><span class="op">,</span> status<span class="op">:</span> <span class="dv">503</span> })))</span>
+<span id="cb54-36"><a href="#cb54-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(<span class="cf">await</span> <span class="fu">getValidAccessToken</span>())<span class="op">.</span><span class="fu">toBeNull</span>()</span>
+<span id="cb54-37"><a href="#cb54-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">signOut</span>()</span>
+<span id="cb54-38"><a href="#cb54-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>((<span class="cf">await</span> <span class="fu">status</span>())<span class="op">.</span><span class="at">signedIn</span>)<span class="op">.</span><span class="fu">toBe</span>(<span class="kw">false</span>)</span>
+<span id="cb54-39"><a href="#cb54-39" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Run <code>pnpm test</code>. The pre-push hook runs
+<code>pnpm typecheck &amp;&amp; pnpm test</code>, so all three must pass
+before you can push.</p>
+<p><strong>Watch out for</strong></p>
+<ul>
+<li>HARD STOP: never write a raw encryption key or a raw token to disk
+or logs. The key must stay in the OS keychain via safeStorage; only the
+safeStorage-encrypted base64 blob goes in config.json. If
+safeStorage.isEncryptionAvailable() is false, refuse to persist — do not
+fall back to plaintext.</li>
+<li>Renderer must NEVER receive raw tokens. Procedures return only {
+signedIn, email? } or { ok }. Keep access_token/refresh_token entirely
+in the main process.</li>
+<li>Do not trust a bare wall-clock duration across sleep. Store absolute
+expires_at (ms epoch) and recompute Date.now() vs expires_at on
+powerMonitor 'resume' — a timer captured before sleep is wrong after the
+clock jumps.</li>
+<li>Don't let expiry 401-cascade: refresh proactively (on resume and on
+next getValidAccessToken with a 60s skew), not by letting many queued
+calls each hit a 401.</li>
+<li>Do NOT ship one giant PR. Split: (1) token types + encrypted store +
+tests, (2) procedures + deep link + powerMonitor, (3) the three views.
+Each separately reviewable.</li>
+<li>Do NOT build a tRPC subscription this week — auth.status is a polled
+useQuery (refetchInterval). Subscriptions are W3 and depend on the
+bridge's subscription transport that isn't built.</li>
+<li>Do NOT invent token-expiry numbers. Read expires_in and scope from
+the backend token response and convert to expires_at once at capture
+time.</li>
+<li>Lihan's bridge MODULE isn't on main yet (only the decision doc).
+Coordinate in Discord #swe-team before assuming an appRouter exists;
+scaffold the auth router behind the agreed shape so you aren't
+blocked.</li>
+<li>Reuse Group A's @/components/ui/{input,button,card} — do not add new
+shadcn primitives. Vitest's include glob is renderer-only today; widen
+it to src/** or your main-process tests won't run.</li>
+</ul>
+<p><strong>Done when all of these are true</strong></p>
+<ul>
+<li>Calling saveTokens then loadTokens returns the same AuthTokens
+(including expires_at + scope), proving the encrypted round-trip through
+electron-store + safeStorage.</li>
+<li>Clicking a real magic link in Mail opens onlyworks://auth..., the
+main process captures tokens, and the renderer's auth.status poll flips
+the UI to signed-in within ~10s.</li>
+<li>Quit and relaunch the packaged app: it stays signed in (tokens
+loaded and decrypted from config.json on next status() call).</li>
+<li>After sleeping the machine past token expiry and waking,
+powerMonitor 'resume' refreshes silently and the next API call/poll has
+a valid token with no 401.</li>
+<li>Clicking Sign out calls auth.signOut, clearTokens removes authBlob,
+and auth.status returns { signedIn: false }.</li>
+<li>cat of ~/Library/Application
+Support/onlyworks-desktop-v2/config.json shows only a base64 authBlob —
+no access_token or refresh_token readable anywhere.</li>
+<li>pnpm typecheck and pnpm test pass, including the happy-path,
+expiry-refresh, and network-failure tests.</li>
+</ul>
+<p><strong>Resources</strong></p>
+<ul>
+<li><a href="docs/v2-stack/electron.html">Internal: Electron stack page
+(safeStorage, powerMonitor, protocol, context isolation)</a></li>
+<li><a href="docs/v2-stack/trpc.html">Internal: tRPC bridge page
+(hand-rolled v11 link over IPC — procedure/router shape)</a></li>
+<li><a href="docs/v2-stack/tanstack-query.html">Internal: TanStack Query
+page (useQuery refetchInterval polling, useMutation,
+invalidate)</a></li>
+<li><a href="docs/v2-stack/react-hook-form-zod.html">Internal:
+react-hook-form + zod page (zodResolver, register,
+handleSubmit)</a></li>
+<li><a
+href="https://www.electronjs.org/docs/latest/api/safe-storage">Electron
+safeStorage API
+(encryptString/decryptString/isEncryptionAvailable)</a></li>
+<li><a
+href="https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app">Electron
+deep links (setAsDefaultProtocolClient, open-url vs
+second-instance)</a></li>
+<li><a
+href="https://www.electronjs.org/docs/latest/api/power-monitor">Electron
+powerMonitor 'resume' event</a></li>
+<li><a href="https://zod.dev">Zod email validation</a></li>
+<li><a href="https://vitest.dev">Vitest mocking (vi.mock,
+vi.stubGlobal)</a></li>
+</ul>
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>Week 2 status &amp; how-to · Updated 2026-06-23</span>
+</footer>
+
+</body>
+</html>
