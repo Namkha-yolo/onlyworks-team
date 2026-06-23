@@ -87,9 +87,10 @@ the traps to avoid, a "done when" checklist, and resources (your own
 <p><strong>Goal —</strong> By next meeting you'll have a hand-rolled
 tRPC-over-IPC "wire" merged: clicking "Start capture" in the renderer
 logs in the main-process pnpm dev terminal (capture.start mutation), a
-capture.status query returns a typed boolean, the renderer client is
-fully typed (a typo'd field fails to compile), and you've recorded the
-round-trip latency (ceiling 60ms).</p>
+capture.status query returns the typed
+<code>{ ok: true, data: { running } }</code> envelope, the renderer
+client is fully typed (a typo'd field fails to compile), and you've
+recorded the round-trip latency (ceiling 60ms).</p>
 <h3
 id="branch-off-main-and-confirm-the-current-state-with-your-own-eyes">Branch
 off main and confirm the current state with your own eyes</h3>
@@ -113,9 +114,9 @@ sets <code>sandbox: false</code>; no explicit
 <code>api: unknown</code> on <code>Window</code>.</li>
 <li><code>src/renderer/src/lib/capture-stub.ts</code> — the stub A will
 swap once you merge.</li>
-<li><code>docs/decisions/trpc-bridge.md</code> — the merged decision:
-hand-roll a thin tRPC v11 link over IPC, NOT
-<code>electron-trpc</code>.</li>
+<li><code>docs/decisions/trpc-bridge.md</code> — the proposed decision
+(Status: Proposed, pending Namkha's W2-demo sign-off): hand-roll a thin
+tRPC v11 link over IPC, NOT <code>electron-trpc</code>.</li>
 </ul>
 <p>Sanity-check the toolchain runs before you add anything:</p>
 <div class="sourceCode" id="cb2"><pre
@@ -140,8 +141,10 @@ HTTP/link client.</p>
 <code>@trpc/server</code> and <code>zod</code> MUST go in
 <code>dependencies</code> (so they resolve from
 <code>node_modules</code> at runtime in main), NOT
-<code>devDependencies</code>. Every other package in this repo's
-<code>dependencies</code> block is unprefixed/exact — match that.</p>
+<code>devDependencies</code>. Most deps here are exact-pinned (note
+<code>electron-log</code> and <code>electron-updater</code> currently
+use <code>^</code>). Per the PR checklist, pin your NEW deps exactly —
+no <code>^</code>/<code>~</code>.</p>
 <p>Use <code>--save-exact</code> and the <code>-E</code> is implied by
 <code>.npmrc</code>? No — pin explicitly to be safe (the repo's
 <code>.npmrc</code> has <code>shamefully-hoist=true</code> and
@@ -184,18 +187,18 @@ instance) in its own file so other routers can reuse
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> capturing <span class="op">=</span> <span class="kw">false</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> captureRouter <span class="op">=</span> <span class="fu">router</span>({</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// MUTATION — logs in MAIN, returns {ok:true}</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// MUTATION — logs in MAIN, returns the ApiResult envelope</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  start<span class="op">:</span> publicProcedure</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ reason<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">optional</span>() })<span class="op">.</span><span class="fu">optional</span>())</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(({ input }) <span class="kw">=&gt;</span> {</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>      capturing <span class="op">=</span> <span class="kw">true</span></span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>      <span class="co">// This console.log runs in the MAIN process =&gt; shows in the pnpm dev terminal.</span></span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>      <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;[capture.start] capture started&#39;</span><span class="op">,</span> input <span class="op">??</span> {})</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span> }</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span><span class="op">,</span> data<span class="op">:</span> { started<span class="op">:</span> <span class="kw">true</span> } }</span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">// QUERY — returns a boolean</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  status<span class="op">:</span> publicProcedure<span class="op">.</span><span class="fu">query</span>(()<span class="op">:</span> <span class="dt">boolean</span> <span class="kw">=&gt;</span> capturing)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">// QUERY — returns { ok: true, data: { running } }</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  status<span class="op">:</span> publicProcedure<span class="op">.</span><span class="fu">query</span>(() <span class="kw">=&gt;</span> ({ ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span><span class="op">,</span> data<span class="op">:</span> { running<span class="op">:</span> capturing } }))</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <p><code>src/main/trpc/router.ts</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { router } <span class="im">from</span> <span class="st">&#39;./trpc&#39;</span></span>
@@ -208,10 +211,14 @@ instance) in its own file so other routers can reuse
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">// The renderer imports ONLY this type (never the runtime router).</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AppRouter <span class="op">=</span> <span class="kw">typeof</span> appRouter</span></code></pre></div>
 <p>Why <code>as const</code> on <code>ok</code>: it makes the return
-type <code>{ ok: true }</code> not <code>{ ok: boolean }</code>, so
-callers get a precise type. Why an optional input on <code>start</code>:
-A's button currently calls with no args, so an optional input keeps the
-call ergonomic while still validating if something is passed.</p>
+type <code>{ ok: true; data: ... }</code> not
+<code>{ ok: boolean; data: ... }</code>, so callers get a precise type.
+<code>status</code> returns the same envelope —
+<code>{ ok: true, data: { running } }</code>, not a bare boolean — so
+every procedure speaks the shared <code>ApiResult</code> shape. Why an
+optional input on <code>start</code>: A's button currently calls with no
+args, so an optional input keeps the call ergonomic while still
+validating if something is passed.</p>
 <h3
 id="wire-the-ipc-transport-by-hand-one-ipcmainhandle-channel-in-main-that-drives-a-trpc-caller">Wire
 the IPC transport by hand: ONE ipcMain.handle channel in main that
@@ -370,9 +377,15 @@ class="sourceCode ts"><code class="sourceCode typescript"><span id="cb12-1"><a h
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Because the return types are derived from <code>AppRouter</code>,
-<code>trpc.capture.start()</code> resolves to <code>{ ok: true }</code>
-and <code>trpc.capture.status()</code> to <code>boolean</code> — fully
-typed, no <code>any</code>.</p>
+<code>trpc.capture.start()</code> resolves to
+<code>{ ok: true; data: { started: boolean } }</code> and
+<code>trpc.capture.status()</code> to
+<code>{ ok: true; data: { running: boolean } }</code> — fully typed, no
+<code>any</code>. This <code>src/renderer/src/lib/trpc.ts</code> is the
+single shared renderer client: Groups A and C both import it from
+<code>@/lib/trpc</code> rather than writing their own. C adds its
+<code>auth.*</code> methods to this same file (one plain line each, per
+the HOW-TO-ADD-PROCEDURE doc below).</p>
 <h3
 id="set-the-browserwindow-security-flags-explicitly-and-explain-why">Set
 the BrowserWindow security flags EXPLICITLY and explain why</h3>
@@ -497,13 +510,20 @@ done-criteria, typecheck, then open the PR</h3>
 pre-push runs these too):</p>
 <div class="sourceCode" id="cb17"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test</span></code></pre></div>
+<p>Heads-up before <code>pnpm test</code> can be green:
+<code>src/renderer/src/routes/status.test.tsx</code> currently spies on
+<code>startCaptureStub</code>, which you just removed from
+<code>status.tsx</code>. That test WILL fail until you update it — mock
+<code>@/lib/trpc</code> (<code>vi.mock('@/lib/trpc', ...)</code>) and
+assert <code>trpc.capture.start</code> is called instead of the stub. Do
+not claim <code>pnpm test</code> is green without fixing this test.</p>
 <p>Manually confirm each done-when:</p>
 <ol type="1">
 <li>Click "Start capture" -&gt; <code>[capture.start]</code> logs in the
 <strong>main</strong> terminal. ✓ (proves mutation logs to main)</li>
 <li>Renderer console shows the latency line and <code>status</code> is
-<code>true</code> after start. ✓ (proves query + mutation both work +
-latency)</li>
+<code>{ ok: true, data: { running: true } }</code> after start. ✓
+(proves query + mutation both work + latency)</li>
 <li>Break a type on purpose to prove the import chain is real: in
 <code>status.tsx</code> change
 <code>trpc.capture.start({ reason: 'x' })</code> to
@@ -523,7 +543,7 @@ and the explicit security flags):</p>
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> pr create <span class="at">-R</span> OnlyWorksCodeHub/onlyworks_desktop_v2 <span class="dt">\</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--base</span> main <span class="at">--head</span> lihan/trpc-ipc-bridge <span class="dt">\</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--title</span> <span class="st">&quot;feat(ipc): hand-rolled tRPC-over-IPC bridge (capture.start + capture.status)&quot;</span> <span class="dt">\</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--body</span> <span class="st">&quot;## What\nHand-rolled tRPC v11 link over one Electron IPC channel. Adds capture.start (mutation, logs in main, returns {ok:true}) and capture.status (query -&gt; boolean). Renderer gets a fully typed client via import-type AppRouter.\n\n## Why\nPer docs/decisions/trpc-bridge.md (hand-roll, not electron-trpc). Unblocks A and C to call typed procedures.\n\n## How tested\npnpm dev: clicking Start capture logs [capture.start] in the main terminal; renderer round-trip start+status measured at &lt;X&gt;ms (ceiling 60ms). A typo&#39;d field fails pnpm typecheck. pnpm typecheck &amp;&amp; pnpm test green.\n\nSecurity: contextIsolation:true, nodeIntegration:false set explicitly; sandbox stays false (preload needs Node). Only window.trpc.request crosses contextBridge; raw ipcRenderer is never exposed.\n\nDeps: @trpc/server + zod, exact-pinned, in dependencies (externalizeDepsPlugin externalizes deps for the main bundle).&quot;</span></span></code></pre></div>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--body</span> <span class="st">&quot;## What\nHand-rolled tRPC v11 link over one Electron IPC channel. Adds capture.start (mutation, logs in main, returns {ok:true,data:{started:true}}) and capture.status (query -&gt; {ok:true,data:{running}}). Renderer gets a fully typed client via import-type AppRouter.\n\n## Why\nPer docs/decisions/trpc-bridge.md (hand-roll, not electron-trpc). Unblocks A and C to call typed procedures.\n\n## How tested\npnpm dev: clicking Start capture logs [capture.start] in the main terminal; renderer round-trip start+status measured at &lt;X&gt;ms (ceiling 60ms). A typo&#39;d field fails pnpm typecheck. pnpm typecheck &amp;&amp; pnpm test green.\n\nSecurity: contextIsolation:true, nodeIntegration:false set explicitly; sandbox stays false (preload needs Node). Only window.trpc.request crosses contextBridge; raw ipcRenderer is never exposed.\n\nDeps: @trpc/server + zod, exact-pinned, in dependencies (externalizeDepsPlugin externalizes deps for the main bundle).&quot;</span></span></code></pre></div>
 <p>Then tell A in Discord #swe-team: the moment this merges, swap
 <code>src/renderer/src/lib/capture-stub.ts</code> for
 <code>@/lib/trpc</code> — replace <code>startCaptureStub()</code> with
@@ -575,9 +595,9 @@ terminal (not just devtools).</li>
 proving the AppRouter type-only import chain is real and uses no
 <code>any</code>/<code>as unknown as</code>.</li>
 <li>Both procedures work end to end: <code>capture.start</code>
-(mutation) returns <code>{ ok: true }</code> and
-<code>capture.status</code> (query) returns a boolean that flips to
-<code>true</code> after start.</li>
+(mutation) returns <code>{ ok: true, data: { started: true } }</code>
+and <code>capture.status</code> (query) returns
+<code>{ ok: true, data: { running: true } }</code> after start.</li>
 <li>Round-trip latency measured with <code>performance.now()</code> in
 the renderer is recorded in the PR and is under the 60ms ceiling.</li>
 <li><code>@trpc/server</code> and <code>zod</code> are exact-pinned in
@@ -620,7 +640,7 @@ Recover the contract files out of the closed PR #10 (do NOT re-land the
 whole 1713-line PR)</h3>
 <p>PR #10 is CLOSED and its branch is deleted, so you cannot
 <code>git checkout</code> the branch. But the patches are still readable
-through the GitHub API. You only want six tiny files, not the 60-file
+through the GitHub API. You only want six tiny files, not the ~60-file
 refactor in that PR.</p>
 <p>From the repo root, pull every file patch from PR #10 into one JSON
 blob, then extract just the contract/constant files:</p>
@@ -672,8 +692,31 @@ class="sourceCode ts"><code class="sourceCode typescript"><span id="cb23-1"><a h
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStatusInput <span class="op">=</span> <span class="kw">void</span></span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStatusOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ running<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span></span>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureFrameEvent <span class="op">=</span> { id<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> timestamp<span class="op">:</span> <span class="dt">number</span><span class="op">;</span> trigger<span class="op">:</span> CaptureTrigger }</span></code></pre></div>
-<p>(plus <code>auth.contract.ts</code>, <code>contracts/index.ts</code>,
-<code>constants/procedure-names.ts</code> verbatim from the PR patches
+<p><code>src/shared/contracts/auth.contract.ts</code> (email-code login
+— NOT magic-link):</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { ApiResult } <span class="im">from</span> <span class="st">&#39;@shared/types/api-envelope&#39;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthRequestEmailCodeInput <span class="op">=</span> { email<span class="op">:</span> <span class="dt">string</span> }</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthRequestEmailCodeOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ resend_after_seconds<span class="op">:</span> <span class="dt">number</span> }<span class="op">&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthVerifyEmailCodeInput <span class="op">=</span> { email<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> code<span class="op">:</span> <span class="dt">string</span> }</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthVerifyEmailCodeOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ signedIn<span class="op">:</span> <span class="dt">boolean</span><span class="op">;</span> email<span class="op">?:</span> <span class="dt">string</span> }<span class="op">&gt;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthStatusOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ signedIn<span class="op">:</span> <span class="dt">boolean</span><span class="op">;</span> email<span class="op">?:</span> <span class="dt">string</span> }<span class="op">&gt;</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthSignOutOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span><span class="bu">Record</span><span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> <span class="dt">never</span><span class="op">&gt;&gt;</span></span></code></pre></div>
+<p><code>src/shared/constants/procedure-names.ts</code>:</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> PROCEDURE_NAMES <span class="op">=</span> {</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  capture<span class="op">:</span> {</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    start<span class="op">:</span> <span class="st">&#39;capture.start&#39;</span><span class="op">,</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    status<span class="op">:</span> <span class="st">&#39;capture.status&#39;</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  auth<span class="op">:</span> {</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    requestEmailCode<span class="op">:</span> <span class="st">&#39;auth.requestEmailCode&#39;</span><span class="op">,</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    verifyEmailCode<span class="op">:</span> <span class="st">&#39;auth.verifyEmailCode&#39;</span><span class="op">,</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    status<span class="op">:</span> <span class="st">&#39;auth.status&#39;</span><span class="op">,</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    signOut<span class="op">:</span> <span class="st">&#39;auth.signOut&#39;</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>} <span class="im">as</span> <span class="kw">const</span></span></code></pre></div>
+<p>(plus <code>contracts/index.ts</code> verbatim from the PR patches
 above.)</p>
 <h3
 id="2-add-the-shared-path-alias--this-is-the-trap-that-will-break-your-build-if-you-skip-it">2.
@@ -711,35 +754,35 @@ type-checker, the renderer bundler, and Vitest all agree.</p>
 }</code></pre>
 <p>C) <code>electron.vite.config.ts</code> — add to
 <code>renderer.resolve.alias</code>:</p>
-<div class="sourceCode" id="cb27"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { resolve } <span class="im">from</span> <span class="st">&#39;path&#39;</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co">// ...</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>renderer<span class="op">:</span> {</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  resolve<span class="op">:</span> {</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    alias<span class="op">:</span> {</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;@&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="st">&#39;src/renderer/src&#39;</span>)<span class="op">,</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;@shared&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="st">&#39;src/shared&#39;</span>)</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  plugins<span class="op">:</span> [<span class="fu">react</span>()]</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { resolve } <span class="im">from</span> <span class="st">&#39;path&#39;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co">// ...</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>renderer<span class="op">:</span> {</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  resolve<span class="op">:</span> {</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    alias<span class="op">:</span> {</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;@&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="st">&#39;src/renderer/src&#39;</span>)<span class="op">,</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;@shared&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="st">&#39;src/shared&#39;</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  plugins<span class="op">:</span> [<span class="fu">react</span>()]</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>D) <code>vitest.config.ts</code> — add to
 <code>resolve.alias</code>:</p>
-<div class="sourceCode" id="cb28"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>resolve<span class="op">:</span> {</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  alias<span class="op">:</span> {</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;@&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="bu">__dirname</span><span class="op">,</span> <span class="st">&#39;src/renderer/src&#39;</span>)<span class="op">,</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;@shared&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="bu">__dirname</span><span class="op">,</span> <span class="st">&#39;src/shared&#39;</span>)</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>resolve<span class="op">:</span> {</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  alias<span class="op">:</span> {</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;@&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="bu">__dirname</span><span class="op">,</span> <span class="st">&#39;src/renderer/src&#39;</span>)<span class="op">,</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;@shared&#39;</span><span class="op">:</span> <span class="fu">resolve</span>(<span class="bu">__dirname</span><span class="op">,</span> <span class="st">&#39;src/shared&#39;</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Then branch, add ONLY these files, and open a small clean PR:</p>
-<div class="sourceCode" id="cb29"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feat/relan-shared-contracts</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add src/shared tsconfig.json tsconfig.web.json electron.vite.config.ts vitest.config.ts</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test   <span class="co"># both must be green before you push</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&#39;feat(shared): re-land contracts layer + @shared alias (from closed #10)&#39;</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin feat/relan-shared-contracts</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> pr create <span class="at">-R</span> OnlyWorksCodeHub/onlyworks_desktop_v2 <span class="at">--fill</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feat/relan-shared-contracts</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add src/shared tsconfig.json tsconfig.web.json electron.vite.config.ts vitest.config.ts</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test   <span class="co"># both must be green before you push</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&#39;feat(shared): re-land contracts layer + @shared alias (from closed #10)&#39;</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin feat/relan-shared-contracts</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> pr create <span class="at">-R</span> OnlyWorksCodeHub/onlyworks_desktop_v2 <span class="at">--fill</span></span></code></pre></div>
 <p>Keep the PR to just <code>src/shared/**</code> + the four config
 files. Do not pull in the routes/pages/containers refactor from #10 —
 that is a separate, larger conversation.</p>
@@ -747,15 +790,12 @@ that is a separate, larger conversation.</p>
 id="3-after-lihans-bridge-merges-replace-the-stub-with-the-real-typed-client">3.
 After Lihan's bridge merges: replace the stub with the real typed
 client</h3>
-<p>Lihan's hand-rolled tRPC-v11-over-IPC bridge exposes a typed client
-on <code>window</code> through preload (today
-<code>src/preload/index.d.ts</code> types <code>window.api</code> as
-<code>unknown</code> — that becomes the typed client). Confirm with
-Lihan the exact accessor; the agreed shape is a typed object whose
-methods return the contract Output types, e.g.
-<code>window.api.capture.start()</code> →
+<p>Lihan's bridge exposes a typed client at <code>@/lib/trpc</code>
+(<code>trpc.capture.start()</code> returns
+<code>CaptureStartOutput</code>). Import from there. The methods return
+the contract Output types, e.g. <code>trpc.capture.start()</code> →
 <code>Promise&lt;CaptureStartOutput&gt;</code> and
-<code>window.api.capture.status()</code> →
+<code>trpc.capture.status()</code> →
 <code>Promise&lt;CaptureStatusOutput&gt;</code>.</p>
 <p>Replace the body of <code>src/renderer/src/lib/capture-stub.ts</code>
 (keep the same exported function name so the rest of the app and the
@@ -763,28 +803,29 @@ existing test keep compiling — you will rename it cleanly afterwards).
 Real client wrapper:</p>
 <p><code>src/renderer/src/lib/capture-client.ts</code> (new, replaces
 capture-stub.ts):</p>
-<div class="sourceCode" id="cb30"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> {</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  CaptureStartOutput<span class="op">,</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  CaptureStatusOutput</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">&#39;@shared/contracts&#39;</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { isApiSuccess } <span class="im">from</span> <span class="st">&#39;@shared/types/api-envelope&#39;</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">/** Thin renderer-side wrapper over Lihan&#39;s typed tRPC-over-IPC client. */</span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">startCapture</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>{ started<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span> {</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res<span class="op">:</span> CaptureStartOutput <span class="op">=</span> <span class="cf">await</span> <span class="bu">window</span><span class="op">.</span><span class="at">api</span><span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="at">start</span>()</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isApiSuccess</span>(res)) {</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Throw on the envelope error so TanStack Query routes it to onError.</span></span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(res<span class="op">.</span><span class="at">message</span>)</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res<span class="op">.</span><span class="at">data</span></span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">getCaptureStatus</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>{ running<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span> {</span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res<span class="op">:</span> CaptureStatusOutput <span class="op">=</span> <span class="cf">await</span> <span class="bu">window</span><span class="op">.</span><span class="at">api</span><span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="at">status</span>()</span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isApiSuccess</span>(res)) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(res<span class="op">.</span><span class="at">message</span>)</span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res<span class="op">.</span><span class="at">data</span></span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> {</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  CaptureStartOutput<span class="op">,</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  CaptureStatusOutput</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>} <span class="im">from</span> <span class="st">&#39;@shared/contracts&#39;</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { isApiSuccess } <span class="im">from</span> <span class="st">&#39;@shared/types/api-envelope&#39;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { trpc } <span class="im">from</span> <span class="st">&#39;@/lib/trpc&#39;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co">/** Thin renderer-side wrapper over Lihan&#39;s typed tRPC-over-IPC client. */</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">startCapture</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>{ started<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span> {</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res<span class="op">:</span> CaptureStartOutput <span class="op">=</span> <span class="cf">await</span> trpc<span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="fu">start</span>()</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isApiSuccess</span>(res)) {</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Throw on the envelope error so TanStack Query routes it to onError.</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(res<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res<span class="op">.</span><span class="at">data</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">getCaptureStatus</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>{ running<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span> {</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res<span class="op">:</span> CaptureStatusOutput <span class="op">=</span> <span class="cf">await</span> trpc<span class="op">.</span><span class="at">capture</span><span class="op">.</span><span class="fu">status</span>()</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isApiSuccess</span>(res)) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(res<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> res<span class="op">.</span><span class="at">data</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Note we unwrap the <code>ApiResult</code> envelope here and THROW on
 <code>ok: false</code>. That is deliberate: TanStack Query treats a
 thrown error as the error state, which is exactly what drives your error
@@ -893,13 +934,13 @@ must live in the Query cache so it can refetch/invalidate. Storing it in
 truth and go stale. Keep Zustand for UI-only flags (e.g. the dev-gallery
 toggle). Bonus once both are wired: after a successful start, invalidate
 the status query so it reflects reality —</p>
-<div class="sourceCode" id="cb34"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useQueryClient } <span class="im">from</span> <span class="st">&#39;@tanstack/react-query&#39;</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> qc <span class="op">=</span> <span class="fu">useQueryClient</span>()</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> start <span class="op">=</span> <span class="fu">useMutation</span>({</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  mutationFn<span class="op">:</span> startCapture<span class="op">,</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  onSuccess<span class="op">:</span> () <span class="kw">=&gt;</span> qc<span class="op">.</span><span class="fu">invalidateQueries</span>({ queryKey<span class="op">:</span> [<span class="st">&#39;capture&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>] })</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useQueryClient } <span class="im">from</span> <span class="st">&#39;@tanstack/react-query&#39;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> qc <span class="op">=</span> <span class="fu">useQueryClient</span>()</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> start <span class="op">=</span> <span class="fu">useMutation</span>({</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  mutationFn<span class="op">:</span> startCapture<span class="op">,</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  onSuccess<span class="op">:</span> () <span class="kw">=&gt;</span> qc<span class="op">.</span><span class="fu">invalidateQueries</span>({ queryKey<span class="op">:</span> [<span class="st">&#39;capture&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>] })</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
 <h3
 id="6-prove-end-to-end-type-safety-by-renaming-a-field-in-lihans-procedure">6.
 Prove end-to-end type safety by renaming a field in Lihan's
@@ -907,12 +948,12 @@ procedure</h3>
 <p>This is the acceptance demo for 'types flow'. In
 <code>src/shared/contracts/capture.contract.ts</code>, temporarily
 rename the output field:</p>
-<div class="sourceCode" id="cb35"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">// was: export type CaptureStartOutput = ApiResult&lt;{ started: boolean }&gt;</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStartOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ didStart<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">// was: export type CaptureStartOutput = ApiResult&lt;{ started: boolean }&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CaptureStartOutput <span class="op">=</span> ApiResult<span class="op">&lt;</span>{ didStart<span class="op">:</span> <span class="dt">boolean</span> }<span class="op">&gt;</span></span></code></pre></div>
 <p>Then run:</p>
-<div class="sourceCode" id="cb36"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck</span></code></pre></div>
 <p>The renderer must FAIL to compile, pointing at
 <code>src/renderer/src/routes/status.tsx</code> where you read
 <code>start.data.started</code>:</p>
@@ -931,14 +972,26 @@ Write the Vitest integration test against a MOCKED tRPC client</h3>
 spies on <code>startCaptureStub</code>, which no longer exists after
 step 3. Replace it with a test that mounts the real
 <code>StatusPage</code> inside a real <code>QueryClientProvider</code>
-and mocks the typed client at the <code>window.api</code> boundary, then
-asserts the button toggles a visible status result.</p>
+and mocks the typed client by <code>vi.mock</code>-ing the
+<code>@/lib/trpc</code> facade module, then asserts the button toggles a
+visible status result.</p>
 <p><code>src/renderer/src/routes/status.test.tsx</code>:</p>
 <pre class="tsx"><code>import { render, screen, waitFor } from &#39;@testing-library/react&#39;
 import userEvent from &#39;@testing-library/user-event&#39;
 import { QueryClient, QueryClientProvider } from &#39;@tanstack/react-query&#39;
 import { afterEach, beforeEach, describe, expect, it, vi } from &#39;vitest&#39;
 import { StatusPage } from &#39;./status&#39;
+import { trpc } from &#39;@/lib/trpc&#39;
+
+// Mock Lihan&#39;s typed facade module. Methods return the real ApiResult envelope shape.
+vi.mock(&#39;@/lib/trpc&#39;, () =&gt; ({
+  trpc: {
+    capture: {
+      start: vi.fn(),
+      status: vi.fn()
+    }
+  }
+}))
 
 function renderWithQuery(ui: React.ReactElement) {
   // No retries so onError fires immediately in tests.
@@ -949,13 +1002,8 @@ function renderWithQuery(ui: React.ReactElement) {
 }
 
 beforeEach(() =&gt; {
-  // Mock Lihan&#39;s typed client. Returns the real ApiResult envelope shape.
-  ;(window as unknown as { api: unknown }).api = {
-    capture: {
-      start: vi.fn().mockResolvedValue({ ok: true, data: { started: true } }),
-      status: vi.fn().mockResolvedValue({ ok: true, data: { running: false } })
-    }
-  }
+  vi.mocked(trpc.capture.start).mockResolvedValue({ ok: true, data: { started: true } })
+  vi.mocked(trpc.capture.status).mockResolvedValue({ ok: true, data: { running: false } })
 })
 afterEach(() =&gt; vi.restoreAllMocks())
 
@@ -966,15 +1014,19 @@ describe(&#39;StatusPage&#39;, () =&gt; {
 
     await user.click(screen.getByRole(&#39;button&#39;, { name: &#39;Start capture&#39; }))
 
-    // success state renders the real returned value
+    // the facade method was called, and the success state renders the real returned value
+    expect(trpc.capture.start).toHaveBeenCalled()
     await waitFor(() =&gt;
       expect(screen.getByRole(&#39;status&#39;)).toHaveTextContent(/capture started/i)
     )
   })
 
   it(&#39;opens the error Dialog when the call returns an error envelope&#39;, async () =&gt; {
-    ;(window as unknown as { api: { capture: { start: ReturnType&lt;typeof vi.fn&gt; } } }).api
-      .capture.start.mockResolvedValue({ ok: false, code: &#39;E_PERM&#39;, message: &#39;No permission&#39; })
+    vi.mocked(trpc.capture.start).mockResolvedValue({
+      ok: false,
+      code: &#39;E_PERM&#39;,
+      message: &#39;No permission&#39;
+    })
     const user = userEvent.setup()
     renderWithQuery(&lt;StatusPage /&gt;)
 
@@ -993,33 +1045,35 @@ Dialog. <code>jest-dom</code> matchers (<code>toHaveTextContent</code>,
 id="8-thursday-pair-with-yingzhu-so-her-signin-views-render-in-your-app-shell-reusing-your-shadcn-primitives">8.
 Thursday: pair with Yingzhu so her signin views render in your app shell
 reusing your shadcn primitives</h3>
-<p>On Thursday, sit with Yingzhu (Group C, auth). Goal: her
-signin/magic-link views mount inside YOUR app shell and reuse the
-EXISTING shadcn primitives — <code>Button</code>, <code>Input</code>,
-<code>Card</code>, <code>Dialog</code> — instead of her adding new
-component variants. Concrete moves:</p>
+<p>On Thursday, sit with Yingzhu (Group C, auth). Goal: her signin /
+email-code views (email → 6-digit code → signed-in) mount inside YOUR
+app shell and reuse the EXISTING shadcn primitives —
+<code>Button</code>, <code>Input</code>, <code>Card</code>,
+<code>Dialog</code> — instead of her adding new component variants.
+Concrete moves:</p>
 <ul>
 <li>She imports from your barrel paths:
 <code>@/components/ui/input</code>, <code>@/components/ui/button</code>,
 <code>@/components/ui/card</code> (exports confirmed on main:
 <code>Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent</code>;
 <code>Input</code>; <code>Button</code>).</li>
-<li>Her auth procedures already have contracts you just re-landed:
-<code>AuthRequestMagicLinkInput = { email: string }</code> and
-<code>AuthRequestMagicLinkOutput = ApiResult&lt;{ sent: boolean }&gt;</code>
-in <code>src/shared/contracts/auth.contract.ts</code>. She wires
-<code>auth.requestMagicLink</code> exactly like your
+<li>Her auth procedures use the contracts you just re-landed:
+<code>auth.requestEmailCode</code> (<code>{ email }</code> →
+<code>{ resend_after_seconds }</code>) then
+<code>auth.verifyEmailCode</code> (<code>{ email, code }</code> →
+<code>{ signedIn, email? }</code>). She wires each like your
 <code>capture.start</code> useMutation — same pending/success/error
-pattern, same error-Dialog. Hand her your <code>status.tsx</code> as the
-reference implementation.</li>
+pattern, same error-Dialog on a wrong/expired code. Hand her your
+<code>status.tsx</code> as the reference implementation.</li>
 <li>Do NOT customize the shadcn components yet (no editing
 <code>button.tsx</code>/<code>input.tsx</code> styling). If a view needs
 a tweak, do it with Tailwind classNames at the call site. Locking the
 primitives now keeps both your screens and hers visually consistent and
-avoids merge churn. Deliverable from the pairing: a signin Card
-rendering inside the shell with an email Input + submit Button, calling
-her real <code>auth.requestMagicLink</code> mutation, with the error
-Dialog reused from your pattern.</li>
+avoids merge churn. Deliverable from the pairing: a signin Card in the
+shell with an email Input + submit Button calling
+<code>auth.requestEmailCode</code>, then a 6-digit code step calling
+<code>auth.verifyEmailCode</code>, with the error Dialog reused from
+your pattern.</li>
 </ul>
 <p><strong>Watch out for</strong></p>
 <ul>
@@ -1040,9 +1094,9 @@ fires for real.</li>
 TanStack Query cache (useQuery + queryKey ['capture','status']) so it
 can invalidate/refetch. Zustand (src/renderer/src/store/ui.ts) is
 UI-only.</li>
-<li>Using useEffect + window.api.capture.status() with local state for
-the read. Use useQuery — you lose caching, dedup, refetch, and
-loading/error states otherwise.</li>
+<li>Using useEffect + trpc.capture.status() with local state for the
+read. Use useQuery — you lose caching, dedup, refetch, and loading/error
+states otherwise.</li>
 <li>Putting the success message in the shadcn Dialog. Per spec the
 Dialog is for ERRORS ONLY; success is inline/toast.</li>
 <li>Customizing shadcn components early (editing button.tsx/input.tsx).
@@ -1066,8 +1120,9 @@ error envelope.</li>
 <li>A useQuery for capture.status renders a live value (running/idle) on
 the Status page.</li>
 <li>pnpm test passes: the integration test mounts StatusPage with a
-MOCKED window.api client and asserts the button toggles a visible status
-result, plus the error-Dialog case.</li>
+MOCKED <code>@/lib/trpc</code> client
+(<code>vi.mock('@/lib/trpc')</code>) and asserts the button toggles a
+visible status result, plus the error-Dialog case.</li>
 <li>pnpm typecheck is green on main, and you have a screenshot proving
 the renderer fails to compile when a contract field is renamed (then
 reverted).</li>
@@ -1075,7 +1130,8 @@ reverted).</li>
 <p><strong>Resources</strong></p>
 <ul>
 <li><a href="docs/v2-stack/trpc.html">Internal: tRPC bridge stack notes
-(hand-rolled v11-over-IPC, the merged decision)</a></li>
+(hand-rolled v11-over-IPC, the proposed decision — Status: Proposed,
+pending Namkha's W2-demo sign-off)</a></li>
 <li><a href="docs/v2-stack/tanstack-query.html">Internal: TanStack Query
 stack notes (useMutation/useQuery patterns)</a></li>
 <li><a href="docs/v2-stack/shadcn-ui.html">Internal: shadcn/ui stack
@@ -1091,594 +1147,268 @@ window)</a></li>
 </ul>
 <hr />
 <h2 id="yingzhu--group-c--auth">Yingzhu — Group C — Auth</h2>
-<p><strong>Goal —</strong> By next meeting you'll have real OS-encrypted
-token storage, the three auth procedures (requestMagicLink / status /
-signOut) on Lihan's tRPC bridge, and the three sign-in views — so a live
-Mail-link click signs the app in, quit-and-relaunch stays signed in,
-sleep/wake refreshes silently, and sign-out wipes the token (which is
-gibberish on disk).</p>
-<h3
-id="branch--add-the-four-missing-deps-exact-pinned-then-sanity-build">Branch
-+ add the four missing deps (exact-pinned), then sanity-build</h3>
-<p>Start from a clean <code>main</code>. None of
-<code>electron-store</code>, <code>zod</code>,
-<code>react-hook-form</code>, or the tRPC packages are in
-<code>package.json</code> yet — confirmed by reading it on
-<code>main</code>. Add them EXACT-pinned (no <code>^</code>), matching
-the repo convention.</p>
-<div class="sourceCode" id="cb39"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout main <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> w2/groupC/auth-secure-storage</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># main-process deps</span></span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> electron-store@10.0.0</span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> zod@3.23.8</span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co"># tRPC v11 core (Lihan&#39;s bridge is a hand-rolled link over IPC, NOT electron-trpc)</span></span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> @trpc/server@11.0.0 @trpc/client@11.0.0</span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co"># renderer form deps</span></span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> react-hook-form@7.53.0 @hookform/resolvers@3.9.0</span>
-<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test   <span class="co"># must be green before you write a line of feature code</span></span></code></pre></div>
-<p>Note <code>pnpm</code> will pick the latest patch if a pin is
-unavailable; if so, pin to whatever it resolved and commit the exact
-<code>pnpm-lock.yaml</code>. <code>safeStorage</code> and
-<code>powerMonitor</code> ship inside <code>electron</code> (33.4.11,
-already installed) — no extra dep.</p>
-<p>Why a branch and not main: pitfall list says do NOT ship one giant
-PR. You'll cut this into ~3 PRs (types+storage,
-procedures+deep-link+wake, views+tests). Keep each under review-able
-size.</p>
-<h3 id="step-1--extend-the-token-type-with-absolute-expiry--scope">Step
-1 — Extend the token type with absolute expiry + scope</h3>
-<p><code>src/main/types/auth.ts</code> today is ONLY
-<code>access_token / refresh_token / token_type?</code> — it is missing
-expiry and scope, which every later step depends on. Replace the whole
-file:</p>
-<div class="sourceCode" id="cb40"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/types/auth.ts</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthTokens <span class="op">=</span> {</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  access_token<span class="op">:</span> <span class="dt">string</span></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  refresh_token<span class="op">:</span> <span class="dt">string</span></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  token_type<span class="op">?:</span> <span class="dt">string</span></span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">/** Absolute wall-clock expiry in ms since epoch (Date.now()-comparable). NOT a duration. */</span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  expires_at<span class="op">:</span> <span class="dt">number</span></span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">/** Space-delimited OAuth scopes granted by the backend, e.g. &#39;capture read&#39;. */</span></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  scope<span class="op">:</span> <span class="dt">string</span></span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="co">/** What the renderer is allowed to see. NEVER includes raw tokens. */</span></span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthStatus <span class="op">=</span> {</span>
-<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  signedIn<span class="op">:</span> <span class="dt">boolean</span></span>
-<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  email<span class="op">?:</span> <span class="dt">string</span></span>
-<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Key decision: store <code>expires_at</code> as ABSOLUTE ms, not a
-<code>expires_in</code> duration. The backend hands you a duration (e.g.
-<code>expires_in: 3600</code>); convert ONCE at capture time:
-<code>expires_at = Date.now() + expires_in * 1000</code>. Do NOT invent
-the number — read <code>expires_in</code> (and <code>scope</code>) from
-the backend's token response. If you store a duration you can't tell
-across a sleep whether it's stale.</p>
-<h3
-id="step-2--encrypted-storage-module-electron-store--safestorage">Step 2
-— Encrypted storage module (electron-store + safeStorage)</h3>
-<p>Create <code>src/main/services/token-store.ts</code>.
-<code>electron-store</code> holds a JSON file; <code>safeStorage</code>
-encrypts the token BYTES with a key that lives in the OS keychain
-(Keychain on macOS / DPAPI on Windows). You never write a raw key to
-disk — that's the hard-stop pitfall.</p>
+<p><strong>Goal —</strong> Real sign-in on our own backend: the user
+types their email, gets a 6-digit code, types it in, and the app stays
+signed in across quit/relaunch and sleep/wake — with tokens encrypted on
+disk and sign-out wiping them.</p>
+<blockquote>
+<p><strong>Read this first — the auth is a CODE, not a clickable
+link.</strong> Our backend (<code>onlyworks-backend-server</code>) does
+<strong>passwordless email-code</strong> login: we email a 6-digit code
+and the user types it. That means <strong>skip the
+<code>onlyworks://</code> deep link / protocol handler entirely</strong>
+— you don't need it. And the email-code verify response gives JWTs with
+<strong>no <code>expires_in</code> / <code>scope</code></strong> field —
+expiry is read from the JWT's <code>exp</code> claim. (The
+<code>/api/auth/refresh</code> response <em>does</em> include
+<code>expires_in: 3600</code>, but we ignore it and decode
+<code>exp</code> for consistency.) The endpoints live at
+<code>authRoutes.js:57</code>, <code>AuthController.js:197</code>,
+<code>AuthService.js:930</code>. The staging base URL
+(<code>{BASE}</code> below) comes from Namkha.</p>
+</blockquote>
+<h3 id="1-branch--add-deps-exact-pinned">1. Branch + add deps
+(exact-pinned)</h3>
 <div class="sourceCode" id="cb41"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/services/token-store.ts</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { safeStorage } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Store <span class="im">from</span> <span class="st">&#39;electron-store&#39;</span></span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthTokens } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> Schema <span class="op">=</span> { authBlob<span class="op">?:</span> <span class="dt">string</span> } <span class="co">// base64 of safeStorage-encrypted JSON</span></span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> store <span class="op">=</span> <span class="kw">new</span> <span class="fu">Store</span><span class="op">&lt;</span>Schema<span class="op">&gt;</span>({ name<span class="op">:</span> <span class="st">&#39;config&#39;</span> }) <span class="co">// -&gt; .../&lt;app&gt;/config.json</span></span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">saveTokens</span>(tokens<span class="op">:</span> AuthTokens)<span class="op">:</span> <span class="dt">void</span> {</span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>safeStorage<span class="op">.</span><span class="fu">isEncryptionAvailable</span>()) {</span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No OS keychain backing =&gt; refuse rather than write plaintext.</span></span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">&#39;OS secure storage unavailable; refusing to persist tokens&#39;</span>)</span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> json <span class="op">=</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(tokens)</span>
-<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> encrypted <span class="op">=</span> safeStorage<span class="op">.</span><span class="fu">encryptString</span>(json) <span class="co">// Buffer of ciphertext</span></span>
-<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  store<span class="op">.</span><span class="fu">set</span>(<span class="st">&#39;authBlob&#39;</span><span class="op">,</span> encrypted<span class="op">.</span><span class="fu">toString</span>(<span class="st">&#39;base64&#39;</span>))</span>
-<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">loadTokens</span>()<span class="op">:</span> AuthTokens <span class="op">|</span> <span class="dt">null</span> {</span>
-<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> blob <span class="op">=</span> store<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;authBlob&#39;</span>)</span>
-<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>blob) <span class="cf">return</span> <span class="kw">null</span></span>
-<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>safeStorage<span class="op">.</span><span class="fu">isEncryptionAvailable</span>()) <span class="cf">return</span> <span class="kw">null</span></span>
-<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
-<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> buf <span class="op">=</span> <span class="bu">Buffer</span><span class="op">.</span><span class="fu">from</span>(blob<span class="op">,</span> <span class="st">&#39;base64&#39;</span>)</span>
-<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> json <span class="op">=</span> safeStorage<span class="op">.</span><span class="fu">decryptString</span>(buf)</span>
-<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(json) <span class="im">as</span> AuthTokens</span>
-<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> {</span>
-<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">clearTokens</span>() <span class="co">// corrupt/foreign blob -&gt; drop it, force re-auth</span></span>
-<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">null</span></span>
-<span id="cb41-30"><a href="#cb41-30" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb41-31"><a href="#cb41-31" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-32"><a href="#cb41-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-33"><a href="#cb41-33" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">clearTokens</span>()<span class="op">:</span> <span class="dt">void</span> {</span>
-<span id="cb41-34"><a href="#cb41-34" aria-hidden="true" tabindex="-1"></a>  store<span class="op">.</span><span class="fu">delete</span>(<span class="st">&#39;authBlob&#39;</span>)</span>
-<span id="cb41-35"><a href="#cb41-35" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Verify the on-disk file is gibberish (NOT readable JSON):</p>
-<div class="sourceCode" id="cb42"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/Library/Application Support/onlyworks-desktop-v2/config.json&quot;</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># =&gt; {&quot;authBlob&quot;:&quot;BASE64GIBBERISH...&quot;}  -- no access_token visible anywhere</span></span></code></pre></div>
-<p>The app name comes from <code>package.json</code> <code>name</code>
-(<code>onlyworks-desktop-v2</code>). <code>safeStorage</code> only works
-after <code>app.whenReady()</code>, so never call save/load at module
-top-level — call them from inside procedures/handlers.</p>
-<p>Replace the in-memory <code>src/main/config/config-manager.ts</code>
-Map for tokens specifically with this module; leave config-manager for
-non-secret prefs if other groups use it.</p>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout main <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> w2/groupC/auth-email-code</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> electron-store@10.0.0 zod@3.25.76        <span class="co"># zod pinned to match Group B</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> @trpc/server@11.6.0            <span class="co"># match Lihan&#39;s bridge version</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> add <span class="at">-E</span> react-hook-form@7.53.0 @hookform/resolvers@3.9.0</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> typecheck <span class="kw">&amp;&amp;</span> <span class="ex">pnpm</span> test                 <span class="co"># green before you write feature code</span></span></code></pre></div>
+<p><code>safeStorage</code> and <code>powerMonitor</code> ship inside
+<code>electron</code> (already installed) — no extra dep. Split your
+work into ~3 PRs (storage+types, the two backend calls + procedures, the
+views) — don't ship one giant PR.</p>
 <h3
-id="step-3--backend-auth-service-the-real-logic-behind-the-procedures">Step
-3 — backend-auth service: the real logic behind the procedures</h3>
-<p><code>src/main/services/backend-auth.ts</code> is a stub returning
-<code>isAuthenticated:()=&gt;false</code>. Replace it with the real
-service the procedures call. This is where refresh + expiry logic lives
-(Step 5 reuses it).</p>
-<div class="sourceCode" id="cb43"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/services/backend-auth.ts</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { saveTokens<span class="op">,</span> loadTokens<span class="op">,</span> clearTokens } <span class="im">from</span> <span class="st">&#39;./token-store&#39;</span></span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthTokens<span class="op">,</span> AuthStatus } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> BACKEND <span class="op">=</span> <span class="st">&#39;https://api.onlyworks.example&#39;</span> <span class="co">// pull real base URL from config, do not guess</span></span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">requestMagicLink</span>(email<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">void</span><span class="op">&gt;</span> {</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`</span><span class="sc">${</span>BACKEND<span class="sc">}</span><span class="vs">/auth/magic-link`</span><span class="op">,</span> {</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    method<span class="op">:</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span></span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    headers<span class="op">:</span> { <span class="st">&#39;content-type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> }<span class="op">,</span></span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    body<span class="op">:</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>({ email })</span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>res<span class="op">.</span><span class="at">ok</span>) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="vs">`magic-link request failed: </span><span class="sc">${</span>res<span class="op">.</span><span class="at">status</span><span class="sc">}</span><span class="vs">`</span>)</span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a><span class="co">/** Called by the deep-link handler (Step 4) once tokens come back from the backend. */</span></span>
-<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">captureTokens</span>(raw<span class="op">:</span> {</span>
-<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>  access_token<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> refresh_token<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> token_type<span class="op">?:</span> <span class="dt">string</span></span>
-<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>  expires_in<span class="op">:</span> <span class="dt">number</span><span class="op">;</span> scope<span class="op">:</span> <span class="dt">string</span></span>
-<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>})<span class="op">:</span> <span class="dt">void</span> {</span>
-<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tokens<span class="op">:</span> AuthTokens <span class="op">=</span> {</span>
-<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>    access_token<span class="op">:</span> raw<span class="op">.</span><span class="at">access_token</span><span class="op">,</span></span>
-<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>    refresh_token<span class="op">:</span> raw<span class="op">.</span><span class="at">refresh_token</span><span class="op">,</span></span>
-<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>    token_type<span class="op">:</span> raw<span class="op">.</span><span class="at">token_type</span><span class="op">,</span></span>
-<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>    expires_at<span class="op">:</span> <span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">+</span> raw<span class="op">.</span><span class="at">expires_in</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">,</span> <span class="co">// duration -&gt; absolute, ONCE</span></span>
-<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>    scope<span class="op">:</span> raw<span class="op">.</span><span class="at">scope</span></span>
-<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveTokens</span>(tokens)</span>
-<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-31"><a href="#cb43-31" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">refresh</span>(tokens<span class="op">:</span> AuthTokens)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthTokens <span class="op">|</span> <span class="dt">null</span><span class="op">&gt;</span> {</span>
-<span id="cb43-32"><a href="#cb43-32" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`</span><span class="sc">${</span>BACKEND<span class="sc">}</span><span class="vs">/auth/refresh`</span><span class="op">,</span> {</span>
-<span id="cb43-33"><a href="#cb43-33" aria-hidden="true" tabindex="-1"></a>    method<span class="op">:</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span></span>
-<span id="cb43-34"><a href="#cb43-34" aria-hidden="true" tabindex="-1"></a>    headers<span class="op">:</span> { <span class="st">&#39;content-type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> }<span class="op">,</span></span>
-<span id="cb43-35"><a href="#cb43-35" aria-hidden="true" tabindex="-1"></a>    body<span class="op">:</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>({ refresh_token<span class="op">:</span> tokens<span class="op">.</span><span class="at">refresh_token</span> })</span>
-<span id="cb43-36"><a href="#cb43-36" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb43-37"><a href="#cb43-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>res<span class="op">.</span><span class="at">ok</span>) { <span class="fu">clearTokens</span>()<span class="op">;</span> <span class="cf">return</span> <span class="kw">null</span> }</span>
-<span id="cb43-38"><a href="#cb43-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> raw <span class="op">=</span> <span class="cf">await</span> res<span class="op">.</span><span class="fu">json</span>()</span>
-<span id="cb43-39"><a href="#cb43-39" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> next<span class="op">:</span> AuthTokens <span class="op">=</span> {</span>
-<span id="cb43-40"><a href="#cb43-40" aria-hidden="true" tabindex="-1"></a>    access_token<span class="op">:</span> raw<span class="op">.</span><span class="at">access_token</span><span class="op">,</span></span>
-<span id="cb43-41"><a href="#cb43-41" aria-hidden="true" tabindex="-1"></a>    refresh_token<span class="op">:</span> raw<span class="op">.</span><span class="at">refresh_token</span> <span class="op">??</span> tokens<span class="op">.</span><span class="at">refresh_token</span><span class="op">,</span></span>
-<span id="cb43-42"><a href="#cb43-42" aria-hidden="true" tabindex="-1"></a>    token_type<span class="op">:</span> raw<span class="op">.</span><span class="at">token_type</span> <span class="op">??</span> tokens<span class="op">.</span><span class="at">token_type</span><span class="op">,</span></span>
-<span id="cb43-43"><a href="#cb43-43" aria-hidden="true" tabindex="-1"></a>    expires_at<span class="op">:</span> <span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">+</span> raw<span class="op">.</span><span class="at">expires_in</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">,</span></span>
-<span id="cb43-44"><a href="#cb43-44" aria-hidden="true" tabindex="-1"></a>    scope<span class="op">:</span> raw<span class="op">.</span><span class="at">scope</span> <span class="op">??</span> tokens<span class="op">.</span><span class="at">scope</span></span>
-<span id="cb43-45"><a href="#cb43-45" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb43-46"><a href="#cb43-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveTokens</span>(next)</span>
-<span id="cb43-47"><a href="#cb43-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> next</span>
-<span id="cb43-48"><a href="#cb43-48" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-49"><a href="#cb43-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-50"><a href="#cb43-50" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SKEW_MS <span class="op">=</span> <span class="dv">60_000</span> <span class="co">// refresh a minute early to avoid edge-of-expiry 401s</span></span>
-<span id="cb43-51"><a href="#cb43-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-52"><a href="#cb43-52" aria-hidden="true" tabindex="-1"></a><span class="co">/** Returns a valid access token, refreshing on demand. null if signed out. */</span></span>
-<span id="cb43-53"><a href="#cb43-53" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">getValidAccessToken</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">string</span> <span class="op">|</span> <span class="dt">null</span><span class="op">&gt;</span> {</span>
-<span id="cb43-54"><a href="#cb43-54" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> tokens <span class="op">=</span> <span class="fu">loadTokens</span>()</span>
-<span id="cb43-55"><a href="#cb43-55" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>tokens) <span class="cf">return</span> <span class="kw">null</span></span>
-<span id="cb43-56"><a href="#cb43-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">&gt;=</span> tokens<span class="op">.</span><span class="at">expires_at</span> <span class="op">-</span> SKEW_MS) {</span>
-<span id="cb43-57"><a href="#cb43-57" aria-hidden="true" tabindex="-1"></a>    tokens <span class="op">=</span> <span class="cf">await</span> <span class="fu">refresh</span>(tokens)</span>
-<span id="cb43-58"><a href="#cb43-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>tokens) <span class="cf">return</span> <span class="kw">null</span></span>
-<span id="cb43-59"><a href="#cb43-59" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb43-60"><a href="#cb43-60" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> tokens<span class="op">.</span><span class="at">access_token</span></span>
-<span id="cb43-61"><a href="#cb43-61" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-62"><a href="#cb43-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-63"><a href="#cb43-63" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">status</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthStatus<span class="op">&gt;</span> {</span>
-<span id="cb43-64"><a href="#cb43-64" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> token <span class="op">=</span> <span class="cf">await</span> <span class="fu">getValidAccessToken</span>()</span>
-<span id="cb43-65"><a href="#cb43-65" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>token) <span class="cf">return</span> { signedIn<span class="op">:</span> <span class="kw">false</span> }</span>
-<span id="cb43-66"><a href="#cb43-66" aria-hidden="true" tabindex="-1"></a>  <span class="co">// email comes from your own captured profile / a /me call; never decode tokens client-side blindly</span></span>
-<span id="cb43-67"><a href="#cb43-67" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tokens <span class="op">=</span> <span class="fu">loadTokens</span>()</span>
-<span id="cb43-68"><a href="#cb43-68" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> { signedIn<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> email<span class="op">:</span> <span class="fu">extractEmail</span>(tokens) }</span>
-<span id="cb43-69"><a href="#cb43-69" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-70"><a href="#cb43-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-71"><a href="#cb43-71" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">signOut</span>()<span class="op">:</span> <span class="dt">void</span> {</span>
-<span id="cb43-72"><a href="#cb43-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clearTokens</span>()</span>
-<span id="cb43-73"><a href="#cb43-73" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-74"><a href="#cb43-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-75"><a href="#cb43-75" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">extractEmail</span>(_t<span class="op">:</span> AuthTokens <span class="op">|</span> <span class="dt">null</span>)<span class="op">:</span> <span class="dt">string</span> <span class="op">|</span> <span class="dt">undefined</span> {</span>
-<span id="cb43-76"><a href="#cb43-76" aria-hidden="true" tabindex="-1"></a>  <span class="co">// </span><span class="al">TODO</span><span class="co">: store email alongside tokens at capture time, or call GET /me.</span></span>
-<span id="cb43-77"><a href="#cb43-77" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">undefined</span></span>
-<span id="cb43-78"><a href="#cb43-78" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Store the user's email at capture time (add it to the persisted blob)
-rather than parsing the JWT — simpler and avoids a JWT dep this
-week.</p>
-<h3 id="step-4--the-three-procedures-on-lihans-trpc-bridge">Step 4 — The
-three procedures on Lihan's tRPC bridge</h3>
-<p>IMPORTANT current state: Lihan's PR #12 merged the bridge DECISION
-doc (<code>docs/decisions/trpc-bridge.md</code>) but the actual bridge
-MODULE is not in <code>main</code> yet (no <code>src/main/trpc/</code>).
-Group A's <code>capture-stub.ts</code> even says "swap this file for the
-real client once Group B lands the bridge." So coordinate in Discord
-#swe-team: if Lihan's <code>appRouter</code> exists on a branch, import
-and extend it; if not, scaffold a minimal router yourself behind the
-same shape so you're not blocked. Either way the renderer calls a typed
-client, never IPC directly.</p>
-<p>Create <code>src/main/trpc/auth.router.ts</code>:</p>
+id="2-the-whole-auth-api-is-two-calls-this-replaces-the-old-magic-link-assumption">2.
+The whole auth API is two calls (this replaces the old magic-link
+assumption)</h3>
+<pre class="http"><code>POST {BASE}/api/auth/email
+{ &quot;email&quot;: &quot;user@example.com&quot; }
+→ 200 { &quot;success&quot;: true, &quot;data&quot;: { &quot;resend_after_seconds&quot;: 60 } }
+→ 400 { &quot;success&quot;: false, &quot;error&quot;: { &quot;code&quot;: &quot;VALIDATION_ERROR&quot;, &quot;message&quot;: &quot;Email is required&quot; } }</code></pre>
+<pre class="http"><code>POST {BASE}/api/auth/email/verify
+{ &quot;email&quot;: &quot;user@example.com&quot;, &quot;code&quot;: &quot;123456&quot; }
+→ 200 { &quot;success&quot;: true, &quot;data&quot;: {
+    &quot;tokens&quot;: { &quot;access_token&quot;: &quot;...&quot;, &quot;refresh_token&quot;: &quot;...&quot;, &quot;token_type&quot;: &quot;Bearer&quot; },
+    &quot;user&quot;:   { &quot;id&quot;: &quot;...&quot;, &quot;email&quot;: &quot;...&quot;, &quot;full_name&quot;: &quot;...&quot;, &quot;ow_id?&quot;: &quot;...&quot;, &quot;profile_complete?&quot;: false },  // only id/email/full_name are guaranteed; ow_id &amp; profile_* appear only when a profile row exists
+    &quot;is_new_user&quot;: false
+} }</code></pre>
+<p>First-time emails auto-create the account (no separate register). A
+third endpoint, <code>POST {BASE}/api/auth/refresh</code> with
+<code>{ "refresh_token": "..." }</code>, returns fresh tokens
+<strong>flat under <code>data</code></strong>
+(<code>{ "success": true, "data": { "access_token", "refresh_token", "token_type", "expires_in": 3600 } }</code>)
+— note this differs from <code>/email/verify</code>, which nests them
+under <code>data.tokens</code>. Smoke-test the moment Namkha gives you
+<code>{BASE}</code>:</p>
 <div class="sourceCode" id="cb44"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/trpc/auth.router.ts</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { initTRPC } <span class="im">from</span> <span class="st">&#39;@trpc/server&#39;</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { z } <span class="im">from</span> <span class="st">&#39;zod&#39;</span></span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="op">*</span> <span class="im">as</span> auth <span class="im">from</span> <span class="st">&#39;../services/backend-auth&#39;</span></span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthStatus } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> t <span class="op">=</span> initTRPC<span class="op">.</span><span class="fu">create</span>()</span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> router <span class="op">=</span> t<span class="op">.</span><span class="at">router</span></span>
-<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> publicProcedure <span class="op">=</span> t<span class="op">.</span><span class="at">procedure</span></span>
-<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> authRouter <span class="op">=</span> <span class="fu">router</span>({</span>
-<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>  requestMagicLink<span class="op">:</span> publicProcedure</span>
-<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ email<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">email</span>() }))</span>
-<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(<span class="kw">async</span> ({ input }) <span class="kw">=&gt;</span> {</span>
-<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">await</span> auth<span class="op">.</span><span class="fu">requestMagicLink</span>(input<span class="op">.</span><span class="at">email</span>)</span>
-<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span> }</span>
-<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
-<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>  status<span class="op">:</span> publicProcedure</span>
-<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">query</span>(<span class="kw">async</span> ()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthStatus<span class="op">&gt;</span> <span class="kw">=&gt;</span> auth<span class="op">.</span><span class="fu">status</span>())<span class="op">,</span></span>
-<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>  signOut<span class="op">:</span> publicProcedure</span>
-<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(<span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a>      auth<span class="op">.</span><span class="fu">signOut</span>()</span>
-<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span> }</span>
-<span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<p>Merge into the app router (create
-<code>src/main/trpc/app.router.ts</code> if Lihan hasn't):</p>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sX</span> POST {BASE}/api/auth/email <span class="at">-H</span> <span class="st">&#39;content-type: application/json&#39;</span> <span class="at">-d</span> <span class="st">&#39;{&quot;email&quot;:&quot;you@onlyworks.io&quot;}&#39;</span></span></code></pre></div>
+<h3 id="3-token-type--where-expiry-comes-from-no-expires_in-field">3.
+Token type + where expiry comes from (no <code>expires_in</code>
+field)</h3>
+<p>Extend <code>src/main/types/auth.ts</code> (it already exports
+<code>AuthTokens</code> on main — you're adding
+<code>AuthStatus</code>). The tokens are JWTs; the expiry is the
+<code>exp</code> claim <strong>inside</strong> the access token, not a
+separate field.</p>
 <div class="sourceCode" id="cb45"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { router } <span class="im">from</span> <span class="st">&#39;./auth.router&#39;</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { authRouter } <span class="im">from</span> <span class="st">&#39;./auth.router&#39;</span></span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> appRouter <span class="op">=</span> <span class="fu">router</span>({ auth<span class="op">:</span> authRouter })</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AppRouter <span class="op">=</span> <span class="kw">typeof</span> appRouter</span></code></pre></div>
-<p>The <code>auth.</code> namespace gives you
-<code>auth.requestMagicLink</code>, <code>auth.status</code>,
-<code>auth.signOut</code> exactly as specced. The renderer NEVER touches
-raw tokens — procedures only ever return
-<code>{ signedIn, email? }</code> or <code>{ ok }</code>. Zod validates
-the email at the boundary; an invalid address is rejected before it
-reaches <code>fetch</code>.</p>
-<h3 id="step-5--onlyworks-deep-link-to-capture-tokens">Step 5 —
-onlyworks:// deep link to capture tokens</h3>
-<p>Register the protocol inside <code>app.whenReady()</code> in
-<code>src/main/index.ts</code> (currently there's no deep-link handling
-at all). The backend's magic-link email opens
-<code>onlyworks://auth?access_token=...&amp;refresh_token=...&amp;expires_in=...&amp;scope=...</code>.</p>
-<p>In <code>src/main/index.ts</code>, inside the existing
-<code>app.whenReady().then(() =&gt; { ... })</code>:</p>
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/types/auth.ts</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthTokens <span class="op">=</span> {</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  access_token<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  refresh_token<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  token_type<span class="op">?:</span> <span class="dt">string</span>   <span class="co">// &quot;Bearer&quot;</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> AuthStatus <span class="op">=</span> { signedIn<span class="op">:</span> <span class="dt">boolean</span><span class="op">;</span> email<span class="op">?:</span> <span class="dt">string</span> }</span></code></pre></div>
+<p>Decode the JWT's <code>exp</code> in the main process — no library
+needed:</p>
 <div class="sourceCode" id="cb46"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { app<span class="op">,</span> powerMonitor } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { captureTokens<span class="op">,</span> getValidAccessToken } <span class="im">from</span> <span class="st">&#39;./services/backend-auth&#39;</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">handleDeepLink</span>(url<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="dt">void</span> {</span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> parsed <span class="op">=</span> <span class="kw">new</span> <span class="fu">URL</span>(url)</span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (parsed<span class="op">.</span><span class="at">host</span> <span class="op">!==</span> <span class="st">&#39;auth&#39;</span> <span class="op">&amp;&amp;</span> parsed<span class="op">.</span><span class="at">pathname</span> <span class="op">!==</span> <span class="st">&#39;//auth&#39;</span>) <span class="cf">return</span></span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> q <span class="op">=</span> parsed<span class="op">.</span><span class="at">searchParams</span></span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> access_token <span class="op">=</span> q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;access_token&#39;</span>)</span>
-<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> refresh_token <span class="op">=</span> q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;refresh_token&#39;</span>)</span>
-<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> expires_in <span class="op">=</span> <span class="bu">Number</span>(q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;expires_in&#39;</span>))</span>
-<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> scope <span class="op">=</span> q<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;scope&#39;</span>) <span class="op">??</span> <span class="st">&#39;&#39;</span></span>
-<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>access_token <span class="op">||</span> <span class="op">!</span>refresh_token <span class="op">||</span> <span class="op">!</span><span class="bu">Number</span><span class="op">.</span><span class="fu">isFinite</span>(expires_in)) <span class="cf">return</span></span>
-<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">,</span> refresh_token<span class="op">,</span> expires_in<span class="op">,</span> scope })</span>
-<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Register + wire the OS events (still inside
-<code>whenReady</code>):</p>
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/services/jwt.ts</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">accessTokenExpiryMs</span>(accessToken<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="dt">number</span> {</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> payload <span class="op">=</span> accessToken<span class="op">.</span><span class="fu">split</span>(<span class="st">&#39;.&#39;</span>)[<span class="dv">1</span>]                 <span class="co">// header.PAYLOAD.signature</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>payload) <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> json <span class="op">=</span> <span class="bu">Buffer</span><span class="op">.</span><span class="fu">from</span>(payload<span class="op">,</span> <span class="st">&#39;base64url&#39;</span>)<span class="op">.</span><span class="fu">toString</span>(<span class="st">&#39;utf8&#39;</span>)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> { exp } <span class="op">=</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(json) <span class="im">as</span> { exp<span class="op">?:</span> <span class="dt">number</span> }      <span class="co">// exp = seconds since epoch</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> exp <span class="op">?</span> exp <span class="op">*</span> <span class="dv">1000</span> <span class="op">:</span> <span class="dv">0</span>                               <span class="co">// -&gt; ms, comparable to Date.now()</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3
+id="4-encrypted-storage-electron-store--safestorage--still-required">4.
+Encrypted storage (electron-store + safeStorage) — still required</h3>
+<p><code>safeStorage</code> encrypts the token bytes with a key kept in
+the OS keychain. Never write a raw key or raw token to disk — that's a
+hard stop.</p>
 <div class="sourceCode" id="cb47"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">setAsDefaultProtocolClient</span>(<span class="st">&#39;onlyworks&#39;</span>)</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="co">// macOS: cold or warm launch from a link fires &#39;open-url&#39;</span></span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;open-url&#39;</span><span class="op">,</span> (<span class="bu">event</span><span class="op">,</span> url) <span class="kw">=&gt;</span> {</span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">event</span><span class="op">.</span><span class="fu">preventDefault</span>()</span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">handleDeepLink</span>(url)</span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<p>Windows differs: there's no <code>open-url</code>. The link arrives
-as an argv on a second instance, so you need single-instance +
-<code>second-instance</code>:</p>
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/services/token-store.ts</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { safeStorage } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> Store <span class="im">from</span> <span class="st">&#39;electron-store&#39;</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthTokens } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> store <span class="op">=</span> <span class="kw">new</span> <span class="fu">Store</span><span class="op">&lt;</span>{ authBlob<span class="op">?:</span> <span class="dt">string</span><span class="op">;</span> email<span class="op">?:</span> <span class="dt">string</span> }<span class="op">&gt;</span>({ name<span class="op">:</span> <span class="st">&#39;config&#39;</span> })</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">saveTokens</span>(tokens<span class="op">:</span> AuthTokens)<span class="op">:</span> <span class="dt">void</span> {</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>safeStorage<span class="op">.</span><span class="fu">isEncryptionAvailable</span>()) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">&#39;OS secure storage unavailable&#39;</span>)</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>  store<span class="op">.</span><span class="fu">set</span>(<span class="st">&#39;authBlob&#39;</span><span class="op">,</span> safeStorage<span class="op">.</span><span class="fu">encryptString</span>(<span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(tokens))<span class="op">.</span><span class="fu">toString</span>(<span class="st">&#39;base64&#39;</span>))</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">loadTokens</span>()<span class="op">:</span> AuthTokens <span class="op">|</span> <span class="dt">null</span> {</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> blob <span class="op">=</span> store<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;authBlob&#39;</span>)</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>blob <span class="op">||</span> <span class="op">!</span>safeStorage<span class="op">.</span><span class="fu">isEncryptionAvailable</span>()) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> { <span class="cf">return</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(safeStorage<span class="op">.</span><span class="fu">decryptString</span>(<span class="bu">Buffer</span><span class="op">.</span><span class="fu">from</span>(blob<span class="op">,</span> <span class="st">&#39;base64&#39;</span>))) <span class="im">as</span> AuthTokens }</span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">catch</span> { <span class="fu">clearTokens</span>()<span class="op">;</span> <span class="cf">return</span> <span class="kw">null</span> }</span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">saveEmail</span>(email<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="dt">void</span> { store<span class="op">.</span><span class="fu">set</span>(<span class="st">&#39;email&#39;</span><span class="op">,</span> email) }</span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">loadEmail</span>()<span class="op">:</span> <span class="dt">string</span> <span class="op">|</span> <span class="dt">undefined</span> { <span class="cf">return</span> store<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;email&#39;</span>) }</span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">clearTokens</span>()<span class="op">:</span> <span class="dt">void</span> { store<span class="op">.</span><span class="fu">delete</span>(<span class="st">&#39;authBlob&#39;</span>)<span class="op">;</span> store<span class="op">.</span><span class="fu">delete</span>(<span class="st">&#39;email&#39;</span>) }</span></code></pre></div>
+<p>Verify on disk it's gibberish:
+<code>cat "$HOME/Library/Application Support/onlyworks-desktop-v2/config.json"</code>
+should show a base64 <code>authBlob</code>, never a readable
+<code>access_token</code>.</p>
+<h3 id="5-backend-auth-service--call-the-real-endpoints">5. backend-auth
+service — call the real endpoints</h3>
 <div class="sourceCode" id="cb48"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> gotLock <span class="op">=</span> app<span class="op">.</span><span class="fu">requestSingleInstanceLock</span>()</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="op">!</span>gotLock) app<span class="op">.</span><span class="fu">quit</span>()</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span> {</span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  app<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;second-instance&#39;</span><span class="op">,</span> (_e<span class="op">,</span> argv) <span class="kw">=&gt;</span> {</span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> link <span class="op">=</span> argv<span class="op">.</span><span class="fu">find</span>((a) <span class="kw">=&gt;</span> a<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">&#39;onlyworks://&#39;</span>))</span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (link) <span class="fu">handleDeepLink</span>(link)</span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>For <code>pnpm dev</code> on macOS, protocol registration points at
-the Electron binary, so test the click-to-sign-in flow against a
-packaged build; in dev you can simulate by calling
-<code>handleDeepLink('onlyworks://auth?...')</code> from a temporary
-devtools hook. After capture, the renderer's <code>auth.status</code>
-poll (Step 6) flips to signed-in on its next tick — no manual
-refresh.</p>
-<h3 id="step-5b--sleepwake-silent-refresh-via-powermonitor">Step 5b —
-Sleep/wake silent refresh via powerMonitor</h3>
-<p>On sleep the wall clock jumps forward, so a token that looked fresh
-can be expired on resume. Do NOT trust a bare timer that 'slept through'
-the expiry, and do NOT let every queued call 401 then cascade-refresh.
-Instead, on <code>resume</code>, recompute
-now-vs-<code>expires_at</code> and refresh proactively.</p>
-<p>Still inside <code>app.whenReady()</code> in
-<code>src/main/index.ts</code>:</p>
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/services/backend-auth.ts</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { saveTokens<span class="op">,</span> loadTokens<span class="op">,</span> clearTokens<span class="op">,</span> saveEmail<span class="op">,</span> loadEmail } <span class="im">from</span> <span class="st">&#39;./token-store&#39;</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { accessTokenExpiryMs } <span class="im">from</span> <span class="st">&#39;./jwt&#39;</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { AuthStatus } <span class="im">from</span> <span class="st">&#39;../types/auth&#39;</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> BASE <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="at">OW_BACKEND_URL</span> <span class="op">??</span> <span class="st">&#39;&#39;</span> <span class="co">// staging base URL from Namkha (config, not hardcoded)</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">post</span>(path<span class="op">:</span> <span class="dt">string</span><span class="op">,</span> body<span class="op">:</span> <span class="dt">unknown</span>)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">any</span><span class="op">&gt;</span> {</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`</span><span class="sc">${</span>BASE<span class="sc">}${</span>path<span class="sc">}</span><span class="vs">`</span><span class="op">,</span> {</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>    method<span class="op">:</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span> headers<span class="op">:</span> { <span class="st">&#39;content-type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> }<span class="op">,</span> body<span class="op">:</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(body)</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> json <span class="op">=</span> <span class="cf">await</span> res<span class="op">.</span><span class="fu">json</span>()</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">// auth endpoints are rate-limited (5/min on /email, 10/min on /email/verify); a 429 returns `error` as a STRING, not an object</span></span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>json<span class="op">.</span><span class="at">success</span>) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="kw">typeof</span> json<span class="op">.</span><span class="at">error</span> <span class="op">===</span> <span class="st">&#39;string&#39;</span> <span class="op">?</span> json<span class="op">.</span><span class="at">error</span> <span class="op">:</span> (json<span class="op">.</span><span class="at">error</span><span class="op">?.</span><span class="at">message</span> <span class="op">??</span> <span class="vs">`HTTP </span><span class="sc">${</span>res<span class="op">.</span><span class="at">status</span><span class="sc">}</span><span class="vs">`</span>))</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> json<span class="op">.</span><span class="at">data</span></span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">requestEmailCode</span>(email<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>{ resend_after_seconds<span class="op">:</span> <span class="dt">number</span> }<span class="op">&gt;</span> {</span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">post</span>(<span class="st">&#39;/api/auth/email&#39;</span><span class="op">,</span> { email })            <span class="co">// emails the 6-digit code</span></span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">verifyEmailCode</span>(email<span class="op">:</span> <span class="dt">string</span><span class="op">,</span> code<span class="op">:</span> <span class="dt">string</span>)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthStatus<span class="op">&gt;</span> {</span>
+<span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> <span class="fu">post</span>(<span class="st">&#39;/api/auth/email/verify&#39;</span><span class="op">,</span> { email<span class="op">,</span> code }) <span class="co">// { tokens, user, is_new_user }</span></span>
+<span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveTokens</span>(data<span class="op">.</span><span class="at">tokens</span>)<span class="op">;</span> <span class="fu">saveEmail</span>(data<span class="op">.</span><span class="at">user</span><span class="op">.</span><span class="at">email</span>)</span>
+<span id="cb48-24"><a href="#cb48-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> { signedIn<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> email<span class="op">:</span> data<span class="op">.</span><span class="at">user</span><span class="op">.</span><span class="at">email</span> }</span>
+<span id="cb48-25"><a href="#cb48-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-26"><a href="#cb48-26" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">refresh</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">boolean</span><span class="op">&gt;</span> {</span>
+<span id="cb48-27"><a href="#cb48-27" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> t <span class="op">=</span> <span class="fu">loadTokens</span>()<span class="op">;</span> <span class="cf">if</span> (<span class="op">!</span>t) <span class="cf">return</span> <span class="kw">false</span></span>
+<span id="cb48-28"><a href="#cb48-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> { <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> <span class="fu">post</span>(<span class="st">&#39;/api/auth/refresh&#39;</span><span class="op">,</span> { refresh_token<span class="op">:</span> t<span class="op">.</span><span class="at">refresh_token</span> })</span>
+<span id="cb48-29"><a href="#cb48-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">saveTokens</span>(data<span class="op">.</span><span class="at">tokens</span> <span class="op">??</span> data)<span class="op">;</span> <span class="cf">return</span> <span class="kw">true</span> }</span>
+<span id="cb48-30"><a href="#cb48-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">catch</span> { <span class="fu">clearTokens</span>()<span class="op">;</span> <span class="cf">return</span> <span class="kw">false</span> }</span>
+<span id="cb48-31"><a href="#cb48-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-32"><a href="#cb48-32" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SKEW_MS <span class="op">=</span> <span class="dv">60_000</span></span>
+<span id="cb48-33"><a href="#cb48-33" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">getValidAccessToken</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span><span class="dt">string</span> <span class="op">|</span> <span class="dt">null</span><span class="op">&gt;</span> {</span>
+<span id="cb48-34"><a href="#cb48-34" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> t <span class="op">=</span> <span class="fu">loadTokens</span>()<span class="op">;</span> <span class="cf">if</span> (<span class="op">!</span>t) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb48-35"><a href="#cb48-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">&gt;=</span> <span class="fu">accessTokenExpiryMs</span>(t<span class="op">.</span><span class="at">access_token</span>) <span class="op">-</span> SKEW_MS) {</span>
+<span id="cb48-36"><a href="#cb48-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>(<span class="cf">await</span> <span class="fu">refresh</span>())) <span class="cf">return</span> <span class="kw">null</span></span>
+<span id="cb48-37"><a href="#cb48-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb48-38"><a href="#cb48-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">loadTokens</span>()<span class="op">?.</span><span class="at">access_token</span> <span class="op">??</span> <span class="kw">null</span></span>
+<span id="cb48-39"><a href="#cb48-39" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-40"><a href="#cb48-40" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">status</span>()<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>AuthStatus<span class="op">&gt;</span> {</span>
+<span id="cb48-41"><a href="#cb48-41" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> tok <span class="op">=</span> <span class="cf">await</span> <span class="fu">getValidAccessToken</span>()</span>
+<span id="cb48-42"><a href="#cb48-42" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> tok <span class="op">?</span> { signedIn<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> email<span class="op">:</span> <span class="fu">loadEmail</span>() } <span class="op">:</span> { signedIn<span class="op">:</span> <span class="kw">false</span> }</span>
+<span id="cb48-43"><a href="#cb48-43" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-44"><a href="#cb48-44" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">signOut</span>()<span class="op">:</span> <span class="dt">void</span> { <span class="fu">clearTokens</span>() }</span></code></pre></div>
+<h3 id="6-the-four-trpc-procedures-on-lihans-bridge">6. The four tRPC
+procedures on Lihan's bridge</h3>
 <div class="sourceCode" id="cb49"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>powerMonitor<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;resume&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Wall clock advanced during sleep; refresh ahead of the next call.</span></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">void</span> <span class="fu">getValidAccessToken</span>() <span class="co">// refreshes if Date.now() &gt;= expires_at - SKEW (Step 3)</span></span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<p>Because <code>getValidAccessToken</code> compares the absolute
-<code>expires_at</code> against a fresh <code>Date.now()</code> (not a
-duration captured before sleep), the difference is computed correctly
-across the jump. The single proactive refresh on resume means the next
-<code>auth.status</code> poll and the next real API call already have a
-valid token — no 401 storm. This is the whole reason Step 1 stores
-absolute expiry.</p>
-<h3
-id="step-6--renderer-status-as-a-tanstack-query-poll-not-a-subscription">Step
-6 — Renderer status as a TanStack Query POLL (not a subscription)</h3>
-<p><code>App.tsx</code> already wraps the tree in
-<code>QueryClientProvider</code> — confirmed. Subscriptions are a W3
-deliverable; this week <code>auth.status</code> is a polled
-<code>useQuery</code> with <code>refetchInterval</code>. Create
-<code>src/renderer/src/lib/auth-client.ts</code> calling the typed tRPC
-client (mirror Group A's stub-swap pattern), then a hook:</p>
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/main/trpc/auth.router.ts</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { z } <span class="im">from</span> <span class="st">&#39;zod&#39;</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { router<span class="op">,</span> publicProcedure } <span class="im">from</span> <span class="st">&#39;./trpc&#39;</span>   <span class="co">// from Lihan&#39;s bridge</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="op">*</span> <span class="im">as</span> auth <span class="im">from</span> <span class="st">&#39;../services/backend-auth&#39;</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> authRouter <span class="op">=</span> <span class="fu">router</span>({</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  requestEmailCode<span class="op">:</span> publicProcedure</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ email<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">email</span>() }))</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(<span class="kw">async</span> ({ input }) <span class="kw">=&gt;</span> ({ ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span><span class="op">,</span> data<span class="op">:</span> <span class="cf">await</span> auth<span class="op">.</span><span class="fu">requestEmailCode</span>(input<span class="op">.</span><span class="at">email</span>) }))<span class="op">,</span></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>  verifyEmailCode<span class="op">:</span> publicProcedure</span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">input</span>(z<span class="op">.</span><span class="fu">object</span>({ email<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">email</span>()<span class="op">,</span> code<span class="op">:</span> z<span class="op">.</span><span class="fu">string</span>()<span class="op">.</span><span class="fu">min</span>(<span class="dv">4</span>) }))</span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mutation</span>(<span class="kw">async</span> ({ input }) <span class="kw">=&gt;</span> ({ ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span><span class="op">,</span> data<span class="op">:</span> <span class="cf">await</span> auth<span class="op">.</span><span class="fu">verifyEmailCode</span>(input<span class="op">.</span><span class="at">email</span><span class="op">,</span> input<span class="op">.</span><span class="at">code</span>) }))<span class="op">,</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>  status<span class="op">:</span>  publicProcedure<span class="op">.</span><span class="fu">query</span>(<span class="kw">async</span> () <span class="kw">=&gt;</span> ({ ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span><span class="op">,</span> data<span class="op">:</span> <span class="cf">await</span> auth<span class="op">.</span><span class="fu">status</span>() }))<span class="op">,</span></span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>  signOut<span class="op">:</span> publicProcedure<span class="op">.</span><span class="fu">mutation</span>(() <span class="kw">=&gt;</span> { auth<span class="op">.</span><span class="fu">signOut</span>()<span class="op">;</span> <span class="cf">return</span> { ok<span class="op">:</span> <span class="kw">true</span> <span class="im">as</span> <span class="kw">const</span><span class="op">,</span> data<span class="op">:</span> {} } })</span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>The renderer NEVER sees raw tokens — these procedures only ever
+return the <code>ApiResult</code> envelope (e.g.
+<code>{ ok: true, data: { signedIn, email? } }</code>), matching every
+other procedure on the bridge. Mount <code>authRouter</code> under the
+<code>appRouter</code> (coordinate with Lihan in #swe-team; if his
+bridge module isn't merged yet, build behind the agreed typed-client
+shape so you aren't blocked).</p>
+<h3 id="7-sleepwake-silent-refresh-powermonitor--unchanged">7.
+Sleep/wake silent refresh (powerMonitor) — unchanged</h3>
+<p>The wall clock jumps forward on sleep, so a token can be expired on
+wake. On <code>resume</code>, refresh proactively (don't let calls
+401-cascade). In <code>src/main/index.ts</code> inside
+<code>app.whenReady()</code>:</p>
 <div class="sourceCode" id="cb50"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/renderer/src/lib/use-auth.ts</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useQuery<span class="op">,</span> useMutation<span class="op">,</span> useQueryClient } <span class="im">from</span> <span class="st">&#39;@tanstack/react-query&#39;</span></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { trpc } <span class="im">from</span> <span class="st">&#39;./auth-client&#39;</span> <span class="co">// typed tRPC client over Lihan&#39;s IPC link</span></span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useAuthStatus</span>() {</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">useQuery</span>({</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    queryKey<span class="op">:</span> [<span class="st">&#39;auth&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>]<span class="op">,</span></span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    queryFn<span class="op">:</span> () <span class="kw">=&gt;</span> trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="at">status</span><span class="op">.</span><span class="fu">query</span>()<span class="op">,</span></span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    refetchInterval<span class="op">:</span> <span class="dv">10_000</span><span class="op">,</span> <span class="co">// poll; swap to a subscription in W3</span></span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    refetchOnWindowFocus<span class="op">:</span> <span class="kw">true</span></span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useRequestMagicLink</span>() {</span>
-<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">useMutation</span>({</span>
-<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>    mutationFn<span class="op">:</span> (email<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="at">requestMagicLink</span><span class="op">.</span><span class="fu">mutate</span>({ email })</span>
-<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useSignOut</span>() {</span>
-<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> qc <span class="op">=</span> <span class="fu">useQueryClient</span>()</span>
-<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">useMutation</span>({</span>
-<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>    mutationFn<span class="op">:</span> () <span class="kw">=&gt;</span> trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="at">signOut</span><span class="op">.</span><span class="fu">mutate</span>()<span class="op">,</span></span>
-<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a>    onSuccess<span class="op">:</span> () <span class="kw">=&gt;</span> qc<span class="op">.</span><span class="fu">invalidateQueries</span>({ queryKey<span class="op">:</span> [<span class="st">&#39;auth&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>] })</span>
-<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>The 10s poll is what makes the Mail-click flow feel automatic: after
-the deep link captures tokens in main, the next poll returns
-<code>{ signedIn: true }</code> and the UI advances to the signed-in
-view without the user doing anything. Do NOT build a tRPC subscription
-this week — that's W3 and depends on the bridge's subscription transport
-which isn't built.</p>
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { powerMonitor } <span class="im">from</span> <span class="st">&#39;electron&#39;</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { getValidAccessToken } <span class="im">from</span> <span class="st">&#39;./services/backend-auth&#39;</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>powerMonitor<span class="op">.</span><span class="fu">on</span>(<span class="st">&#39;resume&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> { <span class="kw">void</span> <span class="fu">getValidAccessToken</span>() }) <span class="co">// refreshes if past exp - skew</span></span></code></pre></div>
+<p>This works because <code>accessTokenExpiryMs</code> reads the
+absolute <code>exp</code> from the token and compares to a fresh
+<code>Date.now()</code> — correct across the jump.</p>
 <h3
-id="step-7--the-three-sign-in-views-react-hook-form--zod-reusing-group-a-primitives">Step
-7 — The three sign-in views (react-hook-form + zod, reusing Group A
+id="8-authstatus-in-the-renderer--a-tanstack-query-poll-not-a-subscription">8.
+auth.status in the renderer = a TanStack Query POLL (not a
+subscription)</h3>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/renderer/src/lib/use-auth.ts</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useQuery<span class="op">,</span> useMutation<span class="op">,</span> useQueryClient } <span class="im">from</span> <span class="st">&#39;@tanstack/react-query&#39;</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { isApiSuccess<span class="op">,</span> <span class="kw">type</span> ApiResult } <span class="im">from</span> <span class="st">&#39;@shared/types/api-envelope&#39;</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { trpc } <span class="im">from</span> <span class="st">&#39;@/lib/trpc&#39;</span>   <span class="co">// the SAME facade Lihan created — add your auth.* methods to it, no separate client</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Procedures return the ApiResult envelope; unwrap it (throw on error -&gt; onError -&gt; Dialog).</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">unwrap</span><span class="op">&lt;</span>T<span class="op">&gt;</span>(p<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>ApiResult<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>)<span class="op">:</span> <span class="bu">Promise</span><span class="op">&lt;</span>T<span class="op">&gt;</span> {</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> r <span class="op">=</span> <span class="cf">await</span> p</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="fu">isApiSuccess</span>(r)) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(r<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> r<span class="op">.</span><span class="at">data</span></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> useAuthStatus <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="fu">useQuery</span>({</span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>  queryKey<span class="op">:</span> [<span class="st">&#39;auth&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>]<span class="op">,</span></span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>  queryFn<span class="op">:</span> () <span class="kw">=&gt;</span> <span class="fu">unwrap</span>(trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="fu">status</span>())<span class="op">,</span>         <span class="co">// status.data is { signedIn, email? }</span></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>  refetchInterval<span class="op">:</span> <span class="dv">10_000</span>                            <span class="co">// poll; subscriptions are W3</span></span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> useRequestCode <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="fu">useMutation</span>({</span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>  mutationFn<span class="op">:</span> (email<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> <span class="fu">unwrap</span>(trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="fu">requestEmailCode</span>({ email }))</span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useVerifyCode</span>() {</span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> qc <span class="op">=</span> <span class="fu">useQueryClient</span>()</span>
+<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fu">useMutation</span>({</span>
+<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a>    mutationFn<span class="op">:</span> (v<span class="op">:</span> { email<span class="op">:</span> <span class="dt">string</span><span class="op">;</span> code<span class="op">:</span> <span class="dt">string</span> }) <span class="kw">=&gt;</span> <span class="fu">unwrap</span>(trpc<span class="op">.</span><span class="at">auth</span><span class="op">.</span><span class="fu">verifyEmailCode</span>(v))<span class="op">,</span></span>
+<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a>    onSuccess<span class="op">:</span> () <span class="kw">=&gt;</span> qc<span class="op">.</span><span class="fu">invalidateQueries</span>({ queryKey<span class="op">:</span> [<span class="st">&#39;auth&#39;</span><span class="op">,</span> <span class="st">&#39;status&#39;</span>] })  <span class="co">// flip to signed-in</span></span>
+<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3
+id="9-the-three-views--email--code--signed-in-reuse-group-as-shadcn-primitives">9.
+The three views — EMAIL → CODE → signed in (reuse Group A's shadcn
 primitives)</h3>
-<p>Reuse Group A's shadcn primitives at their real paths —
-<code>@/components/ui/input</code>, <code>@/components/ui/button</code>,
-<code>@/components/ui/card</code> (all confirmed present). Do NOT add
-new primitives. Create <code>src/renderer/src/routes/signin.tsx</code>
-with three states driven by <code>useAuthStatus()</code>.</p>
-<p>Email-entry form:</p>
-<pre class="tsx"><code>import { useForm } from &#39;react-hook-form&#39;
-import { zodResolver } from &#39;@hookform/resolvers/zod&#39;
-import { z } from &#39;zod&#39;
-import { Card, CardContent, CardHeader, CardTitle } from &#39;@/components/ui/card&#39;
-import { Input } from &#39;@/components/ui/input&#39;
-import { Button } from &#39;@/components/ui/button&#39;
-import { useRequestMagicLink } from &#39;@/lib/use-auth&#39;
-
+<p>The flow is <strong>email entry → 6-digit code entry → signed
+in</strong>, NOT "check your inbox, click the link." Reuse
+<code>@/components/ui/{input,button,card}</code> — no new
+primitives.</p>
+<pre class="tsx"><code>// email entry (react-hook-form + zod)
 const schema = z.object({ email: z.string().email(&#39;Enter a valid email&#39;) })
-type Values = z.infer&lt;typeof schema&gt;
+// on submit: await requestCode.mutateAsync(email)  -&gt; advance to the code view
 
-function EmailEntry({ onSent }: { onSent: (email: string) =&gt; void }) {
-  const { register, handleSubmit, formState: { errors } } = useForm&lt;Values&gt;({
-    resolver: zodResolver(schema)
-  })
-  const mutation = useRequestMagicLink()
-  return (
-    &lt;Card className=&quot;mx-auto mt-20 max-w-sm&quot;&gt;
-      &lt;CardHeader&gt;&lt;CardTitle&gt;Sign in to OnlyWorks&lt;/CardTitle&gt;&lt;/CardHeader&gt;
-      &lt;CardContent&gt;
-        &lt;form onSubmit={handleSubmit(async (v) =&gt; { await mutation.mutateAsync(v.email); onSent(v.email) })}
-              className=&quot;space-y-3&quot;&gt;
-          &lt;Input type=&quot;email&quot; placeholder=&quot;you@company.com&quot; {...register(&#39;email&#39;)} /&gt;
-          {errors.email &amp;&amp; &lt;p className=&quot;text-sm text-destructive&quot;&gt;{errors.email.message}&lt;/p&gt;}
-          &lt;Button type=&quot;submit&quot; className=&quot;w-full&quot; disabled={mutation.isPending}&gt;
-            {mutation.isPending ? &#39;Sending…&#39; : &#39;Send magic link&#39;}
-          &lt;/Button&gt;
-        &lt;/form&gt;
-      &lt;/CardContent&gt;
-    &lt;/Card&gt;
-  )
-}</code></pre>
-<p>'Check your inbox' view with a 60s resend cooldown:</p>
-<pre class="tsx"><code>import { useEffect, useState } from &#39;react&#39;
-function CheckInbox({ email }: { email: string }) {
-  const [left, setLeft] = useState(60)
-  const resend = useRequestMagicLink()
-  useEffect(() =&gt; {
-    if (left &lt;= 0) return
-    const id = setTimeout(() =&gt; setLeft((n) =&gt; n - 1), 1000)
-    return () =&gt; clearTimeout(id)
-  }, [left])
-  return (
-    &lt;Card className=&quot;mx-auto mt-20 max-w-sm&quot;&gt;
-      &lt;CardHeader&gt;&lt;CardTitle&gt;Check your inbox&lt;/CardTitle&gt;&lt;/CardHeader&gt;
-      &lt;CardContent className=&quot;space-y-3&quot;&gt;
-        &lt;p className=&quot;text-sm text-muted-foreground&quot;&gt;We emailed a sign-in link to {email}.&lt;/p&gt;
-        &lt;Button variant=&quot;outline&quot; className=&quot;w-full&quot; disabled={left &gt; 0}
-                onClick={() =&gt; { resend.mutate(email); setLeft(60) }}&gt;
-          {left &gt; 0 ? `Resend in ${left}s` : &#39;Resend link&#39;}
-        &lt;/Button&gt;
-      &lt;/CardContent&gt;
-    &lt;/Card&gt;
-  )
-}</code></pre>
+// code entry — a 6-digit Input + a &quot;Resend&quot; button gated by resend_after_seconds (60s)
+// on submit: verifyCode.mutate({ email, code })  -&gt; on success the status poll flips to signed-in</code></pre>
 <p>The signed-in view reads <code>useAuthStatus()</code> and shows a
-<code>useSignOut()</code> button. Top-level <code>SignInPage</code>
-switches: if <code>status.signedIn</code> -&gt; signed-in view; else if
-a link was sent -&gt; CheckInbox; else -&gt; EmailEntry. Register the
-route in <code>src/renderer/src/router.tsx</code> next to the existing
-<code>statusRoute</code>/<code>portfolioRoute</code>/<code>settingsRoute</code>.</p>
-<h3 id="step-8--vitest-happy-path-expiry-one-network-failure-case">Step
-8 — Vitest: happy path, expiry, one network-failure case</h3>
-<p>Vitest currently only globs <code>src/renderer/src/**</code> (see
-<code>vitest.config.ts</code> <code>include</code>). Widen it to also
-pick up main-process tests:</p>
-<div class="sourceCode" id="cb53"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co">// vitest.config.ts -&gt; test.include</span></span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>include<span class="op">:</span> [<span class="st">&#39;src/**/*.{test,spec}.{ts,tsx}&#39;</span>]</span></code></pre></div>
-<p>Add the <code>@</code> alias is renderer-only, so main tests use
-relative imports. Test the token-store + refresh logic in
-<code>src/main/services/backend-auth.test.ts</code>. Mock
-<code>electron</code> (<code>safeStorage</code>,
-<code>powerMonitor</code>) and <code>electron-store</code>, and stub
-<code>fetch</code>.</p>
-<div class="sourceCode" id="cb54"><pre
-class="sourceCode ts"><code class="sourceCode typescript"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { describe<span class="op">,</span> it<span class="op">,</span> expect<span class="op">,</span> vi<span class="op">,</span> beforeEach } <span class="im">from</span> <span class="st">&#39;vitest&#39;</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>vi<span class="op">.</span><span class="fu">mock</span>(<span class="st">&#39;electron&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> ({</span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  safeStorage<span class="op">:</span> {</span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>    isEncryptionAvailable<span class="op">:</span> () <span class="kw">=&gt;</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>    encryptString<span class="op">:</span> (s<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> <span class="bu">Buffer</span><span class="op">.</span><span class="fu">from</span>(s)<span class="op">,</span>     <span class="co">// identity for the test</span></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    decryptString<span class="op">:</span> (b<span class="op">:</span> <span class="bu">Buffer</span>) <span class="kw">=&gt;</span> b<span class="op">.</span><span class="fu">toString</span>()</span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> disk<span class="op">:</span> <span class="bu">Record</span><span class="op">&lt;</span><span class="dt">string</span><span class="op">,</span> <span class="dt">unknown</span><span class="op">&gt;</span> <span class="op">=</span> {}</span>
-<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>vi<span class="op">.</span><span class="fu">mock</span>(<span class="st">&#39;electron-store&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> ({</span>
-<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">default</span><span class="op">:</span> <span class="kw">class</span> { <span class="kw">get</span>(k<span class="op">:</span> <span class="dt">string</span>){ <span class="cf">return</span> disk[k] } <span class="kw">set</span>(k<span class="op">:</span> <span class="dt">string</span><span class="op">,</span>v<span class="op">:</span> <span class="dt">unknown</span>){ disk[k]<span class="op">=</span>v } <span class="kw">delete</span>(k<span class="op">:</span> <span class="dt">string</span>){ <span class="kw">delete</span> disk[k] } }</span>
-<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { captureTokens<span class="op">,</span> getValidAccessToken<span class="op">,</span> signOut<span class="op">,</span> status } <span class="im">from</span> <span class="st">&#39;./backend-auth&#39;</span></span>
-<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a><span class="fu">beforeEach</span>(() <span class="kw">=&gt;</span> { disk <span class="op">=</span> {}<span class="op">;</span> vi<span class="op">.</span><span class="fu">restoreAllMocks</span>() })</span>
-<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">&#39;happy path: capture -&gt; valid token round-trips through encrypted storage&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">:</span> <span class="st">&#39;A&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="dv">3600</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;capture&#39;</span> })</span>
-<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(<span class="cf">await</span> <span class="fu">getValidAccessToken</span>())<span class="op">.</span><span class="fu">toBe</span>(<span class="st">&#39;A&#39;</span>)</span>
-<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>((<span class="cf">await</span> <span class="fu">status</span>())<span class="op">.</span><span class="at">signedIn</span>)<span class="op">.</span><span class="fu">toBe</span>(<span class="kw">true</span>)</span>
-<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">&#39;expiry: past-expiry token triggers a refresh&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb54-26"><a href="#cb54-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">:</span> <span class="st">&#39;OLD&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="op">-</span><span class="dv">10</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;&#39;</span> }) <span class="co">// already expired</span></span>
-<span id="cb54-27"><a href="#cb54-27" aria-hidden="true" tabindex="-1"></a>  vi<span class="op">.</span><span class="fu">stubGlobal</span>(<span class="st">&#39;fetch&#39;</span><span class="op">,</span> vi<span class="op">.</span><span class="fu">fn</span>(<span class="kw">async</span> () <span class="kw">=&gt;</span> ({</span>
-<span id="cb54-28"><a href="#cb54-28" aria-hidden="true" tabindex="-1"></a>    ok<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> json<span class="op">:</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> ({ access_token<span class="op">:</span> <span class="st">&#39;NEW&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R2&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="dv">3600</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;&#39;</span> })</span>
-<span id="cb54-29"><a href="#cb54-29" aria-hidden="true" tabindex="-1"></a>  })))</span>
-<span id="cb54-30"><a href="#cb54-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(<span class="cf">await</span> <span class="fu">getValidAccessToken</span>())<span class="op">.</span><span class="fu">toBe</span>(<span class="st">&#39;NEW&#39;</span>)</span>
-<span id="cb54-31"><a href="#cb54-31" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb54-32"><a href="#cb54-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-33"><a href="#cb54-33" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">&#39;network failure on refresh wipes token and signs out&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
-<span id="cb54-34"><a href="#cb54-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">captureTokens</span>({ access_token<span class="op">:</span> <span class="st">&#39;OLD&#39;</span><span class="op">,</span> refresh_token<span class="op">:</span> <span class="st">&#39;R&#39;</span><span class="op">,</span> expires_in<span class="op">:</span> <span class="op">-</span><span class="dv">10</span><span class="op">,</span> scope<span class="op">:</span> <span class="st">&#39;&#39;</span> })</span>
-<span id="cb54-35"><a href="#cb54-35" aria-hidden="true" tabindex="-1"></a>  vi<span class="op">.</span><span class="fu">stubGlobal</span>(<span class="st">&#39;fetch&#39;</span><span class="op">,</span> vi<span class="op">.</span><span class="fu">fn</span>(<span class="kw">async</span> () <span class="kw">=&gt;</span> ({ ok<span class="op">:</span> <span class="kw">false</span><span class="op">,</span> status<span class="op">:</span> <span class="dv">503</span> })))</span>
-<span id="cb54-36"><a href="#cb54-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(<span class="cf">await</span> <span class="fu">getValidAccessToken</span>())<span class="op">.</span><span class="fu">toBeNull</span>()</span>
-<span id="cb54-37"><a href="#cb54-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">signOut</span>()</span>
-<span id="cb54-38"><a href="#cb54-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>((<span class="cf">await</span> <span class="fu">status</span>())<span class="op">.</span><span class="at">signedIn</span>)<span class="op">.</span><span class="fu">toBe</span>(<span class="kw">false</span>)</span>
-<span id="cb54-39"><a href="#cb54-39" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
-<p>Run <code>pnpm test</code>. The pre-push hook runs
-<code>pnpm typecheck &amp;&amp; pnpm test</code>, so all three must pass
-before you can push.</p>
-<p><strong>Watch out for</strong></p>
-<ul>
-<li>HARD STOP: never write a raw encryption key or a raw token to disk
-or logs. The key must stay in the OS keychain via safeStorage; only the
-safeStorage-encrypted base64 blob goes in config.json. If
-safeStorage.isEncryptionAvailable() is false, refuse to persist — do not
-fall back to plaintext.</li>
-<li>Renderer must NEVER receive raw tokens. Procedures return only {
-signedIn, email? } or { ok }. Keep access_token/refresh_token entirely
-in the main process.</li>
-<li>Do not trust a bare wall-clock duration across sleep. Store absolute
-expires_at (ms epoch) and recompute Date.now() vs expires_at on
-powerMonitor 'resume' — a timer captured before sleep is wrong after the
-clock jumps.</li>
-<li>Don't let expiry 401-cascade: refresh proactively (on resume and on
-next getValidAccessToken with a 60s skew), not by letting many queued
-calls each hit a 401.</li>
-<li>Do NOT ship one giant PR. Split: (1) token types + encrypted store +
-tests, (2) procedures + deep link + powerMonitor, (3) the three views.
-Each separately reviewable.</li>
-<li>Do NOT build a tRPC subscription this week — auth.status is a polled
-useQuery (refetchInterval). Subscriptions are W3 and depend on the
-bridge's subscription transport that isn't built.</li>
-<li>Do NOT invent token-expiry numbers. Read expires_in and scope from
-the backend token response and convert to expires_at once at capture
-time.</li>
-<li>Lihan's bridge MODULE isn't on main yet (only the decision doc).
-Coordinate in Discord #swe-team before assuming an appRouter exists;
-scaffold the auth router behind the agreed shape so you aren't
-blocked.</li>
-<li>Reuse Group A's @/components/ui/{input,button,card} — do not add new
-shadcn primitives. Vitest's include glob is renderer-only today; widen
-it to src/** or your main-process tests won't run.</li>
-</ul>
-<p><strong>Done when all of these are true</strong></p>
-<ul>
-<li>Calling saveTokens then loadTokens returns the same AuthTokens
-(including expires_at + scope), proving the encrypted round-trip through
-electron-store + safeStorage.</li>
-<li>Clicking a real magic link in Mail opens onlyworks://auth..., the
-main process captures tokens, and the renderer's auth.status poll flips
-the UI to signed-in within ~10s.</li>
-<li>Quit and relaunch the packaged app: it stays signed in (tokens
-loaded and decrypted from config.json on next status() call).</li>
-<li>After sleeping the machine past token expiry and waking,
-powerMonitor 'resume' refreshes silently and the next API call/poll has
-a valid token with no 401.</li>
-<li>Clicking Sign out calls auth.signOut, clearTokens removes authBlob,
-and auth.status returns { signedIn: false }.</li>
-<li>cat of ~/Library/Application
-Support/onlyworks-desktop-v2/config.json shows only a base64 authBlob —
-no access_token or refresh_token readable anywhere.</li>
-<li>pnpm typecheck and pnpm test pass, including the happy-path,
-expiry-refresh, and network-failure tests.</li>
-</ul>
-<p><strong>Resources</strong></p>
-<ul>
-<li><a href="docs/v2-stack/electron.html">Internal: Electron stack page
-(safeStorage, powerMonitor, protocol, context isolation)</a></li>
-<li><a href="docs/v2-stack/trpc.html">Internal: tRPC bridge page
-(hand-rolled v11 link over IPC — procedure/router shape)</a></li>
-<li><a href="docs/v2-stack/tanstack-query.html">Internal: TanStack Query
-page (useQuery refetchInterval polling, useMutation,
-invalidate)</a></li>
-<li><a href="docs/v2-stack/react-hook-form-zod.html">Internal:
-react-hook-form + zod page (zodResolver, register,
-handleSubmit)</a></li>
-<li><a
-href="https://www.electronjs.org/docs/latest/api/safe-storage">Electron
-safeStorage API
-(encryptString/decryptString/isEncryptionAvailable)</a></li>
-<li><a
-href="https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app">Electron
-deep links (setAsDefaultProtocolClient, open-url vs
-second-instance)</a></li>
-<li><a
-href="https://www.electronjs.org/docs/latest/api/power-monitor">Electron
-powerMonitor 'resume' event</a></li>
-<li><a href="https://zod.dev">Zod email validation</a></li>
-<li><a href="https://vitest.dev">Vitest mocking (vi.mock,
-vi.stubGlobal)</a></li>
-</ul>
+sign-out button (<code>trpc.auth.signOut()</code>). Top-level
+<code>SignInPage</code> switches on <code>status.data?.signedIn</code>
+and whether a code has been requested. Show a clear inline error on a
+wrong/expired code (the verify call rejects with the backend's
+message).</p>
+<h3 id="10-vitest-happy-path-wrongexpired-code-network-failure">10.
+Vitest: happy path, wrong/expired code, network failure</h3>
+<p>Mock <code>electron</code> (<code>safeStorage</code>) +
+<code>electron-store</code> and stub <code>fetch</code>. Test: (1)
+<code>verifyEmailCode</code> saves tokens and <code>status()</code>
+returns <code>signedIn:true</code>; (2) a wrong code rejects (backend
+<code>success:false</code>) and nothing is saved; (3) a refresh network
+failure clears tokens and <code>status()</code> returns
+<code>signedIn:false</code>.</p>
   </article>
 </main>
 
