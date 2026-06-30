@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weeks 9-10 — Dogfood &amp; Hardening · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>22 · 40 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 22 · For Interns</div>
+      <div class="title">Weeks 9-10 — Dogfood &amp; Hardening</div>
+      <div class="subtitle">Internal dogfood begins. Bug burn-down, Windows CI + signing, notarization on both platforms, performance targets, and the telemetry that makes the launch metrics measurable.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>40 min</strong></span>
+        <span>Audience<strong>Interns + Founder</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-06-27</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#how-to-use">0 · How to use this document</a></li>
+<li><a href="#where-we-are">1 · Where we are right now</a></li>
+<li><a href="#at-a-glance">2 · The phase at a glance</a></li>
+<li><a href="#group-a">3 · Group A — Frontend (Jacqueline)</a></li>
+<li><a href="#group-b">4 · Group B — Desktop/IPC &amp; CI (Lihan)</a></li>
+<li><a href="#group-c">5 · Group C — Auth &amp; Secure Storage (Yingzhu)</a></li>
+<li><a href="#namkha">6 · Namkha — filters, retention, telemetry</a></li>
+<li><a href="#security">7 · Security &amp; compliance gates</a></li>
+<li><a href="#demo">8 · End-of-phase demo</a></li>
+<li><a href="#risks">9 · Risks watch list</a></li>
+<li><a href="#when-wrong">10 · When something is wrong</a></li>
+</ul>
+
+<h1 id="weeks-9-10--dogfood--hardening">Weeks 9-10 — Dogfood &amp; Hardening</h1>
+
+<p>Feature work is mostly done; now we make it <strong>trustworthy</strong>. This phase the
+whole team runs the app on their own machines every day, burns down the bugs that
+surfaces, closes the platform gaps (Windows CI and signing), hits the performance
+targets, and — critically — builds the <strong>telemetry that makes the launch metrics
+measurable at all</strong>. You cannot pass a metric you cannot see.</p>
+
+<h2 id="how-to-use">0 · How to use this document</h2>
+
+<p>Same conventions as docs 15 and 19-21. This phase is less about new surface and
+more about <strong>burn-down, gaps, and instrumentation</strong>, so the structure leans on
+per-area missions and checklists rather than greenfield tasks.</p>
+
+<h2 id="where-we-are">1 · Where we are right now</h2>
+
+<ul>
+<li>The product is feature-complete on the happy path: capture → OCR → reports,
+five screens, auth, web marketplace, Stripe.</li>
+<li><strong>CI is macOS-only</strong> (<code>.github/workflows/build.yml</code>, <code>macos-latest</code>).
+There is no Windows lane, yet the phase definition-of-done requires CI green and
+<strong>signed + notarized on both platforms</strong>.</li>
+<li><strong>There is no telemetry, support channel, or ticket system.</strong> The W12
+metrics (weekly actives, opt-in rate, frames-with-consent, &quot;zero bug reports&quot;)
+cannot be measured today. That is a build task this phase, not an afterthought.</li>
+<li>Two dependency pins still carry carets (<code>electron-log</code>,
+<code>electron-updater</code>) — clean these up while hardening.</li>
+</ul>
+
+<h2 id="at-a-glance">2 · The phase at a glance</h2>
+
+<ul>
+<li><strong>Everyone:</strong> dogfood daily, file bugs, burn down P0/P1.</li>
+<li><strong>Group B:</strong> the Windows CI lane + signing, notarization parity.</li>
+<li><strong>Namkha:</strong> sensitive-filter hardening, the retention engine, and the
+telemetry/instrumentation.</li>
+<li><strong>Groups A &amp; C:</strong> stabilize their surfaces and add the per-surface
+instrumentation (funnel events, auth-failure logging).</li>
+</ul>
+
+<h2 id="group-a">3 · Group A — Frontend (Jacqueline)</h2>
+
+<p><strong>Mission.</strong> Stabilize the screens under real use and instrument the funnel.</p>
+
+<ul>
+<li>Burn down UI bugs found in dogfood; tighten empty/error/loading states under
+real (messy) data.</li>
+<li>Instrument the first-run funnel: emit events for each onboarding step so the
+launch can measure drop-off and time-to-first-capture.</li>
+<li>Verify the app stays responsive and within the memory/CPU budget while capture
+runs (coordinate with B/Namkha on the perf measurement).</li>
+</ul>
+
+<p><strong>Done-when.</strong> No open P0/P1 on the screens; funnel events flow to the
+telemetry sink; the UI holds up over a multi-hour session.</p>
+
+<h2 id="group-b">4 · Group B — Desktop/IPC &amp; CI (Lihan)</h2>
+
+<p><strong>Mission.</strong> Close the platform gap. Windows must build, sign, and ship — and
+the performance budget must be met.</p>
+
+<ul>
+<li>Add a <strong>Windows CI lane</strong> to <code>.github/workflows/</code>, build-only (no
+signing) first, so Windows breakage is caught on every PR.</li>
+<li>Then Windows <strong>code-signing</strong>: <strong>[CONFIRM with Namkha: the Windows EV
+signing cert is a separate procurement — is it ordered?]</strong>. Verify the
+unusual v1 Windows signing config (<code>verifyUpdateCodeSignature: true</code> with
+<code>signAndEditExecutable: false</code>) actually signs on CI.</li>
+<li>Confirm macOS notarization parity (already on <code>main</code> for macOS) and that
+auto-update artifacts resolve on both platforms.</li>
+<li><strong>Performance:</strong> measure renderer memory and CPU after an 8-hour capture
+session; target <strong>&lt;300MB RAM and &lt;5% CPU sustained</strong>. Fix the OCR/capture
+loop if it exceeds budget. Verify sleep/wake correctness and the OCR circuit
+breaker under real use.</li>
+<li>Pin the two caret deps to exact versions.</li>
+</ul>
+
+<p><strong>Done-when.</strong> CI is green on macOS <em>and</em> Windows; both platforms produce
+signed (macOS notarized) installers; the renderer meets the 8-hour perf budget;
+deps are exact-pinned.</p>
+
+<p><strong>Pitfalls.</strong> Native rebuilds differing across platforms; the Windows signing
+config silently not signing; perf regressions from the capture loop hiding under
+&quot;works on my Mac.&quot;</p>
+
+<h2 id="group-c">5 · Group C — Auth &amp; Secure Storage (Yingzhu)</h2>
+
+<p><strong>Mission.</strong> Make auth and account-deletion bulletproof under real use.</p>
+
+<ul>
+<li>Burn down auth bugs from dogfood: token refresh edge cases, sleep/wake,
+sign-out completeness, the 429 and token-shape traps.</li>
+<li>Verify <strong>GDPR account deletion</strong> end to end (the desktop delete path +
+<code>DELETE /api/me/captures</code> + server-side purge within the retention window).</li>
+<li>Add auth-failure logging/telemetry (without logging tokens) so launch can see
+sign-in success rate.</li>
+</ul>
+
+<p><strong>Done-when.</strong> No open auth P0/P1; account deletion verifiably removes data;
+sign-in success/failure is observable in telemetry; no token ever appears in a log.</p>
+
+<h2 id="namkha">6 · Namkha — filters, retention, telemetry</h2>
+
+<ul>
+<li><strong>Sensitive-content filter hardened</strong> at the engine level (it was a no-op
+hook in W3-4): block the sensitive-app blocklist (password managers, banking,
+healthcare, messaging) before any frame is captured/sent.</li>
+<li><strong>Retention engine cron</strong> (RFC-002): enforce the retention windows (OCR text
++ activity 90 days; reports 24 months; deleted-account residuals 30 days).</li>
+<li><strong>Telemetry / instrumentation:</strong> a sink for weekly-active workers, training
+opt-in rate, and frames-collected-with-consent — none of which is measurable
+today. Also stand up a <strong>bug-reporting / feedback channel</strong> so &quot;zero capture
+bug reports in the final four weeks&quot; can even be tracked.</li>
+<li>AI cost tracking starts this phase (watch Gemini spend daily).</li>
+</ul>
+
+<h2 id="security">7 · Security &amp; compliance gates</h2>
+
+<p>From <a href="14-security-and-compliance.html">doc 14</a>, these must be resolved
+before launch — surface any that are not owned:</p>
+
+<ul>
+<li><strong>RFC-001 (guardrails / Presidio)</strong> and <strong>RFC-002 (retention engine)</strong>
+must be locked, not pending. <strong>[CONFIRM with Namkha: both RFCs accepted.]</strong></li>
+<li>Training-data <strong>T&amp;C lawyer review</strong> — the consent addendum users actually
+agree to. <strong>[CONFIRM with Namkha: lawyer + T&amp;C done.]</strong></li>
+<li><strong>DPIA</strong> (GDPR Art. 35) before the first EU user.</li>
+<li>Reconcile the consent default: training is <strong>opt-in only</strong>; fix any wireframe
+or screen that defaults it on.</li>
+</ul>
+
+<h2 id="demo">8 · End-of-phase demo (Thursday, Week 10, 19:00)</h2>
+
+<ul>
+<li><strong>Group B:</strong> green CI on both platforms; a signed Windows installer and a
+notarized macOS build; the 8-hour perf numbers.</li>
+<li><strong>Namkha:</strong> the sensitive-filter blocking a banking app; the telemetry
+dashboard showing live dogfood metrics.</li>
+<li><strong>Groups A/C:</strong> the bug burn-down chart at zero P0/P1; account deletion
+demonstrated end to end.</li>
+</ul>
+
+<h2 id="risks">9 · Risks watch list</h2>
+
+<ul>
+<li><strong>Windows discovered broken late.</strong> No Windows CI until now means native
+rebuilds, OCR, and signing problems all surface at once — start the Windows lane
+on day one of W9.</li>
+<li><strong>Unmeasurable metrics.</strong> If telemetry and a feedback channel are not built,
+the W12 go/no-go has no data. This is the highest-leverage hardening item.</li>
+<li><strong>Security gates unowned.</strong> Two pending RFCs, a lawyer review, and a DPIA all
+block a clean launch and none can be skipped.</li>
+<li><strong>Performance.</strong> An 8-hour capture session is where memory leaks and CPU
+creep show up; budget failures here become support tickets at launch.</li>
+</ul>
+
+<h2 id="when-wrong">10 · When something is wrong</h2>
+
+<p>Dogfood bugs go straight into the tracker with a P-level. Sev-1 (app unusable) is
+all-hands; Sev-2 gets fixed within a working day by the zone owner with a short
+written postmortem. Surface unowned security/compliance gates to Namkha
+immediately — they cannot be hand-waved at launch.</p>
+
+<hr />
+
+<p><strong>Last updated:</strong> 2026-06-27</p>
+
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>22 · 2026</span>
+</footer>
+
+</body>
+</html>

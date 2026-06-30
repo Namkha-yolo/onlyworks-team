@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weeks 11-12 — Soft Launch &amp; Iterate · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>23 · 40 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 23 · For Interns</div>
+      <div class="title">Weeks 11-12 — Soft Launch &amp; Iterate</div>
+      <div class="subtitle">The end of the v2.0 build. Soft launch to campus + hiring-manager pilots, the auto-update channel flip, the success-metric scorecard, the go/no-go — and what v2.1 picks up.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>40 min</strong></span>
+        <span>Audience<strong>Interns + Founder</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-06-27</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#how-to-use">0 · How to use this document</a></li>
+<li><a href="#where-we-are">1 · Where we are right now</a></li>
+<li><a href="#readiness">2 · Launch-readiness checklist</a></li>
+<li><a href="#at-a-glance">3 · The phase at a glance</a></li>
+<li><a href="#group-a">4 · Group A — Frontend (Jacqueline)</a></li>
+<li><a href="#group-b">5 · Group B — Desktop/IPC &amp; release (Lihan)</a></li>
+<li><a href="#group-c">6 · Group C — Auth &amp; Secure Storage (Yingzhu)</a></li>
+<li><a href="#namkha">7 · Namkha — pilots, sales, scorecard</a></li>
+<li><a href="#scorecard">8 · Success-metric scorecard &amp; go/no-go</a></li>
+<li><a href="#whats-next">9 · What v2.1 picks up</a></li>
+<li><a href="#when-wrong">10 · When something is wrong</a></li>
+</ul>
+
+<h1 id="weeks-11-12--soft-launch--iterate">Weeks 11-12 — Soft Launch &amp; Iterate</h1>
+
+<p>This is the end of the v2.0 build. The product is feature-complete, hardened, and
+measurable; now it meets real users. We launch <strong>softly</strong> — to a known group of
+campus and hiring-manager pilots, on an opt-in beta channel — watch the metrics,
+fix what breaks, and make a clear-eyed <strong>go/no-go</strong> against the Week-12 success
+criteria. No big-bang launch; the auto-update channel flips to default only after
+the beta runs <strong>four weeks bug-free</strong>.</p>
+
+<h2 id="how-to-use">0 · How to use this document</h2>
+
+<p>Same conventions as the prior phase docs. This phase is launch operations:
+readiness, a controlled rollout, instrumentation-watching, and a decision. The
+team holds, the founder sells; interns do <strong>not</strong> pair on sales.</p>
+
+<h2 id="where-we-are">1 · Where we are right now</h2>
+
+<ul>
+<li>From W9-10: CI green and signed/notarized on both platforms, P0/P1 burned
+down, performance within budget, telemetry and a feedback channel live, security
+gates closed.</li>
+<li>The app updates via an <strong>opt-in beta channel</strong> (how v1 users find v2). The
+plan is to flip auto-update to default after four weeks bug-free.</li>
+<li>Recipients: a known set of pilots — existing v1 users, a handful of strangers
+who tested v1, and new students via 1-2 campus/bootcamp partnerships, plus the
+first hiring-manager pilots Namkha brings in.</li>
+</ul>
+
+<h2 id="readiness">2 · Launch-readiness checklist</h2>
+
+<p>Do not ship to a pilot until every box is checked:</p>
+
+<ul>
+<li>☐ Signed + notarized installers on macOS and Windows; auto-update verified on both.</li>
+<li>☐ Zero open P0/P1 bugs.</li>
+<li>☐ Fresh-install onboarding reaches first capture in under four minutes.</li>
+<li>☐ Telemetry live for weekly actives, training opt-in rate, and frames-with-consent.</li>
+<li>☐ A feedback/support channel exists and is monitored.</li>
+<li>☐ Stripe live-mode tested; a real card can subscribe and the portal works.</li>
+<li>☐ Consent + GDPR delete verified end to end; T&amp;C and DPIA in place.</li>
+</ul>
+
+<h2 id="at-a-glance">3 · The phase at a glance</h2>
+
+<ul>
+<li><strong>Group A:</strong> onboarding polish + first-run funnel instrumentation watching.</li>
+<li><strong>Group B:</strong> the auto-update channel-flip mechanics + crash reporting.</li>
+<li><strong>Group C:</strong> auth edge cases + GDPR account-deletion under real users.</li>
+<li><strong>Namkha:</strong> campus + HM pilots, sales, and the scorecard / go/no-go.</li>
+</ul>
+
+<h2 id="group-a">4 · Group A — Frontend (Jacqueline)</h2>
+
+<p><strong>Mission.</strong> Get real users through the front door and learn where they drop.</p>
+
+<ul>
+<li>Polish onboarding against real pilot feedback; cut friction in the path to
+first capture.</li>
+<li>Watch the first-run funnel telemetry; turn drop-off points into small, fast
+fixes (not new features).</li>
+<li>Keep the five-screen scope frozen — pilot requests go to the v2.1 backlog.</li>
+</ul>
+
+<p><strong>Done-when.</strong> Pilots complete onboarding without hand-holding; funnel
+drop-off is visible and the worst step is improved.</p>
+
+<h2 id="group-b">5 · Group B — Desktop/IPC &amp; release (Lihan)</h2>
+
+<p><strong>Mission.</strong> Own the release mechanics and see crashes before users report them.</p>
+
+<ul>
+<li>Implement the <strong>auto-update channel flip</strong>: opt-in beta now, default after
+four weeks bug-free. Make the flip a config change, not a code change.</li>
+<li>Crash reporting: capture and surface renderer/main crashes from pilots.</li>
+<li>Keep both-platform release artifacts healthy across the pilot.</li>
+</ul>
+
+<p><strong>Done-when.</strong> A new build reaches beta-channel users via auto-update; crashes
+are reported centrally; the channel-flip is a one-switch operation.</p>
+
+<h2 id="group-c">6 · Group C — Auth &amp; Secure Storage (Yingzhu)</h2>
+
+<p><strong>Mission.</strong> Auth and data-deletion that survive contact with real users.</p>
+
+<ul>
+<li>Harden auth edge cases pilots hit (cold tokens, refresh failures, multi-device).</li>
+<li>Verify GDPR account deletion works for a real pilot who asks for it, end to end.</li>
+<li>Watch sign-in success-rate telemetry; fix the top failure mode.</li>
+</ul>
+
+<p><strong>Done-when.</strong> No auth incidents in the pilot; a real deletion request is
+honored within the retention window; sign-in success rate is healthy.</p>
+
+<h2 id="namkha">7 · Namkha — pilots, sales, scorecard</h2>
+
+<ul>
+<li>Run the campus/bootcamp partnerships to bring in students; make the first
+warm hiring-manager intros and pilot offers.</li>
+<li>Land the first paid HMs (founder-sales — interns do not pair).</li>
+<li>Own the success-metric scorecard and the go/no-go decision.</li>
+<li>Run blameless postmortems for any Sev-1/Sev-2 during the pilot.</li>
+</ul>
+
+<h2 id="scorecard">8 · Success-metric scorecard &amp; go/no-go</h2>
+
+<p>At the end of Week 12, score against the v2.0 targets and decide:</p>
+
+<ul>
+<li>☐ 100+ weekly-active workers (60% from outside the founder network).</li>
+<li>☐ 5 paid hiring managers (~$1.5k MRR).</li>
+<li>☐ 80% of free users opted in to training-data sharing.</li>
+<li>☐ 1M+ labeled frames collected with consent. <strong>[CONFIRM with Namkha: this is
+feasible from ~100 weekly actives over the window — sanity-check against capture
+volume and the perceptual-dedup rate.]</strong></li>
+<li>☐ Zero capture-pipeline bug reports in the final four weeks.</li>
+<li>☐ 30+ student users via 1-2 campus partnerships.</li>
+</ul>
+
+<p>Then the call: <strong>go</strong> (flip auto-update to default, widen the beta), <strong>hold</strong>
+(extend the pilot, fix the gating issue), or <strong>pivot</strong> (the validation
+assumptions did not hold — adjust before scaling). Write the decision down.</p>
+
+<h2 id="whats-next">9 · What v2.1 picks up</h2>
+
+<p>v2.0 ends here. The deferred items roll into v2.1 (months 4-6): the promo-packet
+generator, the weekly summary email, LinkedIn/Google OAuth, saved searches for
+HMs, the in-desktop Job Post UI continuation, and the public-profile redesign
+follow-through. v2.2 (months 7-9) is the B2B internal-reporting product and the
+first evaluation of the OnlyWorks fine-tuned model. None of that is in scope now
+— ship v2.0 first.</p>
+
+<h2 id="when-wrong">10 · When something is wrong</h2>
+
+<p>During a pilot, a Sev-1 is all-hands and pauses the rollout; do not flip the
+auto-update channel with an open Sev-1. Pilot feature requests are backlog, not
+this-week work. Keep the go/no-go honest — a metric you cannot measure is a no,
+not an assumed yes.</p>
+
+<hr />
+
+<p><strong>Last updated:</strong> 2026-06-27</p>
+
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>23 · 2026</span>
+</footer>
+
+</body>
+</html>

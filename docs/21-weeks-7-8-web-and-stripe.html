@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weeks 7-8 — Web Marketplace &amp; Stripe · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>21 · 40 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 21 · For Interns</div>
+      <div class="title">Weeks 7-8 — Web Marketplace &amp; Stripe</div>
+      <div class="subtitle">Turn on the only v2.0 revenue path: Stripe end to end, the hiring-manager dashboard, the public profile redesign, and job posting. Per-group missions and done-when.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>40 min</strong></span>
+        <span>Audience<strong>Interns + Founder</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-06-27</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#how-to-use">0 · How to use this document</a></li>
+<li><a href="#where-we-are">1 · Where we are right now</a></li>
+<li><a href="#at-a-glance">2 · The phase at a glance</a></li>
+<li><a href="#dependency-map">3 · Cross-group dependency &amp; hand-off map</a></li>
+<li><a href="#namkha">4 · Namkha — Stripe &amp; AI budget (backend)</a></li>
+<li><a href="#group-a">5 · Group A — Frontend / Web (Jacqueline)</a></li>
+<li><a href="#group-bc">6 · Groups B &amp; C — auth bridge &amp; dashboard support</a></li>
+<li><a href="#demo">7 · End-of-phase demo</a></li>
+<li><a href="#risks">8 · Risks watch list</a></li>
+<li><a href="#when-wrong">9 · When something is wrong</a></li>
+</ul>
+
+<h1 id="weeks-7-8--web-marketplace--stripe">Weeks 7-8 — Web Marketplace &amp; Stripe</h1>
+
+<p>This is the phase that makes OnlyWorks a business. The worker desktop app is the
+supply side; the demand side — and the <strong>only revenue in v2.0</strong> — lives on the
+web: hiring managers searching verified candidates, posting jobs, and
+<strong>paying for it through Stripe</strong>. By the end of Week 8, Stripe runs end to end,
+the paywall actually gates paid features, and the hiring-manager dashboard and
+public profile are live.</p>
+
+<p>Most of this work is in the <strong>website repo</strong> (<code>onlyworks_verified</code>, Next.js
+14) and the <strong>backend</strong> (Express), not the desktop app. The web surface uses the
+light &quot;warm paper&quot; palette — a different surface from the desktop dark theme.
+Implement web against the web wireframes (<code>visuals/web-wireframes.html</code>).</p>
+
+<h2 id="how-to-use">0 · How to use this document</h2>
+
+<p>Same conventions as docs 15, 19, and 20. Note the repo split: desktop is
+<code>onlyworks_desktop_v2</code>; web is <code>onlyworks_verified</code>; the backend is
+<code>onlyworks-backend-server</code>. Be explicit in PRs about which repo you are in.</p>
+
+<h2 id="where-we-are">1 · Where we are right now</h2>
+
+<ul>
+<li><strong>Stripe does not exist yet.</strong> The backend has <code>stripe_customer_id</code> and
+<code>subscription_status</code> columns, but no checkout, webhook, or portal — paid
+HMs are gated only by a manual database update today. This phase builds it.</li>
+<li>The website (<code>onlyworks_verified</code>) is already in production and already uses
+shadcn + Tailwind; it is <strong>extended, not rewritten</strong>.</li>
+<li>The desktop app (from W3-6) has working capture, OCR, auth, and all five
+screens — the supply side is ready to feed the marketplace.</li>
+</ul>
+
+<h2 id="at-a-glance">2 · The phase at a glance</h2>
+
+<ul>
+<li><strong>Namkha (backend).</strong> Stripe checkout / webhook / portal, the paywall, and
+the per-user AI budget cap. This is the revenue-critical path and Namkha owns it.</li>
+<li><strong>Group A — Jacqueline (web).</strong> The public profile redesign, the Job Post
+creation UI, and a mobile-friendly profile.</li>
+<li><strong>Groups B &amp; C.</strong> The web auth token swap and dashboard support.</li>
+</ul>
+
+<h2 id="dependency-map">3 · Cross-group dependency &amp; hand-off map</h2>
+
+<ul>
+<li><strong>Namkha → A:</strong> the checkout session endpoint and the
+<code>subscription_status</code> the dashboard reads to show plan state and gate
+features.</li>
+<li><strong>C/B → A:</strong> the web auth token swap (supabase session → backend JWT) that
+authenticated web pages depend on.</li>
+<li><strong>Desktop → web:</strong> the verified-skill data and public profile
+(<code>/ow/{shareToken}</code>) generated from the desktop capture pipeline is what HMs
+search and what the public profile renders.</li>
+</ul>
+
+<h2 id="namkha">4 · Namkha — Stripe &amp; AI budget (backend)</h2>
+
+<p><strong>Mission.</strong> Make money move. Stripe end to end, idempotent, and gating the
+right things — plus a hard cap on AI spend before launch.</p>
+
+<ul>
+<li><code>POST /api/hiring/checkout</code> — create a Stripe Checkout session for the
+$99 / $299 / $599 hiring-manager tiers. <strong>[CONFIRM with Namkha: tier
+prices and per-tier limits are final.]</strong></li>
+<li><code>POST /api/hiring/webhook</code> — handle
+<code>customer.subscription.created/updated/deleted</code>, <strong>idempotent</strong> (a
+replayed event must not double-apply).</li>
+<li><code>POST /api/hiring/portal</code> — the Stripe billing portal session.</li>
+<li>Gate <code>POST /api/hiring/jobs</code> and Express-Interest by real
+<code>subscription_status</code>, not a manual flag.</li>
+<li><strong>Per-user monthly AI budget cap</strong> (new <code>ai_usage</code> table). Today
+vision is capped at $0.50/user/day but <strong>text reports are uncapped</strong> — close
+that before launch. Add the split models (gemini-2.0-flash for the pipeline,
+gemini-2.0-pro for final reports) and skip AI for sessions under five minutes.</li>
+</ul>
+
+<p><strong>Definition of done.</strong> A test HM can check out, get a real
+<code>subscription_status</code>, post a job because they paid, open the billing portal,
+and a replayed webhook does not double-charge or double-grant. The AI budget cap
+rejects spend past the monthly limit.</p>
+
+<h2 id="group-a">5 · Group A — Frontend / Web (Jacqueline)</h2>
+
+<p><strong>Mission.</strong> The web surfaces HMs and workers actually look at: a public
+profile worth sharing and a job-post flow worth paying for.</p>
+
+<p><strong>Required reading.</strong> <code>visuals/web-wireframes.html</code> (HM Search, HM
+Dashboard, Job Post, Public Profile), <code>docs/v2-stack/nextjs.html</code>, the
+existing <code>onlyworks_verified</code> components.</p>
+
+<ul>
+<li>Redesign the <strong>public profile</strong> (<code>app/p/[owId]</code> /
+<code>/ow/{shareToken}</code>): the verified-skills view a candidate shares and an HM
+lands on. SEO-indexed, sharable, mobile-friendly.</li>
+<li>Build the <strong>Job Post creation UI</strong> (the backend exists; the frontend is
+missing). Gate the publish action behind paid <code>subscription_status</code>.</li>
+<li>Make the public profile responsive — it is the most-shared surface.</li>
+</ul>
+
+<p><strong>Definition of done.</strong> A public profile renders real verified-skill data
+and looks good on mobile; an HM can create and publish a job post only when on a
+paid plan; the dashboard reflects the live plan state.</p>
+
+<p><strong>Pitfalls.</strong> Mixing the desktop dark palette into the light web surface;
+forgetting the paywall gate on publish; a public profile that leaks data it
+should not (respect the worker&#39;s visibility settings).</p>
+
+<h2 id="group-bc">6 · Groups B &amp; C — auth bridge &amp; dashboard support</h2>
+
+<p><strong>Mission.</strong> Connect web auth to the backend and support the HM dashboard.</p>
+
+<ul>
+<li><strong>Web auth token swap:</strong> supabase <code>access_token</code> →
+<code>POST /api/auth/website/website-token</code> → backend JWT, so authenticated web
+pages (dashboard, job post) can call the backend. (C owns auth; B helps on the
+IPC/transport mindset.)</li>
+<li>HM dashboard support: the data endpoints and the notification center the
+dashboard renders.</li>
+<li>Keep the desktop app stable — this phase should not regress capture/auth
+on desktop while attention is on web.</li>
+</ul>
+
+<p><strong>Definition of done.</strong> An authenticated HM web session can call the backend
+with a valid JWT; the dashboard shows the HM&#39;s plan, posts, and matches.</p>
+
+<h2 id="demo">7 · End-of-phase demo (Thursday, Week 8, 19:00)</h2>
+
+<ul>
+<li><strong>Namkha:</strong> a full paid-HM loop — checkout, webhook updates
+<code>subscription_status</code>, post a job, open the billing portal; replay a webhook
+and show it is idempotent.</li>
+<li><strong>Group A:</strong> a shared public profile on desktop browser and mobile, and the
+job-post flow gated by plan.</li>
+<li><strong>Groups B/C:</strong> an authenticated web session calling the backend.</li>
+</ul>
+
+<h2 id="risks">8 · Risks watch list</h2>
+
+<ul>
+<li><strong>Stripe is the revenue gate and it is new.</strong> Webhook idempotency and the
+paywall are where bugs become billing incidents — test replays and edge states.</li>
+<li><strong>AI cost exposure.</strong> Text reports are uncapped today; the
+$0.50/user/day vision cap is already ~$15/user/month against a $9/mo plan. The
+monthly cap must land this phase, not later.</li>
+<li><strong>Founder bandwidth.</strong> Stripe, the AI cap, <em>and</em> landing the first paid
+HMs all sit on Namkha. Interns do not pair on sales, but flag if the backend
+work is at risk so it does not slip into W9-10.</li>
+<li><strong>Two surfaces, two palettes.</strong> Keep the web light theme and desktop dark
+theme strictly separate.</li>
+</ul>
+
+<h2 id="when-wrong">9 · When something is wrong</h2>
+
+<p>Be explicit about which repo a PR touches. Surface backend/Stripe blockers
+early — they gate the launch. Write Stripe decisions (which events, how
+idempotency is keyed) in the PR. Never test against live Stripe keys; use test
+mode.</p>
+
+<hr />
+
+<p><strong>Last updated:</strong> 2026-06-27</p>
+
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>21 · 2026</span>
+</footer>
+
+</body>
+</html>

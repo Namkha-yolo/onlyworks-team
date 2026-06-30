@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weeks 5-6 — Worker Desktop UI · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>20 · 40 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 20 · For Interns</div>
+      <div class="title">Weeks 5-6 — Worker Desktop UI</div>
+      <div class="subtitle">All five worker screens, built against the design system. Time-to-first-capture under four minutes. Per-group missions, week-by-week tasks, and done-when checklists.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>40 min</strong></span>
+        <span>Audience<strong>Interns + Founder</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-06-27</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#how-to-use">0 · How to use this document</a></li>
+<li><a href="#where-we-are">1 · Where we are right now</a></li>
+<li><a href="#at-a-glance">2 · The phase at a glance</a></li>
+<li><a href="#dependency-map">3 · Cross-group dependency &amp; hand-off map</a></li>
+<li><a href="#group-a">4 · Group A — Frontend (Jacqueline)</a></li>
+<li><a href="#group-b">5 · Group B — Desktop/IPC (Lihan)</a></li>
+<li><a href="#group-c">6 · Group C — Auth &amp; Secure Storage (Yingzhu)</a></li>
+<li><a href="#namkha-track">7 · Namkha&#39;s track — the CaptureEngine</a></li>
+<li><a href="#demo">8 · End-of-phase demo</a></li>
+<li><a href="#risks">9 · Risks watch list</a></li>
+<li><a href="#when-wrong">10 · When something is wrong</a></li>
+</ul>
+
+<h1 id="weeks-5-6--worker-desktop-ui">Weeks 5-6 — Worker Desktop UI</h1>
+
+<p>The pipeline works; now it needs a face. By the end of Week 6 the worker desktop
+app has <strong>all five screens</strong> — Status, Portfolio, Privacy, Settings, and the
+First-run onboarding flow — functional and built against the design system. The
+bar is a fresh user reaching their first capture in <strong>under four minutes</strong>,
+and every screen looking like it belongs to the same product.</p>
+
+<p>This phase is mostly Group A. Groups B and C support it with the native plumbing
+and auth integration the screens need.</p>
+
+<h2 id="how-to-use">0 · How to use this document</h2>
+
+<p>Same conventions as the <a href="15-weeks-1-2-foundation-plan.html">foundation
+plan</a> and <a href="19-weeks-3-4-capture-pipeline.html">doc 19</a>: Mission,
+Required reading, week-by-week tasks, Hand-offs, Definition of done, Pitfalls,
+Self-check. All shared operating norms still apply.</p>
+
+<p>The non-negotiable for this phase: <strong>implement against
+<code>visuals/00-design-system.html</code>; do not invent tokens.</strong> The desktop
+surface is the GitHub-dark palette (<code>--bg-canvas #0d1117</code>), accent purple
+<code>#7c3aed</code>, Space Grotesk body, JetBrains Mono for labels and IDs. Sharp
+corners (<code>rounded-none</code>) everywhere except pill CTAs, avatars, and status
+dots.</p>
+
+<h2 id="where-we-are">1 · Where we are right now</h2>
+
+<ul>
+<li>Three routes exist (<code>/</code> Status, <code>/portfolio</code>, <code>/settings</code>);
+Privacy and First-run still need routes.</li>
+<li>The five shadcn primitives are in the repo (button, card, dialog, input,
+tabs). <strong>Restyle at the call site with Tailwind classes; do not edit the
+primitive source files</strong> — that keeps A&#39;s and C&#39;s screens consistent and
+avoids merge churn.</li>
+<li>From W3-4: the capture subscription drives live Status; the onboarding shell
+and consent UI exist; auth works; the recent-captures reel component is
+scaffolded.</li>
+<li>Design tokens may already be partly in <code>tailwind.config.js</code> from W2 — this
+phase is where they get used in anger.</li>
+</ul>
+
+<h2 id="at-a-glance">2 · The phase at a glance</h2>
+
+<ul>
+<li><strong>Group A — Jacqueline.</strong> Build Portfolio, Privacy, finalize Settings,
+finish First-run onboarding. Implement the design tokens. This is the bulk of
+the phase.</li>
+<li><strong>Group B — Lihan.</strong> Native support: tray, global shortcut to toggle a
+session, permissions-flow polish, window management — the OS-level affordances
+the screens trigger.</li>
+<li><strong>Group C — Yingzhu.</strong> Auth fully integrated into the app shell: sign-in,
+sign-out, session recovery on launch.</li>
+</ul>
+
+<h2 id="dependency-map">3 · Cross-group dependency &amp; hand-off map</h2>
+
+<ul>
+<li><strong>C → A:</strong> the signed-in state and the auth views that mount inside A&#39;s
+app shell and onboarding. A pairs with C so C&#39;s views reuse A&#39;s shadcn primitives.</li>
+<li><strong>B → A:</strong> the tray and global shortcut start/stop a session; A&#39;s Status
+and the menubar must agree on session state (read it from the same Query source).</li>
+<li><strong>Namkha → A:</strong> the Privacy screen&#39;s recent-captures reel and the
+sensitive-app indicator read from the engine / a thumbnail consumer.</li>
+</ul>
+
+<h2 id="group-a">4 · Group A — Frontend (Jacqueline)</h2>
+
+<p><strong>Mission.</strong> Ship the five screens. Make them feel like one product, get a
+new user to first capture fast, and give users real control over their data.</p>
+
+<p><strong>Required reading.</strong> <code>visuals/wireframes.html</code> (all five screens),
+<code>visuals/00-design-system.html</code> (tokens, button/modal system, spacing),
+<code>docs/v2-stack/shadcn-ui.html</code> and <code>docs/v2-stack/tailwind.html</code>.</p>
+
+<p><strong>Week 5.</strong></p>
+<ul>
+<li>Implement the design tokens from the design system as CSS variables in the
+Tailwind theme; build a small set of OnlyWorks-specific components
+(StatCard, SessionPanel, ReportCard) in the same shadcn style.</li>
+<li>Build the <strong>Portfolio</strong> screen: the verified-skills view backed by
+<code>GET /api/me/portfolio</code> via TanStack Query, with empty / loading / error
+states. Use the six report-section semantic colors from the design system.</li>
+<li>Finalize the <strong>Settings</strong> screen, including the version string
+(&quot;Version 4.0.0&quot;), capture preferences, and the sign-out control.</li>
+</ul>
+
+<p><strong>Week 6.</strong></p>
+<ul>
+<li>Build the <strong>Privacy</strong> screen: the recent-captures reel (now real),
+the sensitive-app indicator, and the <strong>delete-my-captures</strong> control wired to
+<code>DELETE /api/me/captures</code> (the GDPR path) with a confirm Dialog.</li>
+<li>Finish the <strong>First-run onboarding</strong> 6-step flow with real content and the
+consent step (four off-by-default toggles, bound to C&#39;s consent logic). Make the
+welcome → permissions → sign-in → consent → first-capture → done path clean.</li>
+<li>Measure time-to-first-capture on a fresh install and cut whatever pushes it
+over four minutes.</li>
+</ul>
+
+<p><strong>Definition of done (Friday W6).</strong></p>
+<ul>
+<li>☐ All five screens render and navigate; each uses real data or a real empty state.</li>
+<li>☐ Portfolio shows verified skills from the backend with proper loading/error states.</li>
+<li>☐ Privacy can delete captures (GDPR) behind a confirm dialog.</li>
+<li>☐ First-run reaches first capture in under four minutes on a clean machine.</li>
+<li>☐ Every screen matches the design system; no invented tokens; sharp corners.</li>
+</ul>
+
+<p><strong>Pitfalls.</strong></p>
+<ul>
+<li>Do not edit the shadcn primitive files; restyle at the call site.</li>
+<li>Do not hardcode colors — use the token variables, or dark mode and rebrands break.</li>
+<li>The five-screen scope is a hard cap. New ideas go to a backlog, not into v2.0.</li>
+</ul>
+
+<p><strong>Self-check.</strong> Could a stranger install the app and reach their first
+capture without you in the room? If not, the onboarding is not done.</p>
+
+<h2 id="group-b">5 · Group B — Desktop/IPC (Lihan)</h2>
+
+<p><strong>Mission.</strong> The OS-level affordances that make the app feel native: tray,
+global shortcut, permissions polish, window behaviour — without breaking capture.</p>
+
+<p><strong>Week 5-6 tasks.</strong></p>
+<ul>
+<li>Port/build the <strong>tray manager</strong> (menubar/system-tray with session state +
+quick start/stop) and the <strong>global shortcut</strong> that toggles a capture session
+(port v1&#39;s <code>CmdOrCtrl+Shift+S</code> behaviour). Tray and Status must read the
+same session source of truth.</li>
+<li>Polish the permissions flow end to end with Group A: the request screen, the
+grant detection, and the macOS relaunch survive a real first run.</li>
+<li>Window management: correct behaviour on close/minimize (capture keeps running
+when the window is hidden), and a clean cold start.</li>
+</ul>
+
+<p><strong>Definition of done.</strong> Tray reflects live session state and can start/stop
+a session; the global shortcut toggles capture; closing the window does not stop
+capture; permissions flow works on a clean macOS install.</p>
+
+<p><strong>Pitfalls.</strong> Tray and renderer drifting out of sync on session state;
+a global shortcut colliding with a system shortcut; the window-hidden case
+silently pausing capture.</p>
+
+<p><strong>Self-check.</strong> When the window is closed but a session is &quot;running,&quot; what
+is actually still running, and how does the tray know?</p>
+
+<h2 id="group-c">6 · Group C — Auth &amp; Secure Storage (Yingzhu)</h2>
+
+<p><strong>Mission.</strong> Auth that lives comfortably inside the app shell: sign-in,
+sign-out, and reliable session recovery — reusing A&#39;s components.</p>
+
+<p><strong>Week 5-6 tasks.</strong></p>
+<ul>
+<li>Integrate the email-code sign-in views into A&#39;s app shell and the onboarding
+sign-in step; reuse A&#39;s shadcn primitives so they look native.</li>
+<li>Sign-out wipes tokens and email and returns to the signed-out state cleanly.</li>
+<li>Session recovery on launch: a valid stored token resumes the session; an
+expired one routes to sign-in. <code>auth.status</code> stays a Query poll
+(<code>refetchInterval ~10s</code>).</li>
+<li>Harden the consent persistence from W4: toggles survive restart, revocation
+takes effect, and changes are server-logged.</li>
+</ul>
+
+<p><strong>Definition of done.</strong> Sign-in/out work inside the shell; a returning user
+with a valid token lands signed-in; an expired token routes to sign-in without a
+crash; consent state persists across restarts.</p>
+
+<p><strong>Pitfalls.</strong> A half-wiped sign-out leaving stale tokens; treating an
+expired token as a hard error instead of a re-auth; consent toggles not
+persisting.</p>
+
+<p><strong>Self-check.</strong> On a cold launch, how does the app decide whether to show the
+sign-in screen or the Status screen?</p>
+
+<h2 id="namkha-track">7 · Namkha&#39;s track — the CaptureEngine</h2>
+
+<p>This phase is mostly UI, so Namkha&#39;s engine work is supporting: a thumbnail /
+metrics path for the Privacy screen&#39;s recent-captures reel, and hardening from
+W3-4 dogfood. The engine remains Namkha&#39;s; A reads from its published contract
+and any thumbnail consumer, not from internals.</p>
+
+<h2 id="demo">8 · End-of-phase demo (Thursday, Week 6, 19:00)</h2>
+
+<ul>
+<li><strong>Group A:</strong> a fresh install walked through onboarding to first capture,
+then a tour of all five screens with real data.</li>
+<li><strong>Group B:</strong> start/stop a session from the tray and the global shortcut;
+close the window and show capture still running.</li>
+<li><strong>Group C:</strong> sign out, restart, sign back in; show session recovery.</li>
+</ul>
+
+<h2 id="risks">9 · Risks watch list</h2>
+
+<ul>
+<li><strong>Scope creep on screens.</strong> Five screens, no more. A sixth idea is a v2.1
+backlog item.</li>
+<li><strong>Design drift.</strong> Without strict token discipline, the screens diverge.
+Review against the design system in PR.</li>
+<li><strong>Time-to-first-capture.</strong> If onboarding has too many steps or a slow
+permission dance, the four-minute target slips — measure early.</li>
+<li><strong>Capture regressions from UI work.</strong> Window/tray changes can accidentally
+pause or kill capture; keep an eye on the W3-4 done-when boxes.</li>
+</ul>
+
+<h2 id="when-wrong">10 · When something is wrong</h2>
+
+<p>Surface blockers in standup and <code>#swe-team</code> immediately. Fix red CI first.
+Write decisions in the PR. If a screen needs a design-system token that does not
+exist, that is a conversation with Namkha (who owns the design system), not a
+new invented token.</p>
+
+<hr />
+
+<p><strong>Last updated:</strong> 2026-06-27</p>
+
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>20 · 2026</span>
+</footer>
+
+</body>
+</html>
