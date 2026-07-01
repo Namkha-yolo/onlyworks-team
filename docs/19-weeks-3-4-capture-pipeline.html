@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weeks 3-4 — Capture Pipeline · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>19 · 45 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 19 · For Interns</div>
+      <div class="title">Weeks 3-4 — Capture Pipeline</div>
+      <div class="subtitle">Build the OCR and training consumers, finish auth, and start onboarding — all on top of Namkha&#39;s CaptureEngine. Per-group missions, week-by-week tasks, hand-offs, and done-when checklists.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>45 min</strong></span>
+        <span>Audience<strong>Interns + Founder</strong></span>
+        <span>Status<strong>v2 Planning</strong></span>
+        <span>Updated<strong>2026-06-27</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#how-to-use">0 · How to use this document</a></li>
+<li><a href="#where-we-are">1 · Where we are right now</a></li>
+<li><a href="#at-a-glance">2 · The phase at a glance</a></li>
+<li><a href="#dependency-map">3 · Cross-group dependency &amp; hand-off map</a></li>
+<li><a href="#group-a">4 · Group A — Frontend (Jacqueline)</a></li>
+<li><a href="#group-b">5 · Group B — Desktop/IPC (Lihan)</a></li>
+<li><a href="#group-c">6 · Group C — Auth &amp; Secure Storage (Yingzhu)</a></li>
+<li><a href="#namkha-track">7 · Namkha&#39;s track — the CaptureEngine</a></li>
+<li><a href="#demo">8 · End-of-phase demo</a></li>
+<li><a href="#risks">9 · Risks watch list</a></li>
+<li><a href="#when-wrong">10 · When something is wrong</a></li>
+</ul>
+
+<h1 id="weeks-3-4--capture-pipeline">Weeks 3-4 — Capture Pipeline</h1>
+
+<p>This is the phase where OnlyWorks becomes a <strong>product</strong> instead of a
+scaffold. By the end of Week 4, the unified <strong>CaptureEngine</strong> emits frame
+events, an <strong>OcrConsumer</strong> turns those frames into activity text and ships it to
+the backend, a consent-gated <strong>TrainingDataConsumer</strong> stores frames for the
+model bet, <strong>auth is fully working end to end</strong>, and a first-run onboarding
+skeleton with the macOS permission flow exists.</p>
+
+<p>One structural thing to internalize before you read your section: <strong>the
+CaptureEngine core is Namkha&#39;s.</strong> You do not build the engine. You build the
+things that hang off it — consumers and screens — against a typed
+<code>FrameEvent</code> contract and a <code>capture-events</code> subscription that Namkha
+publishes early in Week 3. Until that handoff lands, your consumer work is
+blocked, so read §3 carefully and plan around it.</p>
+
+<h2 id="how-to-use">0 · How to use this document</h2>
+
+<p>This document contains instructions, not code. It uses the same conventions as
+the <a href="15-weeks-1-2-foundation-plan.html">foundation plan (doc 15)</a>: each
+group has a <strong>Mission</strong>, <strong>Required reading</strong>, a <strong>week-by-week</strong>
+task list, <strong>Hand-offs in/out</strong>, a <strong>Definition of done</strong> checklist, the
+<strong>Pitfalls</strong> that cost previous teams days, and a <strong>Self-check</strong>.</p>
+
+<p>Turn an instruction like &quot;subscribe the OcrConsumer to the capture-events
+stream&quot; into working code by reading <code>docs/v2-stack/</code>, the v1 source at
+<code>/Users/xerneas/onlyworks_desktop</code>, and the upstream docs. If an
+instruction is ambiguous, ask in standup or write a one-line proposal in the PR
+description. Do not invent something complicated to feel safe.</p>
+
+<p>All the <a href="15-weeks-1-2-foundation-plan.html">shared operating norms</a> from
+the foundation plan still apply: one PR per task, standup Tue/Thu 14:30, demo
+Thursday 19:00, code-review SLA 4 hours, pin every dependency to an exact
+version, branch names like <code>w3/groupB/ocr-consumer</code>, never merge red CI.</p>
+
+<h2 id="where-we-are">1 · Where we are right now</h2>
+
+<p>End of Week 2, on <code>main</code> of
+<code>OnlyWorksCodeHub/onlyworks_desktop_v2</code>:</p>
+
+<ul>
+<li>The hand-rolled <strong>tRPC-over-IPC bridge</strong> is merged. There is one
+<code>ipcMain.handle(&#39;trpc&#39;)</code> channel; the renderer talks to it through a
+custom <code>ipcLink</code> built on <code>createTRPCClient&lt;AppRouter&gt;</code>. This is
+<strong>not</strong> electron-trpc — do not reintroduce it.</li>
+<li><code>src/main/trpc/capture.ts</code> is an <strong>in-memory stub</strong>:
+<code>capture.start</code> flips a boolean and <code>capture.status</code> reports it. Its
+own comment says &quot;the real capture engine … lands in W3&quot; and &quot;streaming
+capture events over a subscription&quot; arrives the same week. That is this phase.</li>
+<li>Shared contracts are merged: <code>src/shared/contracts/</code>,
+<code>procedure-names.ts</code> (which already whitelists the <code>auth.*</code> paths as
+forward declarations), and the <code>ApiResult</code> envelope (used for backend HTTP
+only — tRPC procedures return bare shapes and throw).</li>
+<li>The renderer has three code-based routes (<code>/</code> Status, <code>/portfolio</code>,
+<code>/settings</code>); Status is wired with <code>useMutation</code>/<code>useQuery</code> and an
+error-only Dialog.</li>
+<li>Auth services are <strong>ported but not on the bridge</strong>:
+<code>backend-auth.ts</code>, <code>backend-api.ts</code>, <code>auto-updater.ts</code>,
+<code>config-manager.ts</code> exist in <code>src/main</code>, but there is no
+<code>auth.router.ts</code>, no <code>electron-store</code>, and no email-code views yet.
+<strong>Group C auth is the thing most behind</strong> and is the first job this phase.</li>
+<li>There is <strong>no</strong> CaptureEngine, OCR, consumer, sensitive-filter, Privacy
+screen, or onboarding screen yet. All of that is W3-4.</li>
+</ul>
+
+<h2 id="at-a-glance">2 · The phase at a glance</h2>
+
+<p>Four parallel workstreams converge by the Thursday-of-Week-4 demo:</p>
+
+<ul>
+<li><strong>Namkha — CaptureEngine.</strong> Builds the engine, publishes the
+<code>FrameEvent</code> contract and the <code>capture-events</code> subscription early in
+W3. Everything below depends on that handoff.</li>
+<li><strong>Group A — Jacqueline (Frontend).</strong> Live capture state on Status;
+the First-run onboarding skeleton + macOS permission request screen; a
+recent-captures reel scaffold for the future Privacy screen.</li>
+<li><strong>Group B — Lihan (Desktop/IPC).</strong> The OcrConsumer — port v1 OCR
+(macOS Vision binary + Windows OCR with a circuit breaker), subscribe to the
+engine, batch text to the activity stream.</li>
+<li><strong>Group C — Yingzhu (Auth &amp; Secure Storage).</strong> Finish email-code
+auth on the bridge with encrypted token storage; then the consent-gated
+TrainingDataConsumer.</li>
+</ul>
+
+<h2 id="dependency-map">3 · Cross-group dependency &amp; hand-off map</h2>
+
+<p>The single most important dependency this phase:</p>
+
+<ul>
+<li><strong>Namkha → B and C (early W3): the capture contract.</strong> Namkha publishes
+the typed <code>FrameEvent</code> shape in
+<code>src/shared/contracts/capture.contract.ts</code> plus the <code>capture.events</code>
+subscription on the bridge. <strong>B&#39;s OcrConsumer and C&#39;s TrainingDataConsumer
+cannot finish until this lands.</strong> Build behind the agreed contract shape so you
+are not idle — but expect the real wiring to land mid-W3.</li>
+<li><strong>C → A (mid W3): working auth.</strong> Onboarding&#39;s last step signs the user
+in; A needs C&#39;s email-code flow to complete the first-run funnel.</li>
+<li><strong>Namkha + B: macOS Accessibility / TCC coordination.</strong> The engine&#39;s
+input hooks and B&#39;s native OCR both touch macOS permissions; the relaunch trick
+(see §7 and the v1 reference) must be owned in one place — coordinate so it is
+not implemented twice.</li>
+<li><strong>B → Namkha: OcrConsumer registration.</strong> B&#39;s consumer registers against
+the engine&#39;s consumer interface; agree the registration API with Namkha before
+writing it.</li>
+</ul>
+
+<h2 id="group-a">4 · Group A — Frontend (Jacqueline)</h2>
+
+<p><strong>Mission.</strong> Make capture <em>visible and consentful</em> in the UI: live
+status driven by real engine events, and the front door (onboarding +
+permissions) that gets a brand-new user to their first capture in under four
+minutes.</p>
+
+<p><strong>Required reading.</strong></p>
+<ul>
+<li><code>visuals/wireframes.html</code> — the First-run and Status screens.</li>
+<li><code>docs/v2-stack/tanstack-query.html</code> — you will consume the capture
+subscription through Query / a subscription hook.</li>
+<li>The merged <code>src/renderer/src/routes/status.tsx</code> — your existing pattern
+(useMutation + useQuery + error-only Dialog) is the template to extend.</li>
+<li>The <code>FrameEvent</code> contract Namkha publishes — your live state renders from
+it.</li>
+</ul>
+
+<p><strong>Week 3.</strong></p>
+<ul>
+<li>Once Namkha publishes <code>capture.events</code>, subscribe to it from the Status
+route and render live capture state (running / idle, last-frame time, frames
+this session). Keep server-owned state in TanStack Query; UI-only flags in the
+existing Zustand store.</li>
+<li>Stand up the First-run onboarding route as a 6-step flow shell (welcome →
+permissions → sign-in → consent → first capture → done). Wire navigation
+between steps; real content fills in over W3-4 and polishes in W5-6.</li>
+<li>Build the <strong>permissions request screen</strong>: it asks for macOS
+Screen-Recording and Accessibility, explains why, and reflects current grant
+state. The actual permission APIs and the relaunch behaviour belong to the
+native side — coordinate with Namkha/B; your job is the screen and the polling
+that detects when a permission flips to granted.</li>
+</ul>
+
+<p><strong>Week 4.</strong></p>
+<ul>
+<li>Scaffold the <strong>recent-captures reel</strong> (the strip of recent frames) as a
+component you will mount on the Privacy screen in W5-6. For now it can read from
+a thumbnail/metrics consumer or a placeholder; the point is the data path and
+the layout, not final styling.</li>
+<li>Wire the consent step UI: four toggles, each <strong>defaulted off</strong> (capture is
+required to proceed; AI reports optional; public profile off; training data
+opt-in only). The toggle <em>state</em> is owned by Group C&#39;s consent logic — you
+render and bind it.</li>
+<li>Make sure a fresh user can go welcome → granted permissions → signed in →
+consented → first capture without a dead end. Time it.</li>
+</ul>
+
+<p><strong>Hand-offs.</strong> <em>In:</em> the <code>FrameEvent</code> contract +
+<code>capture.events</code> from Namkha; working email-code sign-in from C.
+<em>Out:</em> the onboarding shell and consent UI that C binds its consent logic
+into.</p>
+
+<p><strong>Definition of done (Friday W4).</strong></p>
+<ul>
+<li>☐ Status shows live capture state driven by real engine events, not the stub.</li>
+<li>☐ First-run flow navigates all 6 steps end to end with no dead ends.</li>
+<li>☐ Permissions screen reflects real macOS grant state and advances when granted.</li>
+<li>☐ Consent step renders four off-by-default toggles bound to C&#39;s logic.</li>
+<li>☐ Recent-captures reel component exists and renders sample data.</li>
+</ul>
+
+<p><strong>Pitfalls.</strong></p>
+<ul>
+<li>Do not store fetched capture state in Zustand — it belongs in Query. Zustand is
+for UI flags only.</li>
+<li>Permission state can change <em>while the app is running</em>; poll for it and
+handle the macOS relaunch (the native side triggers it — your screen must
+survive the relaunch and resume at the right step).</li>
+<li>Do not default the training-data toggle on. Opt-in is a legal requirement, not a
+funnel optimization (see §9).</li>
+</ul>
+
+<p><strong>Self-check.</strong> Can you explain how a frame captured in the main process
+becomes a number on the Status screen, every hop? If not, you do not yet
+understand the subscription path.</p>
+
+<h2 id="group-b">5 · Group B — Desktop/IPC (Lihan)</h2>
+
+<p><strong>Mission.</strong> Turn raw frames into activity text. Own the
+<strong>OcrConsumer</strong>: on-device OCR on both platforms, fed by the engine, shipped
+to the backend — fast, free, and offline.</p>
+
+<p><strong>Required reading.</strong></p>
+<ul>
+<li>v1 <code>src/services/ocr-service.js</code> — the macOS Vision + Windows OCR paths
+and the circuit breaker you are porting.</li>
+<li>v1 <code>src/utils/windows-ocr.ps1</code> and
+<code>src/services/windows-preflight.js</code>.</li>
+<li><code>docs/v2-stack/macos-vision-ocr.html</code> and
+<code>docs/v2-stack/windows-ocr.html</code>.</li>
+<li>The engine&#39;s consumer-registration interface (from Namkha).</li>
+</ul>
+
+<p><strong>Week 3.</strong></p>
+<ul>
+<li>Port the <strong>macOS path first</strong>: the compiled Swift Vision binary
+(<code>src/native/ocr_helper</code>) → Swift-interpreter fallback. <strong>Drop tesseract
+entirely</strong> — if Vision/Windows OCR is unavailable, skip OCR, do not fall back
+to tesseract.</li>
+<li>Register an OcrConsumer against the engine: it receives <code>FrameEvent</code>s,
+runs OCR on the image, and produces <code>{ text, app, windowTitle, timestamp }</code>.
+Build behind the agreed contract until Namkha&#39;s subscription lands, then wire it
+for real.</li>
+<li>Batch OCR output and <code>POST /api/pipeline/activity/stream</code> every 30
+seconds (port the v1 activity-buffer batching behaviour).</li>
+</ul>
+
+<p><strong>Week 4.</strong></p>
+<ul>
+<li>Port the <strong>Windows path</strong>: <code>Windows.Media.Ocr</code> via the PowerShell
+wrapper, with the mandatory <strong>3-consecutive-failure circuit breaker</strong> (after
+3 WinRT failures, stop trying OCR for the rest of the session). Port
+windows-preflight. <code>asarUnpack</code> the <code>.ps1</code> and native modules
+(<code>uiohook-napi</code>, <code>sharp</code>, <code>active-win</code>, <code>*.ps1</code>).</li>
+<li>Coordinate the macOS <strong>Accessibility / TCC</strong> handling with Namkha&#39;s engine:
+<code>uIOhook</code> requires a <code>systemPreferences.isTrustedAccessibilityClient(false)</code>
+precheck before <code>.start()</code> (a try/catch cannot catch the C-level abort), and
+the TCC relaunch trick must live in exactly one place. Decide with Namkha where.</li>
+</ul>
+
+<p><strong>Hand-offs.</strong> <em>In:</em> the <code>FrameEvent</code> contract + subscription +
+consumer interface from Namkha. <em>Out:</em> a working activity stream that the
+backend (and, later, reports) consume; the OCR text path the rest of the
+pipeline assumes exists.</p>
+
+<p><strong>Definition of done (Friday W4).</strong></p>
+<ul>
+<li>☐ OcrConsumer registered on the engine; receives real frames.</li>
+<li>☐ macOS Vision OCR returns text from a live capture; no tesseract anywhere.</li>
+<li>☐ Windows OCR works with the 3-failure circuit breaker; preflight ported.</li>
+<li>☐ Activity batches POST to <code>/api/pipeline/activity/stream</code> every 30s.</li>
+<li>☐ Native modules + <code>.ps1</code> are <code>asarUnpack</code>ed; the app still builds.</li>
+</ul>
+
+<p><strong>Pitfalls.</strong></p>
+<ul>
+<li>The macOS Vision binary must be <strong>universal</strong> (x86_64 + arm64) and bundled to
+<code>resourcesPath</code>; a missing/non-universal binary fails silently on one
+architecture.</li>
+<li>The Windows circuit breaker is not optional — without it, a broken WinRT install
+spins forever and burns CPU.</li>
+<li>OCR quality directly drives report quality. Match v1&#39;s recognition settings
+rather than guessing.</li>
+</ul>
+
+<p><strong>Self-check.</strong> What happens, exactly, when Windows OCR fails three times in
+a row? If you can&#39;t answer, the circuit breaker is not done.</p>
+
+<h2 id="group-c">6 · Group C — Auth &amp; Secure Storage (Yingzhu)</h2>
+
+<p><strong>Mission.</strong> Two missions, in order: <strong>(1) finish email-code auth</strong> on
+the bridge with encrypted token storage — it is behind and blocks A&#39;s onboarding
+— then <strong>(2) the consent-gated TrainingDataConsumer.</strong></p>
+
+<p><strong>Required reading.</strong></p>
+<ul>
+<li>v1 <code>src/services/backend-auth.js</code> and <code>src/core/token-refresh.js</code>
+(the ported TS versions are already in <code>src/main</code>).</li>
+<li><a href="14-security-and-compliance.html">Security &amp; compliance (doc 14)</a> —
+the consent model and the redaction pipeline.</li>
+<li>The backend auth endpoints (see facts/§ below) and their token shapes.</li>
+</ul>
+
+<p><strong>Week 3 — finish auth first.</strong></p>
+<ul>
+<li>Add <code>src/main/trpc/auth.router.ts</code> with <code>auth.requestEmailCode</code>,
+<code>auth.verifyEmailCode</code>, <code>auth.status</code>, <code>auth.signOut</code>, and mount it
+under <code>appRouter</code> (coordinate the mount with Lihan). The renderer never sees
+raw tokens.</li>
+<li>Wire the backend calls: <code>POST {OW_BACKEND_URL}/api/auth/email</code> and
+<code>POST .../api/auth/email/verify</code>. The staging base URL comes from Namkha via
+<code>OW_BACKEND_URL</code> — do not hardcode it.</li>
+<li>Encrypt tokens at rest with <code>electron-store</code> + <code>safeStorage</code> (key in
+the OS keychain). <strong>Hard stop: never write a raw token or key to disk.</strong>
+Verify the on-disk config shows gibberish base64.</li>
+<li>Read token expiry from the JWT <code>exp</code> claim (decode in main), <strong>not</strong>
+from <code>expires_in</code>. Refresh proactively on <code>powerMonitor</code>
+<code>&#39;resume&#39;</code> (the wall clock jumps on sleep).</li>
+<li>Build the 6-digit email-code views with <code>react-hook-form</code> + <code>zod</code>.
+<code>auth.status</code> in the renderer is a TanStack Query poll
+(<code>refetchInterval</code> ~10s) — subscriptions come later.</li>
+</ul>
+
+<p><strong>Week 4 — consent + training consumer.</strong></p>
+<ul>
+<li>Register a <strong>TrainingDataConsumer</strong> on the engine, gated on the training
+consent flag. It uploads consented frames to
+<code>POST /api/pipeline/training/frames</code> with a required
+<code>consent_token</code> (a hash of consent-version + userId + timestamp).</li>
+<li>Implement the four-toggle consent model server-logged with timestamps; binding
+into A&#39;s consent UI. Capture is required; reports optional; public profile off;
+<strong>training opt-in only</strong>. Revocation must be supported from day one.</li>
+</ul>
+
+<p><strong>Hand-offs.</strong> <em>In:</em> the bridge (B), the engine + contract (Namkha),
+the consent UI shell (A). <em>Out:</em> working sign-in for A&#39;s onboarding; the
+consent gate the TrainingDataConsumer and the whole training-data bet depend on.</p>
+
+<p><strong>Definition of done (Friday W4).</strong></p>
+<ul>
+<li>☐ A real email-code sign-in works end to end against staging.</li>
+<li>☐ Tokens are encrypted at rest; on-disk config is unreadable; sign-out wipes them.</li>
+<li>☐ Wrong/expired code saves nothing; a refresh network failure clears tokens.</li>
+<li>☐ TrainingDataConsumer uploads only consented frames, with a valid consent token.</li>
+<li>☐ Consent toggles persist and are server-logged; revocation path exists.</li>
+</ul>
+
+<p><strong>Pitfalls.</strong></p>
+<ul>
+<li>The token shapes differ: <code>/email/verify</code> nests tokens under
+<code>data.tokens</code>, but <code>/refresh</code> nests them <em>flat</em> under
+<code>data</code>. A 429 returns <code>error</code> as a <strong>string</strong>, not an object —
+handle it in your <code>post()</code> helper.</li>
+<li>The verify <code>user</code> object only guarantees <code>id</code>, <code>email</code>,
+<code>full_name</code>; <code>ow_id</code> and <code>profile_complete</code> are optional. Do not
+assume they are present.</li>
+<li>Do not default training consent on to chase the 80% opt-in metric — it is
+opt-in by law and by the security plan.</li>
+</ul>
+
+<p><strong>Self-check.</strong> If a user signs in, sleeps the laptop for two hours, and
+wakes it, what happens to their tokens and why? Walk the <code>exp</code>-claim +
+<code>resume</code>-refresh path.</p>
+
+<h2 id="namkha-track">7 · Namkha&#39;s track — the CaptureEngine</h2>
+
+<p>The CaptureEngine is owned by <strong>Namkha</strong> and its spec is kept private (it is
+the product core and the training-data bet). You do not need its internals. What
+you need is the <strong>published contract</strong>:</p>
+
+<ul>
+<li>A typed <code>FrameEvent</code> shape in
+<code>src/shared/contracts/capture.contract.ts</code>.</li>
+<li>A <code>capture.events</code> subscription on the hand-rolled tRPC bridge that
+delivers those events to the renderer and to in-main consumers.</li>
+<li>A consumer-registration interface that B&#39;s OcrConsumer and C&#39;s
+TrainingDataConsumer register against.</li>
+</ul>
+
+<p>Namkha publishes this early in Week 3. Build behind the agreed shape until then;
+do not reach into engine internals or re-implement triggers, dedup, or the
+permission/relaunch logic yourself.</p>
+
+<h2 id="demo">8 · End-of-phase demo (Thursday, Week 4, 19:00)</h2>
+
+<ul>
+<li><strong>Namkha:</strong> a live capture session — frames firing on interval + click,
+dedup and idle-pause visibly working, events arriving over the subscription.</li>
+<li><strong>Group A:</strong> a fresh-install run through onboarding to first capture, with
+live status updating; under four minutes.</li>
+<li><strong>Group B:</strong> OCR text extracted from a live frame on macOS, and the
+Windows path + circuit breaker demonstrated (VM is fine).</li>
+<li><strong>Group C:</strong> email-code sign-in end to end; the encrypted on-disk config
+shown as gibberish; a consented frame uploaded with its consent token.</li>
+</ul>
+
+<h2 id="risks">9 · Risks watch list</h2>
+
+<ul>
+<li><strong>The capture contract is the critical path.</strong> If Namkha&#39;s handoff slips,
+B and C slip with it. Flag any slip in the Tuesday standup, not on Thursday.</li>
+<li><strong>macOS TCC / uIOhook abort.</strong> Getting Accessibility wrong crashes the app
+at the C level. Implement the precheck + relaunch once, test the cold-grant path.</li>
+<li><strong>Sleep/wake.</strong> The v1 capture timer kept firing through sleep and spammed
+screenshots on wake. The engine must pause/resume on <code>powerMonitor</code>; verify it.</li>
+<li><strong>Consent default.</strong> The security plan says training consent is opt-in; some
+older wireframes show it on by default. <strong>[CONFIRM with Namkha: the consent
+defaults are off — reconcile any wireframe that shows otherwise.]</strong></li>
+<li><strong>Auth being behind.</strong> If C&#39;s auth is not done by mid-W3, A&#39;s onboarding
+funnel and every authenticated screen downstream slip. Auth is the first job.</li>
+</ul>
+
+<h2 id="when-wrong">10 · When something is wrong</h2>
+
+<p>Blocked on a hand-off? Say so in the Tuesday/Thursday standup and post it in
+<code>#swe-team</code> the moment it happens — do not wait for the demo. A red CI is
+fixed before anything else. A non-trivial decision (a token shape, a consumer
+API, a permission flow) goes in the PR description as a 4-7 line &quot;Decision&quot;
+note. If you and another group disagree on a contract, it goes to a 10-minute
+call and Namkha decides. The wrong move is to silently build around a blocker;
+the right move is to surface it early.</p>
+
+<hr />
+
+<p><strong>Last updated:</strong> 2026-06-27</p>
+
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>19 · 2026</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weeks 2-3 — Transition &amp; Carry-Over · OnlyWorks Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onlyworks.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo">
+    Only<em>Works</em>
+    <span class="tag">Planning</span>
+  </a>
+  <div class="nav-meta">
+    <a href="index.html">← Back to index</a>
+    <span>16 · 25 min</span>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header>
+      <div class="super">§ 16 · For Interns</div>
+      <div class="title">Weeks 2-3 — Transition &amp; Carry-Over</div>
+      <div class="subtitle">The bridge between the Week-2 status (18) and the Weeks 3-4 plan (19): close out what Week 2 left open — Group C auth is behind — while Namkha lights up the capture engine. What each person does right now.</div>
+      <div class="doc-meta">
+        <span>Read time<strong>25 min</strong></span>
+        <span>Audience<strong>Interns + Founder</strong></span>
+        <span>Status<strong>Live</strong></span>
+        <span>Updated<strong>2026-06-30</strong></span>
+      </div>
+    </header>
+
+<ul>
+<li><a href="#what-this-is">0 · What this document is</a></li>
+<li><a href="#where-we-are">1 · Where we are right now</a></li>
+<li><a href="#the-transition">2 · The transition in one paragraph</a></li>
+<li><a href="#carry-over">3 · Week-2 carry-over checklist</a></li>
+<li><a href="#group-a">4 · Group A — Jacqueline · now</a></li>
+<li><a href="#group-b">5 · Group B — Lihan · now</a></li>
+<li><a href="#group-c">6 · Group C — Yingzhu · now (the priority)</a></li>
+<li><a href="#namkha">7 · Namkha — publish the capture handoff (the pivot)</a></li>
+<li><a href="#done-when">8 · Definition of done for the transition</a></li>
+<li><a href="#risks">9 · Risks watch list</a></li>
+<li><a href="#then-what">10 · Then what</a></li>
+</ul>
+
+<h1 id="weeks-2-3--transition--carry-over">Weeks 2-3 — Transition &amp; Carry-Over</h1>
+
+<p>Week 2&#39;s plan and its status are captured in
+<a href="15-weeks-1-2-foundation-plan.html">doc 15</a> and
+<a href="18-week2-status-and-actions.html">doc 18</a>. The full Week 3-4 plan is
+<a href="19-weeks-3-4-capture-pipeline.html">doc 19</a>. This short doc is the
+<strong>bridge between them</strong>: what has to close from Week 2 and what starts in
+Week 3, so nothing falls into the gap. It is a <em>live</em> action doc, not a
+plan — read it, do the thing, check the box.</p>
+
+<h2 id="what-this-is">0 · What this document is</h2>
+
+<p>Foundation is not cleanly &quot;done&quot; at the Week-2 line. Two of three groups
+shipped their Week-2 slice; one (auth) is behind; and the capture engine — the
+thing all of Week 3-4 hangs off — has not started. This doc names the carry-over
+explicitly and sequences the first moves of Week 3 so the team does not stall
+waiting on each other. When the carry-over boxes in §3 and §8 are all checked,
+you are fully into <a href="19-weeks-3-4-capture-pipeline.html">doc 19</a>.</p>
+
+<h2 id="where-we-are">1 · Where we are right now</h2>
+
+<p>On <code>main</code> of <code>OnlyWorksCodeHub/onlyworks_desktop_v2</code> at the end of
+Week 2:</p>
+
+<ul>
+<li><strong>Group A (Jacqueline) — shipped.</strong> Shared contracts, the <code>@shared</code>
+alias, and the Status page wired to the typed capture client (useMutation /
+useQuery + error Dialog) are merged.</li>
+<li><strong>Group B (Lihan) — shipped.</strong> The hand-rolled tRPC-over-IPC bridge is
+merged; <code>capture.start</code> / <code>capture.status</code> work as an in-memory stub.
+The bridge decision doc is <strong>Accepted</strong>.</li>
+<li><strong>Group C (Yingzhu) — behind.</strong> The auth <em>contracts</em> exist and the v1
+auth services are ported into <code>src/main</code>, but there is <strong>no
+<code>auth.router.ts</code> on the bridge, no <code>electron-store</code>, and no email-code
+views</strong>. Auth is not usable yet. <strong>This is the carry-over that matters most.</strong></li>
+<li><strong>CaptureEngine — not started.</strong> <code>capture.ts</code> is still the stub whose
+own comment says the real engine &quot;lands in W3.&quot; That is now.</li>
+<li><strong>Housekeeping:</strong> two dependencies (<code>electron-log</code>,
+<code>electron-updater</code>) still carry caret ranges and should be exact-pinned; CI
+is macOS-only.</li>
+</ul>
+
+<h2 id="the-transition">2 · The transition in one paragraph</h2>
+
+<p>Group C finishes email-code auth so every downstream authenticated screen is
+unblocked; Namkha stands up the CaptureEngine and — the pivot of the whole
+phase — <strong>publishes the <code>FrameEvent</code> contract and the <code>capture.events</code>
+subscription early in Week 3</strong>; the moment that lands, Group B starts the
+OcrConsumer and Group C (after auth) starts the TrainingDataConsumer against it.
+Group A keeps the momentum on onboarding. Everything in Week 3-4 depends on those
+two events — auth finishing and the capture handoff landing — happening early,
+not late.</p>
+
+<h2 id="carry-over">3 · Week-2 carry-over checklist</h2>
+
+<p>These are Week-2 items that are not done and must close in the first days of
+Week 3:</p>
+
+<ul>
+<li>☐ <strong>Group C:</strong> email-code auth on the bridge (the big one — see §6).</li>
+<li>☐ Pin <code>electron-log</code> and <code>electron-updater</code> to exact versions (drop the carets).</li>
+<li>☐ <strong>[CONFIRM with Namkha:</strong> who owns adding the Windows CI lane — start it now, build-only, rather than discovering Windows broken in Week 9.]</li>
+<li>☐ Confirm the capture-contract handoff date so B and C can plan around it (§7).</li>
+</ul>
+
+<h2 id="group-a">4 · Group A — Jacqueline · now</h2>
+
+<p><strong>You are ahead — keep the lead useful.</strong> Your Week-2 slice is merged, so use
+this transition to set up for capture and onboarding without blocking on anyone.</p>
+
+<ul>
+<li>Against the <code>FrameEvent</code> contract shape Namkha is about to publish, prepare
+the Status page to consume the <code>capture.events</code> subscription (build behind
+the agreed shape; wire it for real the moment the subscription lands).</li>
+<li>Start the First-run onboarding route as a step shell (welcome → permissions →
+sign-in → consent → first-capture → done) — navigation only for now.</li>
+<li>Do not get ahead of the design system or add screens beyond the five; this is
+setup, not the W5-6 build.</li>
+</ul>
+
+<p><strong>Done-when.</strong> Status is ready to bind to the real subscription on day one of
+its availability; the onboarding shell navigates end to end.</p>
+
+<h2 id="group-b">5 · Group B — Lihan · now</h2>
+
+<p><strong>Bridge is done — turn to OCR and the platform gap.</strong></p>
+
+<ul>
+<li>Read v1 <code>src/services/ocr-service.js</code> and stand up an OcrConsumer
+skeleton that registers against the (about-to-be-published) engine consumer
+interface. Build behind the contract until the subscription lands.</li>
+<li>Add the <strong>Windows CI lane</strong> now (build-only, no signing). Doing it here
+instead of Week 9 means Windows breakage surfaces on every PR from the start.</li>
+<li>Coordinate with Namkha on where the macOS Accessibility precheck + TCC relaunch
+live, since both your OCR path and his engine touch it.</li>
+</ul>
+
+<p><strong>Done-when.</strong> OcrConsumer skeleton compiles against the agreed contract; a
+Windows build-only CI job runs on PRs.</p>
+
+<h2 id="group-c">6 · Group C — Yingzhu · now (the priority)</h2>
+
+<p><strong>Finish auth. This is the single most important carry-over.</strong> Until it lands,
+A&#39;s onboarding sign-in step and every authenticated screen downstream are
+blocked, and you cannot start the TrainingDataConsumer.</p>
+
+<ul>
+<li>Add <code>src/main/trpc/auth.router.ts</code> with <code>auth.requestEmailCode</code>,
+<code>auth.verifyEmailCode</code>, <code>auth.status</code>, <code>auth.signOut</code>; mount it
+under <code>appRouter</code> (coordinate the mount with Lihan).</li>
+<li>Wire <code>POST {OW_BACKEND_URL}/api/auth/email</code> and <code>.../email/verify</code>
+(base URL from Namkha, not hardcoded).</li>
+<li>Encrypt tokens with <code>electron-store</code> + <code>safeStorage</code>; never write a
+raw token to disk; read expiry from the JWT <code>exp</code> claim; refresh on
+<code>powerMonitor</code> <code>&#39;resume&#39;</code>.</li>
+<li>Build the 6-digit code views (<code>react-hook-form</code> + <code>zod</code>). Mind the
+token-shape traps (verify nests under <code>data.tokens</code>, refresh nests flat; a
+429 returns <code>error</code> as a string).</li>
+</ul>
+
+<p><strong>Done-when.</strong> A real email-code sign-in works end to end against staging;
+tokens are encrypted at rest; sign-out wipes them. (Then you roll into the
+TrainingDataConsumer in doc 19.)</p>
+
+<h2 id="namkha">7 · Namkha — publish the capture handoff (the pivot)</h2>
+
+<p>The transition turns on one deliverable: the <strong>capture contract handoff</strong>,
+early in Week 3. Until it lands, B&#39;s OcrConsumer and C&#39;s TrainingDataConsumer
+cannot be wired for real.</p>
+
+<ul>
+<li>Replace the <code>capture.ts</code> stub with the real CaptureEngine driving
+<code>capture.start</code> / <code>capture.status</code>.</li>
+<li>Publish the typed <code>FrameEvent</code> in
+<code>src/shared/contracts/capture.contract.ts</code> (replace the placeholder), the
+<code>capture.events</code> subscription on the bridge, and the consumer-registration
+interface.</li>
+<li>Announce it in <code>#swe-team</code> the moment it is on <code>main</code>.</li>
+</ul>
+
+<p>The engine spec, the parameters to lock, and this handoff&#39;s day-by-day live in
+your private notes (not in the intern docs).</p>
+
+<h2 id="done-when">8 · Definition of done for the transition</h2>
+
+<ul>
+<li>☐ Group C email-code auth works end to end; tokens encrypted at rest.</li>
+<li>☐ Namkha has published the <code>FrameEvent</code> contract + <code>capture.events</code> subscription.</li>
+<li>☐ Group B&#39;s OcrConsumer skeleton registers against the contract; Windows CI lane exists.</li>
+<li>☐ Group A&#39;s Status is ready to bind to the subscription; onboarding shell navigates.</li>
+<li>☐ Caret deps pinned; Windows-CI owner confirmed.</li>
+</ul>
+
+<p>When these are checked, the team is fully into
+<a href="19-weeks-3-4-capture-pipeline.html">doc 19 (Weeks 3-4)</a>.</p>
+
+<h2 id="risks">9 · Risks watch list</h2>
+
+<ul>
+<li><strong>Auth slipping further.</strong> It is already behind; if it is not done in the
+first days of Week 3, onboarding and every authenticated screen slip with it.
+It is Group C&#39;s sole focus until it lands.</li>
+<li><strong>The capture handoff landing late.</strong> If Namkha&#39;s contract slips, B and C
+have nothing to build against. Protect the early-Week-3 date; flag any slip in
+the Tuesday standup.</li>
+<li><strong>Windows deferred again.</strong> Adding the CI lane now is cheap; discovering
+Windows broken in Week 9 is not.</li>
+</ul>
+
+<h2 id="then-what">10 · Then what</h2>
+
+<p>This doc exists to be finished quickly. Once the §8 boxes are checked, stop
+reading it and work from <a href="19-weeks-3-4-capture-pipeline.html">doc 19</a>,
+which carries the full Weeks 3-4 plan — the consumers, consent, OCR on both
+platforms, and the onboarding build — through to the end-of-Week-4 demo. Surface
+blockers in standup and <code>#swe-team</code>; never merge red; write decisions in the
+PR.</p>
+
+<hr />
+
+<p><strong>Last updated:</strong> 2026-06-30</p>
+
+  </article>
+</main>
+
+<footer class="doc-footer">
+  <span class="brand">OnlyWorks · v2 Planning · Internal</span>
+  <span>16 · 2026</span>
+</footer>
+
+</body>
+</html>
